@@ -66,11 +66,12 @@ class ComplianceToolAASXTest(unittest.TestCase):
         mock_aasx_reader.side_effect = ValueError("Test error!")
         compliance_tool.check_aas_example("", manager)
 
-        self.assertEqual(4, len(manager.steps))
+        self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.FAILED, manager.steps[0].status)
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[1].status)
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[2].status)
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[3].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[4].status)
 
     @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
     @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
@@ -81,11 +82,12 @@ class ComplianceToolAASXTest(unittest.TestCase):
         mock_aasx_reader.return_value.read_into.side_effect = ValueError("Test error!")
         compliance_tool.check_aas_example("", manager)
 
-        self.assertEqual(4, len(manager.steps))
+        self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.FAILED, manager.steps[1].status)
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[2].status)
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[3].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[4].status)
 
     @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
     @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
@@ -97,12 +99,13 @@ class ComplianceToolAASXTest(unittest.TestCase):
         mock_data_checker.return_value.failed_checks = iter(mock_data_checker.return_value.checks)
         compliance_tool.check_aas_example("", manager)
 
-        self.assertEqual(4, len(manager.steps))
+        self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.FAILED, manager.steps[2].status)
         self.assertIn("Expected Behavior", manager.format_step(2, verbose_level=1))
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[3].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[4].status)
 
     @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
     @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
@@ -118,12 +121,13 @@ class ComplianceToolAASXTest(unittest.TestCase):
         mock_aasx_reader.return_value.get_core_properties.return_value = wrong_cp
         compliance_tool.check_aas_example("", manager)
 
-        self.assertEqual(4, len(manager.steps))
+        self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.FAILED, manager.steps[3].status)
         self.assertIn("Wrong Creator", manager.format_step(3, verbose_level=1))
+        self.assertEqual(Status.SUCCESS, manager.steps[4].status)
 
     @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
     @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
@@ -137,12 +141,13 @@ class ComplianceToolAASXTest(unittest.TestCase):
         mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
         compliance_tool.check_aas_example("", manager)
 
-        self.assertEqual(4, len(manager.steps))
+        self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
-        self.assertEqual(Status.FAILED, manager.steps[3].status)
-        self.assertIn("/TestFile.pdf", manager.format_step(3, verbose_level=1))
+        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+        self.assertEqual(Status.FAILED, manager.steps[4].status)
+        self.assertIn("/TestFile.pdf", manager.format_step(4, verbose_level=1))
 
     @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
     @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
@@ -156,12 +161,13 @@ class ComplianceToolAASXTest(unittest.TestCase):
         mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
         compliance_tool.check_aas_example("", manager)
 
-        self.assertEqual(4, len(manager.steps))
+        self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
-        self.assertEqual(Status.FAILED, manager.steps[3].status)
-        self.assertIn("/TestFile.pdf", manager.format_step(3, verbose_level=1))
+        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+        self.assertEqual(Status.FAILED, manager.steps[4].status)
+        self.assertIn("/TestFile.pdf", manager.format_step(4, verbose_level=1))
 
     @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
     @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
@@ -175,11 +181,12 @@ class ComplianceToolAASXTest(unittest.TestCase):
         mock_data_checker.return_value.failed_checks = iter([])
         compliance_tool.check_aas_example("", manager)
 
-        self.assertEqual(4, len(manager.steps))
+        self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[4].status)
 
     @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
     @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
