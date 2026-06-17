@@ -95,8 +95,9 @@ class ComplianceToolAASXTest(unittest.TestCase):
                                                   mock_aasx_reader: mock.MagicMock) -> None:
         manager = ComplianceToolStateManager()
 
-        mock_data_checker.return_value.checks = [CheckResult("Expected Behavior", False, dict())]
-        mock_data_checker.return_value.failed_checks = iter(mock_data_checker.return_value.checks)
+        failed = [CheckResult("Expected Behavior", False, dict())]
+        mock_data_checker.return_value.checks = failed
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter(failed))
         compliance_tool.check_aas_example("", manager)
 
         self.assertEqual(5, len(manager.steps))
@@ -114,7 +115,7 @@ class ComplianceToolAASXTest(unittest.TestCase):
         manager = ComplianceToolStateManager()
 
         mock_data_checker.return_value.checks = []
-        mock_data_checker.return_value.failed_checks = iter([])
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
         mock_aasx_reader.return_value.read_into.side_effect = create_read_into_mock(file='TestFile')
         wrong_cp = create_example_aas_core_properties()
         wrong_cp.creator = "Wrong Creator"
@@ -136,7 +137,7 @@ class ComplianceToolAASXTest(unittest.TestCase):
         manager = ComplianceToolStateManager()
 
         mock_data_checker.return_value.checks = []
-        mock_data_checker.return_value.failed_checks = iter([])
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
         mock_aasx_reader.return_value.read_into.side_effect = create_read_into_mock(file=None)
         mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
         compliance_tool.check_aas_example("", manager)
@@ -156,7 +157,7 @@ class ComplianceToolAASXTest(unittest.TestCase):
         manager = ComplianceToolStateManager()
 
         mock_data_checker.return_value.checks = []
-        mock_data_checker.return_value.failed_checks = iter([])
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
         mock_aasx_reader.return_value.read_into.side_effect = create_read_into_mock(file='TestFileWrong')
         mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
         compliance_tool.check_aas_example("", manager)
@@ -178,7 +179,7 @@ class ComplianceToolAASXTest(unittest.TestCase):
         mock_aasx_reader.return_value.read_into.side_effect = create_read_into_mock(file='TestFile')
         mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
         mock_data_checker.return_value.checks = []
-        mock_data_checker.return_value.failed_checks = iter([])
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
         compliance_tool.check_aas_example("", manager)
 
         self.assertEqual(5, len(manager.steps))
@@ -236,8 +237,9 @@ class ComplianceToolAASXTest(unittest.TestCase):
                                                              mock_aasx_reader: mock.MagicMock) -> None:
         manager = ComplianceToolStateManager()
 
-        mock_data_checker.return_value.checks = [CheckResult("Test failure", False, dict())]
-        mock_data_checker.return_value.failed_checks = iter(mock_data_checker.return_value.checks)
+        failed = [CheckResult("Expected Behavior", False, dict())]
+        mock_data_checker.return_value.checks = failed
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter(failed))
         mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
         compliance_tool.check_aasx_files_equivalence("", "", manager)
 
@@ -247,7 +249,7 @@ class ComplianceToolAASXTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
-        self.assertIn("Test failure", manager.format_step(4, verbose_level=1))
+        self.assertIn("Expected Behavior", manager.format_step(4, verbose_level=1))
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[5].status)
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[6].status)
 
@@ -260,7 +262,7 @@ class ComplianceToolAASXTest(unittest.TestCase):
         mock_aasx_reader.return_value.read_into.side_effect = create_read_into_mock(file='TestFile')
         mock_data_checker.return_value.checks = []
         mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
-        mock_data_checker.return_value.failed_checks = iter([])
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
 
         wrong_cp = create_example_aas_core_properties()
         wrong_cp.creator = "Wrong Creator"
@@ -286,7 +288,7 @@ class ComplianceToolAASXTest(unittest.TestCase):
         manager = ComplianceToolStateManager()
 
         mock_data_checker.return_value.checks = []
-        mock_data_checker.return_value.failed_checks = iter([])
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
         mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
 
         call_count = [0]
@@ -319,7 +321,7 @@ class ComplianceToolAASXTest(unittest.TestCase):
         manager = ComplianceToolStateManager()
 
         mock_data_checker.return_value.checks = []
-        mock_data_checker.return_value.failed_checks = iter([])
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
         mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
 
         call_count = [0]
@@ -354,7 +356,7 @@ class ComplianceToolAASXTest(unittest.TestCase):
         mock_aasx_reader.return_value.read_into.side_effect = create_read_into_mock(file='TestFile')
         mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
         mock_data_checker.return_value.checks = []
-        mock_data_checker.return_value.failed_checks = iter([])
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
         compliance_tool.check_aasx_files_equivalence("", "", manager)
 
         self.assertEqual(7, len(manager.steps))

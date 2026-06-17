@@ -71,7 +71,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
         manager = ComplianceToolStateManager()
 
         mock_data_checker.return_value.checks = []
-        mock_data_checker.return_value.failed_checks = iter([])
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
         compliance_tool.check_aas_example("", manager)
 
         self.assertEqual(3, len(manager.steps))
@@ -102,8 +102,9 @@ class ComplianceToolJsonTest(unittest.TestCase):
     def test_check_example_fail_on_check(self, mock_data_checker: mock.MagicMock, mock_read_json_file: mock.MagicMock,
                                          mock_open: mock.MagicMock) -> None:
         manager = ComplianceToolStateManager()
-        mock_data_checker.return_value.checks = [CheckResult("Expected Behavior", False, dict())]
-        mock_data_checker.return_value.failed_checks = iter(mock_data_checker.return_value.checks)
+        failed = [CheckResult("Expected Behavior", False, dict())]
+        mock_data_checker.return_value.checks = failed
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter(failed))
 
         compliance_tool.check_aas_example("", manager)
 
@@ -170,7 +171,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
         manager = ComplianceToolStateManager()
 
         mock_data_checker.return_value.checks = []
-        mock_data_checker.return_value.failed_checks = iter([])
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
         compliance_tool.check_json_files_equivalence("", "", manager)
 
         self.assertEqual(5, len(manager.steps))
@@ -187,8 +188,9 @@ class ComplianceToolJsonTest(unittest.TestCase):
                                                         mock_open) -> None:
         manager = ComplianceToolStateManager()
 
-        mock_data_checker.return_value.checks = [CheckResult("Test failure", False, dict())]
-        mock_data_checker.return_value.failed_checks = iter(mock_data_checker.return_value.checks)
+        failed = [CheckResult("Expected Behavior", False, dict())]
+        mock_data_checker.return_value.checks = failed
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter(failed))
         compliance_tool.check_json_files_equivalence("", "", manager)
 
         self.assertEqual(5, len(manager.steps))
@@ -197,4 +199,4 @@ class ComplianceToolJsonTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
-        self.assertIn("Test failure", manager.format_step(4, verbose_level=1))
+        self.assertIn("Expected Behavior", manager.format_step(4, verbose_level=1))
