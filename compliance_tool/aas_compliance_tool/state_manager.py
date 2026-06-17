@@ -26,7 +26,7 @@ class Status(enum.IntEnum):
     :cvar NOT_EXECUTED:
     """
     SUCCESS = 0
-    SUCCESS_WITH_WARNINGS = 1
+    SUCCESS_WITH_WARNINGS = 1  # never used
     FAILED = 2
     NOT_EXECUTED = 3
 
