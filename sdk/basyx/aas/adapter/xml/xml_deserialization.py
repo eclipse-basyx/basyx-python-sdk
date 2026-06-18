@@ -1067,7 +1067,7 @@ class AASFromXmlDecoder:
         value_id = cls.construct_reference(value_id_element, **_kwargs) if value_id_element is not None else None
         return object_class(_child_text_mandatory(element, NS_AAS + "value"),
                             value_id)
-        
+
     @classmethod
     def construct_value_list(cls, element: etree._Element, **_kwargs: Any) -> model.ValueList:
         """
