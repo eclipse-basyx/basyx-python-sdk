@@ -691,10 +691,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
+    @classmethod
     def _construct_blob(cls, dct: Dict[str, object], object_class=model.Blob) -> model.Blob:
-        content_type = _get_ts(dct, "contentType", str) if 'contentType' in dct else None
-        ret = object_class(id_short=None,
-                           content_type=content_type)
+        ret = object_class(
+            id_short=None,
+            content_type=_get_ts(dct, "contentType", str) if 'contentType' in dct else None
+        )
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct:
             ret.value = base64.b64decode(_get_ts(dct, 'value', str))
@@ -702,10 +704,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_file(cls, dct: Dict[str, object], object_class=model.File) -> model.File:
-        content_type = _get_ts(dct, "contentType", str) if 'contentType' in dct else None
         ret = object_class(id_short=None,
                            value=None,
-                           content_type=content_type)
+                           content_type=_get_ts(dct, "contentType", str) if 'contentType' in dct else None)
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = _get_ts(dct, 'value', str)
