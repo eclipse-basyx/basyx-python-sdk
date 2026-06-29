@@ -47,6 +47,10 @@ class TutorialTest(unittest.TestCase):
             pass
         # The tutorial already includes assert statements for the relevant points. So no further checks are required.
 
+    def test_tutorial_navigate_aas(self):
+        from basyx.aas.examples import tutorial_navigate_aas
+        # The tutorial already includes assert statements for the relevant points. So no further checks are required
+
 
 @contextmanager
 def temporary_workingdirectory():

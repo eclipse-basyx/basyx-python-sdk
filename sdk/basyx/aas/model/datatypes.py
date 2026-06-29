@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -604,7 +604,8 @@ def _parse_xsd_date(value: str) -> Date:
     if not match:
         raise ValueError("Value is not a valid XSD date string")
     if match[1]:
-        raise ValueError("Negative Dates are not supported by Python")
+        raise NotImplementedError("Negative dates are not supported: Python stdlib datetime requires year >= 1. "
+                                  "Report at https://github.com/eclipse-basyx/basyx-python-sdk/issues")
     return Date(int(match[2]), int(match[3]), int(match[4]), _parse_xsd_date_tzinfo(match[5]))
 
 
@@ -613,7 +614,8 @@ def _parse_xsd_datetime(value: str) -> DateTime:
     if not match:
         raise ValueError("Value is not a valid XSD datetime string")
     if match[1]:
-        raise ValueError("Negative Dates are not supported by Python")
+        raise NotImplementedError("Negative dates are not supported: Python stdlib datetime requires year >= 1. "
+                                  "Report at https://github.com/eclipse-basyx/basyx-python-sdk/issues")
     microseconds = int(float(match[8]) * 1e6) if match[8] else 0
     return DateTime(int(match[2]), int(match[3]), int(match[4]), int(match[5]), int(match[6]), int(match[7]),
                     microseconds, _parse_xsd_date_tzinfo(match[9]))

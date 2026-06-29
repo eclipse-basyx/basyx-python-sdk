@@ -278,7 +278,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
                         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
                         # see https://github.com/python/mypy/issues/5374
                         model.EmbeddedDataSpecification(
-                            data_specification=cls._construct_reference(_get_ts(dspec, 'dataSpecification', dict)),
+                            data_specification=cls._construct_external_reference(
+                                _get_ts(dspec, 'dataSpecification', dict)),
                             data_specification_content=_get_ts(dspec, 'dataSpecificationContent',
                                                                model.DataSpecificationContent)  # type: ignore
                         )
@@ -692,10 +693,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
+    @classmethod
     def _construct_blob(cls, dct: Dict[str, object], object_class=model.Blob) -> model.Blob:
-        content_type = _get_ts(dct, "contentType", str) if 'contentType' in dct else None
-        ret = object_class(id_short=None,
-                           content_type=content_type)
+        ret = object_class(
+            id_short=None,
+            content_type=_get_ts(dct, "contentType", str) if 'contentType' in dct else None
+        )
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct:
             ret.value = base64.b64decode(_get_ts(dct, 'value', str))
@@ -706,7 +709,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         content_type = _get_ts(dct, "contentType", str) if 'contentType' in dct else None
         ret = object_class(id_short=None,
                            value=None,
-                           content_type=content_type)
+                           content_type=_get_ts(dct, "contentType", str) if 'contentType' in dct else None)
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = _get_ts(dct, 'value', str)

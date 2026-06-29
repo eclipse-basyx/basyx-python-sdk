@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -143,6 +143,8 @@ class TestDateTimeTypes(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             model.datatypes.from_xsd("2020-01-24+11", model.datatypes.Date)
         self.assertEqual("Value is not a valid XSD date string", str(cm.exception))
+        with self.assertRaises(NotImplementedError):
+            model.datatypes.from_xsd("-2020-01-24", model.datatypes.Date)
 
     def test_serialize_date(self) -> None:
         self.assertEqual("2020-01-24", model.datatypes.xsd_repr(model.datatypes.Date(2020, 1, 24)))
@@ -211,6 +213,8 @@ class TestDateTimeTypes(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             model.datatypes.from_xsd("--2020-01-24T15:25:17-00:20", model.datatypes.DateTime)
         self.assertEqual("Value is not a valid XSD datetime string", str(cm.exception))
+        with self.assertRaises(NotImplementedError):
+            model.datatypes.from_xsd("-2020-01-24T15:25:17+01:00", model.datatypes.DateTime)
 
     def test_serialize_datetime(self) -> None:
         self.assertEqual("2020-01-24T15:25:17",
