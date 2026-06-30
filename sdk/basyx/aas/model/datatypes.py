@@ -615,16 +615,29 @@ def _parse_xsd_datetime(value: str) -> DateTime:
     if match[1]:
         raise ValueError("Negative Dates are not supported by Python")
     microseconds = int(float(match[8]) * 1e6) if match[8] else 0
-    return DateTime(int(match[2]), int(match[3]), int(match[4]), int(match[5]), int(match[6]), int(match[7]),
+    hour = int(match[5])
+    is_midnight_24 = False
+    if hour == 24:
+        if int(match[6]) != 0 or int(match[7]) != 0 or microseconds != 0:
+            raise ValueError("Invalid time: 24:00:00.000000 is the only valid representation of midnight")
+        hour = 0
+        is_midnight_24 = True
+        
+    res = DateTime(int(match[2]), int(match[3]), int(match[4]), hour, int(match[6]), int(match[7]),
                     microseconds, _parse_xsd_date_tzinfo(match[9]))
-
+    return res + datetime.timedelta(days=1) if is_midnight_24 else res
 
 def _parse_xsd_time(value: str) -> Time:
     match = TIME_RE.match(value)
     if not match:
         raise ValueError("Value is not a valid XSD datetime string")
     microseconds = int(float(match[4]) * 1e6) if match[4] else 0
-    return Time(int(match[1]), int(match[2]), int(match[3]), microseconds, _parse_xsd_date_tzinfo(match[5]))
+    hour = int(match[1])
+    if hour == 24:
+        if int(match[2]) != 0 or int(match[3]) != 0 or microseconds != 0:
+            raise ValueError("Invalid time: 24:00:00.000000 is the only valid representation of midnight")
+        hour = 0
+    return Time(hour, int(match[2]), int(match[3]), microseconds, _parse_xsd_date_tzinfo(match[5]))
 
 
 def _parse_xsd_bool(value: str) -> Boolean:
