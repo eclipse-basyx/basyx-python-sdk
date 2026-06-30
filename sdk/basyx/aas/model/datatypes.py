@@ -622,10 +622,11 @@ def _parse_xsd_datetime(value: str) -> DateTime:
             raise ValueError("Invalid time: 24:00:00.000000 is the only valid representation of midnight")
         hour = 0
         is_midnight_24 = True
-        
+
     res = DateTime(int(match[2]), int(match[3]), int(match[4]), hour, int(match[6]), int(match[7]),
-                    microseconds, _parse_xsd_date_tzinfo(match[9]))
+                   microseconds, _parse_xsd_date_tzinfo(match[9]))
     return res + datetime.timedelta(days=1) if is_midnight_24 else res
+
 
 def _parse_xsd_time(value: str) -> Time:
     match = TIME_RE.match(value)
