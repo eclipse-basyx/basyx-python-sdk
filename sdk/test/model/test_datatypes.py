@@ -210,7 +210,9 @@ class TestDateTimeTypes(unittest.TestCase):
                          model.datatypes.from_xsd("2020-01-24T15:25:17-00:20", model.datatypes.DateTime))
         with self.assertRaises(ValueError) as cm:
             model.datatypes.from_xsd("--2020-01-24T15:25:17-00:20", model.datatypes.DateTime)
-        self.assertEqual("Value is not a valid XSD datetime string", str(cm.exception))
+        self.assertEqual(f"--2020-01-24T15:25:17-00:20 is not a valid XSD datetime.", str(cm.exception))
+        with self.assertRaises(NotImplementedError):
+            model.datatypes.from_xsd("-2020-01-24T15:25:17+01:00", model.datatypes.DateTime)
 
     def test_serialize_datetime(self) -> None:
         self.assertEqual("2020-01-24T15:25:17",
@@ -254,9 +256,8 @@ class TestDateTimeTypes(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             model.datatypes.from_xsd("2020-01-24T24:01:00", model.datatypes.DateTime)
         self.assertEqual(
-            "Invalid time: 24:00:00.000000 is the only valid representation of midnight",
-            str(cm.exception)
-        )
+            "2020-01-24T24:01:00 is not a valid xsd:datetime.",
+            str(cm.exception))
 
     def test_parse_time_midnight_24(self) -> None:
         res = model.datatypes.from_xsd("24:00:00", model.datatypes.Time)
@@ -266,7 +267,7 @@ class TestDateTimeTypes(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             model.datatypes.from_xsd("24:00:01", model.datatypes.Time)
         self.assertEqual(
-            "Invalid time: 24:00:00.000000 is the only valid representation of midnight",
+            "24:00:01 is not a valid xsd:time.",
             str(cm.exception)
         )
 
