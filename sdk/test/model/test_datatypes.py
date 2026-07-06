@@ -156,10 +156,18 @@ class TestDateTimeTypes(unittest.TestCase):
     def test_parse_partial_dates(self) -> None:
         self.assertEqual(model.datatypes.GYear(2019),
                          model.datatypes.from_xsd("2019", model.datatypes.GYear))
+        self.assertEqual(model.datatypes.GYear(-2001),
+                         model.datatypes.from_xsd("-2001", model.datatypes.GYear))
+        self.assertEqual(model.datatypes.GYear(20000),
+                         model.datatypes.from_xsd("20000", model.datatypes.GYear))
         self.assertEqual(model.datatypes.GMonth(7),
                          model.datatypes.from_xsd("--07", model.datatypes.GMonth))
         self.assertEqual(model.datatypes.GYearMonth(2020, 5),
                          model.datatypes.from_xsd("2020-05", model.datatypes.GYearMonth))
+        self.assertEqual(model.datatypes.GYearMonth(-2001, 10),
+                         model.datatypes.from_xsd("-2001-10", model.datatypes.GYearMonth))
+        self.assertEqual(model.datatypes.GYearMonth(20000, 5),
+                         model.datatypes.from_xsd("20000-05", model.datatypes.GYearMonth))
         self.assertEqual(model.datatypes.GMonthDay(12, 6),
                          model.datatypes.from_xsd("--12-06", model.datatypes.GMonthDay))
         self.assertEqual(model.datatypes.GDay(23),

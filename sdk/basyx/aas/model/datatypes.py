@@ -638,10 +638,10 @@ def _parse_xsd_bool(value: str) -> Boolean:
         raise ValueError("Invalid literal for XSD bool type")
 
 
-GYEAR_RE = re.compile(r'^(\d\d\d\d)([+\-]\d\d:\d\d|Z)?$')
+GYEAR_RE = re.compile(r'^(-?)(\d{4,})([+\-]\d\d:\d\d|Z)?$')
 GMONTH_RE = re.compile(r'^--(\d\d)([+\-]\d\d:\d\d|Z)?$')
 GDAY_RE = re.compile(r'^---(\d\d)([+\-]\d\d:\d\d|Z)?$')
-GYEARMONTH_RE = re.compile(r'^(\d\d\d\d)-(\d\d)([+\-]\d\d:\d\d|Z)?$')
+GYEARMONTH_RE = re.compile(r'^(-?)(\d{4,})-(\d\d)([+\-]\d\d:\d\d|Z)?$')
 GMONTHDAY_RE = re.compile(r'^--(\d\d)-(\d\d)([+\-]\d\d:\d\d|Z)?$')
 
 
@@ -649,7 +649,10 @@ def _parse_xsd_gyear(value: str) -> GYear:
     match = GYEAR_RE.match(value)
     if not match:
         raise ValueError("Value is not a valid XSD GYear string")
-    return GYear(int(match[1]), _parse_xsd_date_tzinfo(match[2]))
+    year = int(match[2])
+    if match[1]:
+        year = -year
+    return GYear(year, _parse_xsd_date_tzinfo(match[3]))
 
 
 def _parse_xsd_gmonth(value: str) -> GMonth:
@@ -670,7 +673,10 @@ def _parse_xsd_gyearmonth(value: str) -> GYearMonth:
     match = GYEARMONTH_RE.match(value)
     if not match:
         raise ValueError("Value is not a valid XSD GYearMonth string")
-    return GYearMonth(int(match[1]), int(match[2]), _parse_xsd_date_tzinfo(match[3]))
+    year = int(match[2])
+    if match[1]:
+        year = -year
+    return GYearMonth(year, int(match[3]), _parse_xsd_date_tzinfo(match[4]))
 
 
 def _parse_xsd_gmonthday(value: str) -> GMonthDay:
