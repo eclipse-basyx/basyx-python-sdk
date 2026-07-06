@@ -20,7 +20,7 @@ root = ".."  # Defines the path to the root of the repository
 version_file = "aas_compliance_tool/version.py"
 
 [project]
-name = "aas_compliance_tool"
+name = "basyx-compliance-tool"
 dynamic = ["version"]
 description = "AAS compliance checker based on the Eclipse BaSyx Python SDK"
 authors = [
