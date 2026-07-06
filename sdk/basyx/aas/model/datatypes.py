@@ -619,7 +619,7 @@ def _parse_xsd_datetime(value: str) -> DateTime:
     is_midnight_24 = False
     if hour == 24:
         if int(match[6]) != 0 or int(match[7]) != 0 or microseconds != 0:
-            raise ValueError("Invalid time: 24:00:00.000000 is the only valid representation of midnight")
+            raise ValueError(f"{value} is not a valid xsd:datetime.")
         hour = 0
         is_midnight_24 = True
 
