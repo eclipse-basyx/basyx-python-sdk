@@ -37,12 +37,11 @@ def parse_cli_arguments() -> argparse.ArgumentParser:
                     'Asset Administration Shell" specification of Plattform Industrie 4.0. \n\n'
                     'This tool has five features: \n'
                     '1. create a xml or json file or an AASX file using xml or json files with example aas elements\n'
-                    '2. check if a given xml or json file is compliant with the official json or xml aas schema and '
-                    'is deserializable\n'
+                    '2. check if a given xml or json file is deserializable and therefore compliant with the schema\n'
                     '3. check if the data in a given xml, json or aasx file is the same as the example data\n'
                     '4. check if two given xml, json or aasx files contain the same aas elements in any order\n\n'
-                    'As a first argument, the feature must be specified (create, schema, deserialization, example, '
-                    'files) or in short (c, s, d, e or f).\n'
+                    'As a first argument, the feature must be specified (create, deserialization, example, '
+                    'files) or in short (c, d, e or f).\n'
                     'Depending the chosen feature, different additional arguments must be specified:\n'
                     'create or c:          path to the file which shall be created (file_1)\n'
                     'deseriable or d:      file to be checked (file_1)\n'
@@ -50,7 +49,7 @@ def parse_cli_arguments() -> argparse.ArgumentParser:
                     'file_compare or f:    files to compare (file_1, file_2)\n,'
                     'In any case, it must be specified whether the (given or created) files are json (--json) or '
                     'xml (--xml).\n'
-                    'All features except "schema" support reading/writing AASX packages instead of plain XML or JSON '
+                    'All features support reading/writing AASX packages instead of plain XML or JSON '
                     'files via the --aasx option.\n\n'
                     'Additionally, the tool offers some extra features for more convenient usage:\n\n'
                     'a. Different levels of verbosity:\n'
@@ -63,7 +62,7 @@ def parse_cli_arguments() -> argparse.ArgumentParser:
                     '   With -l or --logfile, a path to the file where the logfiles shall be created can be specified.',
         formatter_class=argparse.RawTextHelpFormatter)
 
-    parser.add_argument('action', choices=['create', 'c', 'schema', 's', 'deserialization', 'd', 'example', 'e',
+    parser.add_argument('action', choices=['create', 'c', 'deserialization', 'd', 'example', 'e',
                                            'files', 'f'],
                         help='c or create: creates a file with example data\n'
                              'd or deserialization: checks if a given file is compliance with the official schema and '

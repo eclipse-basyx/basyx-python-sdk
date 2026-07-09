@@ -66,6 +66,25 @@ class LocalFileBackendTest(TestCase):
         self.identifiable_store.discard(submodel_restored)
         self.assertNotIn(example_submodel, self.identifiable_store)
 
+    def test_check_directory(self) -> None:
+        # Make sure the test directory does not exist at the beginning of the test
+        if os.path.exists(store_path):
+            shutil.rmtree(store_path)
+
+        # If create=False, check_directory should raise a FileNotFoundError,
+        # if the directory does not exist
+        with self.assertRaises(FileNotFoundError) as cm:
+            self.identifiable_store.check_directory(create=False)
+        expected_error = "The given directory ({}) does not exist".format(store_path)
+        self.assertEqual(expected_error, str(cm.exception))
+
+        # If create=True, check_directory should create the directory if it does not exist
+        self.identifiable_store.check_directory(create=True)
+        self.assertTrue(os.path.exists(store_path))
+
+        # If the directory exists, create=False should not raise an error
+        self.identifiable_store.check_directory(create=False)
+
     def test_iterating(self) -> None:
         example_data = create_full_example()
 

@@ -739,6 +739,62 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
                          f"{self._namespace_class.__name__}[{self.namespace.id}]'",  # type: ignore[has-type]
                          str(cm2.exception))
 
+    def test_ordered_namespaceset_int_setitem_preserves_index(self) -> None:
+        # __setitem__ int must place the new item at the exact index of the replaced item.
+        # Items before and after the replaced index must not shift.
+        ns = ExampleOrderedNamespace()
+        sid1 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/s1"),))
+        sid2 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/s2"),))
+        sid3 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/s3"),))
+        sid4 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/s4"),))
+        p0 = model.Property("PA", model.datatypes.Int, semantic_id=sid1)
+        old = model.Property("PB", model.datatypes.Int, semantic_id=sid2)
+        p2 = model.Property("PC", model.datatypes.Int, semantic_id=sid3)
+        new = model.Property("PB", model.datatypes.Int, semantic_id=sid4)  # same id_short as old
+        ns.set1.add(p0)
+        ns.set1.add(old)
+        ns.set1.add(p2)
+        # set1 is [p0, old, p2] at indices [0, 1, 2]
+
+        # Replace middle item (index 1) — same id_short must not raise AASConstraintViolation
+        ns.set1[1] = new
+
+        # p0 stays at 0, new is at 1, p2 stays at 2 — no index shift
+        self.assertIs(p0, ns.set1[0])
+        self.assertIs(new, ns.set1[1])
+        self.assertIs(p2, ns.set1[2])
+        self.assertIs(ns, new.parent)
+        self.assertIsNone(old.parent)
+
+    def test_ordered_namespaceset_slice_setitem_preserves_order(self) -> None:
+        # Replace a slice of items; the new items must appear in the correct positions after replacement
+        ns = ExampleOrderedNamespace()
+        sid1 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/sid1"),))
+        sid2 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/sid2"),))
+        sid3 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/sid3"),))
+        sid4 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/sid4"),))
+        sid5 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/sid5"),))
+        p1 = model.Property("PA", model.datatypes.Int, semantic_id=sid1)
+        p2 = model.Property("PB", model.datatypes.Int, semantic_id=sid2)
+        p3 = model.Property("PC", model.datatypes.Int, semantic_id=sid3)
+        ns.set1.add(p1)
+        ns.set1.add(p2)
+        ns.set1.add(p3)
+        self.assertEqual([p1, p2, p3], list(ns.set1))
+
+        # Replace slice [0:2] (p1, p2) with two new items
+        new1 = model.Property("PX", model.datatypes.Int, semantic_id=sid4)
+        new2 = model.Property("PY", model.datatypes.Int, semantic_id=sid5)
+        ns.set1[0:2] = [new1, new2]
+
+        # After replacement: [new1, new2, p3]
+        result = list(ns.set1)
+        self.assertEqual([new1, new2, p3], result)
+        self.assertIsNone(p1.parent)
+        self.assertIsNone(p2.parent)
+        self.assertIs(ns, new1.parent)
+        self.assertIs(ns, new2.parent)
+
 
 class ExternalReferenceTest(unittest.TestCase):
     def test_constraints(self):

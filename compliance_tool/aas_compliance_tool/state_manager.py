@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -26,7 +26,7 @@ class Status(enum.IntEnum):
     :cvar NOT_EXECUTED:
     """
     SUCCESS = 0
-    SUCCESS_WITH_WARNINGS = 1
+    SUCCESS_WITH_WARNINGS = 1  # never used
     FAILED = 2
     NOT_EXECUTED = 3
 

@@ -4,170 +4,366 @@
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
-import os
 import unittest
+from unittest import mock
 
+from ._test_helper import create_example_aas_core_properties, create_read_into_mock
 from aas_compliance_tool import compliance_check_aasx as compliance_tool
 from aas_compliance_tool.state_manager import ComplianceToolStateManager, Status
 
+from basyx.aas.examples.data._helper import CheckResult
+
 
 class ComplianceToolAASXTest(unittest.TestCase):
-    def test_check_deserialization(self) -> None:
-        manager = ComplianceToolStateManager()
-        script_dir = os.path.dirname(__file__)
 
-        file_path_1 = os.path.join(script_dir, 'files/test_not_found.aasx')
-        compliance_tool.check_deserialization(file_path_1, manager)
+    def test_check_deserialization_no_file(self) -> None:
+        manager = ComplianceToolStateManager()
+
+        compliance_tool.check_deserialization("", manager)
         self.assertEqual(2, len(manager.steps))
         self.assertEqual(Status.FAILED, manager.steps[0].status)
-        # we should expect a FileNotFound error here since the file does not exist and that is the first error
-        # aasx.py will throw if you try to open a file that does not exist.
-        self.assertIn("No such file or directory:", manager.format_step(0, verbose_level=1))
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[1].status)
+        self.assertIn("No such file or directory", manager.format_step(0, verbose_level=1))
+
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    def test_check_deserialization_open_raises(self, mock_aasx_reader: mock.MagicMock) -> None:
+        manager = ComplianceToolStateManager()
+
+        mock_aasx_reader.side_effect = ValueError("Test error!")
+        compliance_tool.check_deserialization("", manager)
+
+        self.assertEqual(2, len(manager.steps))
+        self.assertEqual(Status.FAILED, manager.steps[0].status)
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[1].status)
 
-        # Todo add more tests for checking wrong aasx files
-
-        manager.steps = []
-        file_path_5 = os.path.join(script_dir, 'files/test_demo_full_example_xml.aasx')
-        compliance_tool.check_deserialization(file_path_5, manager)
-        self.assertEqual(2, len(manager.steps))
-        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
-
-        manager.steps = []
-        file_path_5 = os.path.join(script_dir, 'files/test_demo_full_example_json.aasx')
-        compliance_tool.check_deserialization(file_path_5, manager)
-        self.assertEqual(2, len(manager.steps))
-        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
-
-    def test_check_aas_example(self) -> None:
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    def test_check_deserialization_read_raises(self, mock_aasx_reader: mock.MagicMock) -> None:
         manager = ComplianceToolStateManager()
-        script_dir = os.path.dirname(__file__)
 
-        file_path_2 = os.path.join(script_dir, 'files/test_demo_full_example_xml.aasx')
-        compliance_tool.check_aas_example(file_path_2, manager)
-        self.assertEqual(4, len(manager.steps))
+        mock_aasx_reader.return_value.read_into.side_effect = ValueError("Test error!")
+        compliance_tool.check_deserialization("", manager)
+
+        self.assertEqual(2, len(manager.steps))
+        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
+        self.assertEqual(Status.FAILED, manager.steps[1].status)
+
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    def test_check_deserialization_success(self, mock_aasx_reader: mock.MagicMock) -> None:
+        manager = ComplianceToolStateManager()
+
+        compliance_tool.check_deserialization("", manager)
+
+        self.assertEqual(2, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
 
-        manager.steps = []
-        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example_json.aasx')
-        compliance_tool.check_aas_example(file_path_3, manager)
-        self.assertEqual(4, len(manager.steps))
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
+    def test_check_aas_example_fail_on_open(self, mock_data_checker: mock.MagicMock,
+                                            mock_aasx_reader: mock.MagicMock) -> None:
+        manager = ComplianceToolStateManager()
+
+        mock_aasx_reader.side_effect = ValueError("Test error!")
+        compliance_tool.check_aas_example("", manager)
+
+        self.assertEqual(5, len(manager.steps))
+        self.assertEqual(Status.FAILED, manager.steps[0].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[1].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[2].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[3].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[4].status)
+
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
+    def test_check_aas_example_fail_on_read(self, mock_data_checker: mock.MagicMock,
+                                            mock_aasx_reader: mock.MagicMock) -> None:
+        manager = ComplianceToolStateManager()
+
+        mock_aasx_reader.return_value.read_into.side_effect = ValueError("Test error!")
+        compliance_tool.check_aas_example("", manager)
+
+        self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+        self.assertEqual(Status.FAILED, manager.steps[1].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[2].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[3].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[4].status)
 
-        manager.steps = []
-        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example_xml_wrong_attribute.aasx')
-        compliance_tool.check_aas_example(file_path_4, manager)
-        self.assertEqual(4, len(manager.steps))
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
+    def test_check_aas_example_fail_on_data_check(self, mock_data_checker: mock.MagicMock,
+                                                  mock_aasx_reader: mock.MagicMock) -> None:
+        manager = ComplianceToolStateManager()
+
+        failed = [CheckResult("Expected Behavior", False, dict())]
+        mock_data_checker.return_value.checks = failed
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter(failed))
+        compliance_tool.check_aas_example("", manager)
+
+        self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.FAILED, manager.steps[2].status)
-        self.assertEqual('FAILED:       Check if data is equal to example data\n - ERROR: Attribute id_short of '
-                         'AssetAdministrationShell[https://example.org/Test_AssetAdministrationShell] must be == '
-                         'TestAssetAdministrationShell (value=\'TestAssetAdministrationShell123\')',
-                         manager.format_step(2, verbose_level=1))
+        self.assertIn("Expected Behavior", manager.format_step(2, verbose_level=1))
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[3].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[4].status)
 
-    def test_check_aasx_files_equivalence(self) -> None:
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
+    def test_check_aas_example_fail_on_core_properties(self, mock_data_checker: mock.MagicMock,
+                                                       mock_aasx_reader: mock.MagicMock) -> None:
         manager = ComplianceToolStateManager()
-        script_dir = os.path.dirname(__file__)
 
-        file_path_1 = os.path.join(script_dir, 'files/test_demo_full_example_xml.aasx')
-        file_path_2 = os.path.join(script_dir, 'files/test_empty.aasx')
-        compliance_tool.check_aasx_files_equivalence(file_path_1, file_path_2, manager)
-        self.assertEqual(6, len(manager.steps))
+        mock_data_checker.return_value.checks = []
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
+        mock_aasx_reader.return_value.read_into.side_effect = create_read_into_mock(file='TestFile')
+        wrong_cp = create_example_aas_core_properties()
+        wrong_cp.creator = "Wrong Creator"
+        mock_aasx_reader.return_value.get_core_properties.return_value = wrong_cp
+        compliance_tool.check_aas_example("", manager)
+
+        self.assertEqual(5, len(manager.steps))
+        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+        self.assertEqual(Status.FAILED, manager.steps[3].status)
+        self.assertIn("Wrong Creator", manager.format_step(3, verbose_level=1))
+        self.assertEqual(Status.SUCCESS, manager.steps[4].status)
+
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
+    def test_check_aas_example_fail_on_file_missing(self, mock_data_checker: mock.MagicMock,
+                                                    mock_aasx_reader: mock.MagicMock) -> None:
+        manager = ComplianceToolStateManager()
+
+        mock_data_checker.return_value.checks = []
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
+        mock_aasx_reader.return_value.read_into.side_effect = create_read_into_mock(file=None)
+        mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
+        compliance_tool.check_aas_example("", manager)
+
+        self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
-        self.assertEqual(Status.NOT_EXECUTED, manager.steps[5].status)
+        self.assertIn("/TestFile.pdf", manager.format_step(4, verbose_level=1))
 
-        manager.steps = []
-        compliance_tool.check_aasx_files_equivalence(file_path_2, file_path_1, manager)
-        self.assertEqual(6, len(manager.steps))
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
+    def test_check_aas_example_fail_on_file_check(self, mock_data_checker: mock.MagicMock,
+                                                  mock_aasx_reader: mock.MagicMock) -> None:
+        manager = ComplianceToolStateManager()
+
+        mock_data_checker.return_value.checks = []
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
+        mock_aasx_reader.return_value.read_into.side_effect = create_read_into_mock(file='TestFileWrong')
+        mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
+        compliance_tool.check_aas_example("", manager)
+
+        self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
-        self.assertEqual(Status.NOT_EXECUTED, manager.steps[5].status)
+        self.assertIn("/TestFile.pdf", manager.format_step(4, verbose_level=1))
 
-        manager.steps = []
-        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example_xml.aasx')
-        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example_json.aasx')
-        compliance_tool.check_aasx_files_equivalence(file_path_3, file_path_4, manager)
-        self.assertEqual(6, len(manager.steps))
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
+    def test_check_aas_example_success(self, mock_data_checker: mock.MagicMock,
+                                       mock_aasx_reader: mock.MagicMock) -> None:
+        manager = ComplianceToolStateManager()
+
+        mock_aasx_reader.return_value.read_into.side_effect = create_read_into_mock(file='TestFile')
+        mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
+        mock_data_checker.return_value.checks = []
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
+        compliance_tool.check_aas_example("", manager)
+
+        self.assertEqual(5, len(manager.steps))
+        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[4].status)
+
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
+    def test_check_aasx_files_equivalence_file1_fail_on_open(self, mock_data_checker: mock.MagicMock,
+                                                             mock_aasx_reader: mock.MagicMock) -> None:
+        manager = ComplianceToolStateManager()
+
+        mock_aasx_reader.side_effect = [ValueError("Test error!"), mock_aasx_reader.return_value]
+        mock_data_checker.return_value.checks = []
+        mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
+        compliance_tool.check_aasx_files_equivalence("", "", manager)
+
+        self.assertEqual(7, len(manager.steps))
+        self.assertEqual(Status.FAILED, manager.steps[0].status)
+        self.assertIn("Test error!", manager.format_step(0, verbose_level=1))
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[1].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[4].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[5].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[6].status)
+
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
+    def test_check_aasx_files_equivalence_file2_fail_on_open(self, mock_data_checker: mock.MagicMock,
+                                                             mock_aasx_reader: mock.MagicMock) -> None:
+        manager = ComplianceToolStateManager()
+
+        mock_aasx_reader.side_effect = [mock_aasx_reader.return_value, ValueError("Test error!")]
+        mock_data_checker.return_value.checks = []
+        mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
+        compliance_tool.check_aasx_files_equivalence("", "", manager)
+
+        self.assertEqual(7, len(manager.steps))
+        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
+        self.assertEqual(Status.FAILED, manager.steps[2].status)
+        self.assertIn("Test error!", manager.format_step(2, verbose_level=1))
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[3].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[4].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[5].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[6].status)
+
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
+    def test_check_aasx_files_equivalence_fail_on_data_check(self, mock_data_checker: mock.MagicMock,
+                                                             mock_aasx_reader: mock.MagicMock) -> None:
+        manager = ComplianceToolStateManager()
+
+        failed = [CheckResult("Expected Behavior", False, dict())]
+        mock_data_checker.return_value.checks = failed
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter(failed))
+        mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
+        compliance_tool.check_aasx_files_equivalence("", "", manager)
+
+        self.assertEqual(7, len(manager.steps))
+        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+        self.assertEqual(Status.FAILED, manager.steps[4].status)
+        self.assertIn("Expected Behavior", manager.format_step(4, verbose_level=1))
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[5].status)
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[6].status)
+
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
+    def test_check_aasx_files_equivalence_fail_on_core_properties(self, mock_data_checker: mock.MagicMock,
+                                                                  mock_aasx_reader: mock.MagicMock) -> None:
+        manager = ComplianceToolStateManager()
+
+        mock_aasx_reader.return_value.read_into.side_effect = create_read_into_mock(file='TestFile')
+        mock_data_checker.return_value.checks = []
+        mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
+
+        wrong_cp = create_example_aas_core_properties()
+        wrong_cp.creator = "Wrong Creator"
+        mock_aasx_reader.return_value.get_core_properties.side_effect = \
+            [create_example_aas_core_properties(), wrong_cp]
+
+        compliance_tool.check_aasx_files_equivalence("", "", manager)
+
+        self.assertEqual(7, len(manager.steps))
+        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[4].status)
+        self.assertEqual(Status.FAILED, manager.steps[5].status)
+        self.assertIn("Wrong Creator", manager.format_step(5, verbose_level=1))
+        self.assertEqual(Status.SUCCESS, manager.steps[6].status)
+
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
+    def test_check_aasx_files_equivalence_fail_on_file_missing(self, mock_data_checker: mock.MagicMock,
+                                                               mock_aasx_reader: mock.MagicMock) -> None:
+        manager = ComplianceToolStateManager()
+
+        mock_data_checker.return_value.checks = []
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
+        mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
+
+        call_count = [0]
+
+        def setup_file_stores(*args, **kwargs):
+            call_count[0] += 1
+            if call_count[0] == 1:
+                return create_read_into_mock(file='TestFile')(*args, **kwargs)
+            else:
+                return create_read_into_mock(file=None)(*args, **kwargs)
+
+        mock_aasx_reader.return_value.read_into.side_effect = setup_file_stores
+        compliance_tool.check_aasx_files_equivalence("", "", manager)
+
+        self.assertEqual(7, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.SUCCESS, manager.steps[4].status)
         self.assertEqual(Status.SUCCESS, manager.steps[5].status)
+        self.assertEqual(Status.FAILED, manager.steps[6].status)
+        self.assertIn("second file must contain supplementary file /TestFile.pdf",
+                      manager.format_step(6, verbose_level=1))
 
-        manager.steps = []
-        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example_xml.aasx')
-        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example_xml_wrong_attribute.aasx')
-        compliance_tool.check_aasx_files_equivalence(file_path_3, file_path_4, manager)
-        self.assertEqual(6, len(manager.steps))
-        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
-        self.assertEqual(Status.FAILED, manager.steps[4].status)
-        self.assertEqual('FAILED:       Check if data in files are equal\n - ERROR: Attribute id_short of '
-                         'AssetAdministrationShell[https://example.org/Test_AssetAdministrationShell] must be == '
-                         'TestAssetAdministrationShell123 (value=\'TestAssetAdministrationShell\')',
-                         manager.format_step(4, verbose_level=1))
-
-        manager.steps = []
-        compliance_tool.check_aasx_files_equivalence(file_path_4, file_path_3, manager)
-        self.assertEqual(6, len(manager.steps))
-        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
-        self.assertEqual(Status.FAILED, manager.steps[4].status)
-        self.assertEqual('FAILED:       Check if data in files are equal\n - ERROR: Attribute id_short of '
-                         'AssetAdministrationShell[https://example.org/Test_AssetAdministrationShell] must be == '
-                         'TestAssetAdministrationShell (value=\'TestAssetAdministrationShell123\')',
-                         manager.format_step(4, verbose_level=1))
-        self.assertEqual(Status.NOT_EXECUTED, manager.steps[5].status)
-
-    def test_check_schema(self):
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
+    def test_check_aasx_files_equivalence_fail_on_file_check(self, mock_data_checker: mock.MagicMock,
+                                                             mock_aasx_reader: mock.MagicMock) -> None:
         manager = ComplianceToolStateManager()
-        script_dir = os.path.dirname(__file__)
 
-        file_path_2 = os.path.join(script_dir, 'files/test_demo_full_example_json.aasx')
-        compliance_tool.check_schema(file_path_2, manager)
-        self.assertEqual(4, len(manager.steps))
-        for i in range(4):
-            self.assertEqual(Status.SUCCESS, manager.steps[i].status)
+        mock_data_checker.return_value.checks = []
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
+        mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
 
-        manager.steps = []
-        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example_xml.aasx')
-        compliance_tool.check_schema(file_path_3, manager)
-        self.assertEqual(4, len(manager.steps))
-        for i in range(4):
-            self.assertEqual(Status.SUCCESS, manager.steps[i].status)
+        call_count = [0]
 
-        manager.steps = []
-        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example_xml_wrong_attribute.aasx')
-        compliance_tool.check_schema(file_path_4, manager)
-        self.assertEqual(4, len(manager.steps))
-        for i in range(4):
-            self.assertEqual(Status.SUCCESS, manager.steps[i].status)
+        def setup_file_stores(*args, **kwargs):
+            call_count[0] += 1
+            if call_count[0] == 1:
+                return create_read_into_mock(file='TestFile')(*args, **kwargs)
+            else:
+                return create_read_into_mock(file='TestFileWrong')(*args, **kwargs)
 
-        manager.steps = []
-        file_path_5 = os.path.join(script_dir, 'files/test_empty.aasx')
-        compliance_tool.check_schema(file_path_5, manager)
-        self.assertEqual(2, len(manager.steps))
-        for i in range(2):
-            self.assertEqual(Status.SUCCESS, manager.steps[i].status)
+        mock_aasx_reader.return_value.read_into.side_effect = setup_file_stores
+        compliance_tool.check_aasx_files_equivalence("", "", manager)
+
+        self.assertEqual(7, len(manager.steps))
+        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[4].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[5].status)
+        self.assertEqual(Status.FAILED, manager.steps[6].status)
+        self.assertIn("second file must contain supplementary file /TestFile.pdf with sha256",
+                      manager.format_step(6, verbose_level=1))
+
+    @mock.patch("basyx.aas.adapter.aasx.AASXReader", autospec=True)
+    @mock.patch("aas_compliance_tool.compliance_check_aasx.AASDataChecker", autospec=True)
+    def test_check_aasx_files_equivalence_success(self, mock_data_checker: mock.MagicMock,
+                                                  mock_aasx_reader: mock.MagicMock) -> None:
+        manager = ComplianceToolStateManager()
+
+        mock_aasx_reader.return_value.read_into.side_effect = create_read_into_mock(file='TestFile')
+        mock_aasx_reader.return_value.get_core_properties.return_value = create_example_aas_core_properties()
+        mock_data_checker.return_value.checks = []
+        type(mock_data_checker.return_value).failed_checks = mock.PropertyMock(side_effect=lambda: iter([]))
+        compliance_tool.check_aasx_files_equivalence("", "", manager)
+
+        self.assertEqual(7, len(manager.steps))
+        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[4].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[5].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[6].status)

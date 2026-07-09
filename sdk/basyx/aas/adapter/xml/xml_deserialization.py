@@ -804,7 +804,7 @@ class AASFromXmlDecoder:
     def construct_blob(cls, element: etree._Element, object_class=model.Blob, **_kwargs: Any) -> model.Blob:
         blob = object_class(
             None,
-            _child_text_mandatory(element, NS_AAS + "contentType")
+            _get_text_or_none(element.find(NS_AAS + "contentType"))
         )
         value = _get_text_or_none(element.find(NS_AAS + "value"))
         if value is not None:
@@ -851,7 +851,7 @@ class AASFromXmlDecoder:
     def construct_file(cls, element: etree._Element, object_class=model.File, **_kwargs: Any) -> model.File:
         file = object_class(
             None,
-            _child_text_mandatory(element, NS_AAS + "contentType")
+            _get_text_or_none(element.find(NS_AAS + "contentType"))
         )
         value = _get_text_or_none(element.find(NS_AAS + "value"))
         if value is not None:
@@ -1063,8 +1063,10 @@ class AASFromXmlDecoder:
     @classmethod
     def construct_value_reference_pair(cls, element: etree._Element, object_class=model.ValueReferencePair,
                                        **_kwargs: Any) -> model.ValueReferencePair:
+        value_id_element = element.find(NS_AAS + "valueId")
+        value_id = cls.construct_reference(value_id_element, **_kwargs) if value_id_element is not None else None
         return object_class(_child_text_mandatory(element, NS_AAS + "value"),
-                            _child_construct_mandatory(element, NS_AAS + "valueId", cls.construct_reference))
+                            value_id)
 
     @classmethod
     def construct_value_list(cls, element: etree._Element, **_kwargs: Any) -> model.ValueList:

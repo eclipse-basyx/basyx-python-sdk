@@ -13,7 +13,7 @@ All functions reports any issues using the given
 """
 import datetime
 import logging
-from typing import Optional, Tuple
+from typing import Optional, Tuple, cast
 import io
 from lxml import etree  # type: ignore
 
@@ -118,6 +118,8 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager,
         state_manager.set_step_status(Status.NOT_EXECUTED)
         state_manager.add_step('Check if core properties are equal')
         state_manager.set_step_status(Status.NOT_EXECUTED)
+        state_manager.add_step('Check if supplementary files are equal')
+        state_manager.set_step_status(Status.NOT_EXECUTED)
         return
 
     checker = AASDataChecker(raise_immediately=False, **kwargs)
@@ -129,6 +131,8 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager,
 
     if state_manager.status in (Status.FAILED, Status.NOT_EXECUTED):
         state_manager.add_step('Check if core properties are equal')
+        state_manager.set_step_status(Status.NOT_EXECUTED)
+        state_manager.add_step('Check if supplementary files are equal')
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return
 
@@ -145,60 +149,46 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager,
     cp.title = "Test Title"
 
     checker2 = DataChecker(raise_immediately=False)
-    try:
-        assert isinstance(cp_new.created, datetime.datetime)
-        checker2.check(isinstance(cp_new.created, datetime.datetime), "core property created must be of type datetime",
-                       created=type(cp_new.created))
-        duration = cp_new.created - cp.created
+    if checker2.check(isinstance(cp_new.created, datetime.datetime), "core property created must be of type datetime",
+                      created=type(cp_new.created)):
+        duration = cast(datetime.datetime, cp_new.created) - cp.created
         checker2.check(duration.microseconds < 20, "created must be {}".format(cp.created), created=cp_new.created)
-    except AssertionError:
-        checker2.check(isinstance(cp_new.created, datetime.datetime), "core property created must be of type datetime",
-                       created=type(cp_new.created))
 
     checker2.check(cp_new.creator == cp.creator, "creator must be {}".format(cp.creator), creator=cp_new.creator)
     checker2.check(cp_new.description == cp.description, "description must be {}".format(cp.description),
                    description=cp_new.description)
     checker2.check(cp_new.lastModifiedBy == cp.lastModifiedBy, "lastModifiedBy must be {}".format(cp.lastModifiedBy),
                    lastModifiedBy=cp_new.lastModifiedBy)
-    try:
-        assert isinstance(cp_new.modified, datetime.datetime)
-        checker2.check(isinstance(cp_new.modified, datetime.datetime), "modified bust be of type datetime",
-                       modified=type(cp_new.modified))
-        duration = cp_new.modified - cp.modified
+
+    if checker2.check(isinstance(cp_new.modified, datetime.datetime), "modified must be of type datetime",
+                      modified=type(cp_new.modified)):
+        duration = cast(datetime.datetime, cp_new.modified) - cp.modified
         checker2.check(duration.microseconds < 20, "modified must be {}".format(cp.modified), modified=cp_new.modified)
-    except AssertionError:
-        checker2.check(isinstance(cp_new.modified, datetime.datetime), "modified bust be of type datetime",
-                       modified=type(cp_new.modified))
+
     checker2.check(cp_new.revision == cp.revision, "revision must be {}".format(cp.revision), revision=cp_new.revision)
     checker2.check(cp_new.version == cp.version, "version must be {}".format(cp.version), version=cp_new.version)
     checker2.check(cp_new.title == cp.title, "title must be {}".format(cp.title), title=cp_new.title)
 
+    state_manager.add_log_records_from_data_checker(checker2)
+
     # Check if file in file object is the same
+    state_manager.add_step('Check if supplementary files are equal')
+    file_checker = DataChecker(raise_immediately=False)
+
     list_of_id_shorts = ["ExampleSubmodelCollection", "ExampleFile"]
     identifiable = example_data.get_item("https://example.org/Test_Submodel")
     for id_short in list_of_id_shorts:
         identifiable = identifiable.get_referable(id_short)
-    obj2 = identifiable_store.get_item("https://example.org/Test_Submodel")
-    for id_short in list_of_id_shorts:
-        obj2 = obj2.get_referable(id_short)
-    try:
-        sha_file = files.get_sha256(identifiable.value)
-    except KeyError as error:
-        state_manager.add_log_records_from_data_checker(checker2)
-        logger.error(error)
-        state_manager.set_step_status(Status.FAILED)
-        return
+    file_name = identifiable.value
+    if file_checker.check(file_name in files, f"Supplementary File {file_name} must exist"):
+        test_file_checksum = 'b18229b24a4ee92c6c2b6bc6a8018563b17472f1150d35d5a5945afeb447ed44'
+        file_checker.check(
+            files.get_sha256(file_name).hex() == test_file_checksum,
+            f"Supplementary File {file_name} checksum must be '{test_file_checksum}'.",
+            value=files.get_sha256(file_name)
+        )
 
-    checker2.check(
-        sha_file == files.get_sha256(obj2.value),
-        "File of {} must be {}.".format(identifiable.value, obj2.value),
-        value=obj2.value
-    )
-    state_manager.add_log_records_from_data_checker(checker2)
-    if state_manager.status in (Status.FAILED, Status.NOT_EXECUTED):
-        state_manager.set_step_status(Status.FAILED)
-    else:
-        state_manager.set_step_status(Status.SUCCESS)
+    state_manager.add_log_records_from_data_checker(file_checker)
 
 
 def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manager: ComplianceToolStateManager,
@@ -224,10 +214,12 @@ def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manag
 
     identifiable_store_2, files_2, cp_2 = check_deserialization(file_path_2, state_manager, 'second')
 
-    if state_manager.status is Status.FAILED:
+    if state_manager.status >= Status.FAILED:
         state_manager.add_step('Check if data in files are equal')
         state_manager.set_step_status(Status.NOT_EXECUTED)
         state_manager.add_step('Check if core properties are equal')
+        state_manager.set_step_status(Status.NOT_EXECUTED)
+        state_manager.add_step('Check if supplementary files are equal')
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return
 
@@ -240,22 +232,62 @@ def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manag
         logger.error(error)
         state_manager.add_step('Check if core properties are equal')
         state_manager.set_step_status(Status.NOT_EXECUTED)
+        state_manager.add_step('Check if supplementary files are equal')
+        state_manager.set_step_status(Status.NOT_EXECUTED)
         return
 
     state_manager.add_log_records_from_data_checker(checker)
 
-    if state_manager.status is Status.FAILED:
+    if state_manager.status >= Status.FAILED:
         state_manager.add_step('Check if core properties are equal')
+        state_manager.set_step_status(Status.NOT_EXECUTED)
+        state_manager.add_step('Check if supplementary files are equal')
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return
 
     state_manager.add_step('Check if core properties are equal')
     checker2 = DataChecker(raise_immediately=False)
-    assert (isinstance(cp_1.created, datetime.datetime))
-    assert (isinstance(cp_2.created, datetime.datetime))
-    duration = cp_1.created - cp_2.created
+    checker2.check(isinstance(cp_1.created, datetime.datetime),
+                   "core property created of first file must be of type datetime",
+                   created=type(cp_1.created))
+    checker2.check(isinstance(cp_2.created, datetime.datetime),
+                   "core property created of second file must be of type datetime",
+                   created=type(cp_2.created))
+
+    if any(True for _ in checker2.failed_checks):
+        state_manager.add_log_records_from_data_checker(checker2)
+        return
+
+    duration = cast(datetime.datetime, cp_1.created) - cast(datetime.datetime, cp_2.created)
     checker2.check(duration.microseconds < 20, "created must be {}".format(cp_1.created), value=cp_2.created)
     checker2.check(cp_1.creator == cp_2.creator, "creator must be {}".format(cp_1.creator), value=cp_2.creator)
     checker2.check(cp_1.lastModifiedBy == cp_2.lastModifiedBy, "lastModifiedBy must be {}".format(cp_1.lastModifiedBy),
                    value=cp_2.lastModifiedBy)
+    checker2.check(cp_1.revision == cp_2.revision, "revision must be {}".format(cp_2.revision), revision=cp_1.revision)
+    checker2.check(cp_1.version == cp_2.version, "version must be {}".format(cp_2.version), version=cp_1.version)
+    checker2.check(cp_1.title == cp_2.title, "title must be {}".format(cp_2.title), title=cp_1.title)
     state_manager.add_log_records_from_data_checker(checker2)
+
+    state_manager.add_step('Check if supplementary files are equal')
+
+    file_checker = DataChecker(raise_immediately=False)
+    for file_name in files_1:
+        both_contain = file_checker.check(file_name in files_2,
+                                          "second file must contain supplementary file {}".format(file_name))
+        if both_contain:
+            expected_type = files_1.get_content_type(file_name)
+            file_checker.check(expected_type == files_2.get_content_type(file_name),
+                               f"second file must contain supplementary file {file_name}"
+                               " with content-type {expected_type}",
+                               content_type=files_2.get_content_type(file_name))
+            expected_checksum = files_1.get_sha256(file_name)
+            file_checker.check(expected_checksum == files_2.get_sha256(file_name),
+                               f"second file must contain supplementary file {file_name}"
+                               f" with sha256 {expected_checksum.hex()}",
+                               checksum=files_2.get_sha256(file_name).hex())
+
+    for file_name in files_2:
+        file_checker.check(file_name in files_1,
+                           "first file must contain supplementary file {}".format(file_name))
+
+    state_manager.add_log_records_from_data_checker(file_checker)
