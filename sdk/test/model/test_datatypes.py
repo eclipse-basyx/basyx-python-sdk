@@ -212,7 +212,7 @@ class TestDateTimeTypes(unittest.TestCase):
                          model.datatypes.from_xsd("2020-01-24T15:25:17-00:20", model.datatypes.DateTime))
         with self.assertRaises(ValueError) as cm:
             model.datatypes.from_xsd("--2020-01-24T15:25:17-00:20", model.datatypes.DateTime)
-        self.assertEqual("Value is not a valid XSD datetime string", str(cm.exception))
+        self.assertEqual("--2020-01-24T15:25:17-00:20 is not a valid XSD datetime string", str(cm.exception))
         with self.assertRaises(NotImplementedError):
             model.datatypes.from_xsd("-2020-01-24T15:25:17+01:00", model.datatypes.DateTime)
 

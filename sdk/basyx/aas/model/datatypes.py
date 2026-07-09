@@ -612,7 +612,7 @@ def _parse_xsd_date(value: str) -> Date:
 def _parse_xsd_datetime(value: str) -> DateTime:
     match = DATETIME_RE.match(value)
     if not match:
-        raise ValueError("Value is not a valid XSD datetime string")
+        raise ValueError(f"{value} is not a valid XSD datetime string")
     if match[1]:
         raise NotImplementedError("Negative dates are not supported: Python stdlib datetime requires year >= 1. "
                                   "Report at https://github.com/eclipse-basyx/basyx-python-sdk/issues")
@@ -633,12 +633,12 @@ def _parse_xsd_datetime(value: str) -> DateTime:
 def _parse_xsd_time(value: str) -> Time:
     match = TIME_RE.match(value)
     if not match:
-        raise ValueError("Value is not a valid XSD datetime string")
+        raise ValueError(f"{value} is not a valid XSD time string")
     microseconds = int(float(match[4]) * 1e6) if match[4] else 0
     hour = int(match[1])
     if hour == 24:
         if int(match[2]) != 0 or int(match[3]) != 0 or microseconds != 0:
-            raise ValueError("Invalid time: 24:00:00.000000 is the only valid representation of midnight")
+            raise ValueError(f"{value} is not a valid xsd:time.")
         hour = 0
     return Time(hour, int(match[2]), int(match[3]), microseconds, _parse_xsd_date_tzinfo(match[5]))
 
