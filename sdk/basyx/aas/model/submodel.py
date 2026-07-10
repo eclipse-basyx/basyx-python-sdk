@@ -904,8 +904,8 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
 
     def __init__(self,
                  id_short: Optional[base.NameType],
-                 first: base.Reference,
-                 second: base.Reference,
+                 first: Optional[base.Reference] = None,
+                 second: Optional[base.Reference] = None,
                  display_name: Optional[base.MultiLanguageNameType] = None,
                  annotation: Iterable[DataElement] = (),
                  category: Optional[base.NameType] = None,

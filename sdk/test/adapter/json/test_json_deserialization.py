@@ -329,6 +329,31 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
         assert isinstance(are, model.AnnotatedRelationshipElement)
         self.assertEqual(len(are.annotation), 0)
 
+    def test_optional_first_second_relationship_element(self) -> None:
+        data = """
+            {
+                "modelType": "RelationshipElement",
+                "idShort": "test_optional_second_relationship_element",
+                "category": "PARAMETER",
+                "first": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "Submodel",
+                            "value": "http://example.org/Test_Submodel"
+                        },
+                        {
+                            "type": "AnnotatedRelationshipElement",
+                            "value": "test_ref"
+                        }
+                    ]
+                }
+            }"""
+
+        re = json.loads(data, cls=StrictAASFromJsonDecoder)
+        self.assertIsInstance(re, model.RelationshipElement)
+        self.assertIsNone(re.second)
+
     def test_stripped_entity(self) -> None:
         data = """
             {

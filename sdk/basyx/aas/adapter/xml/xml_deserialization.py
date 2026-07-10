@@ -512,8 +512,8 @@ class AASFromXmlDecoder:
         """
         relationship_element = object_class(
             None,
-            _child_construct_mandatory(element, NS_AAS + "first", cls.construct_reference),
-            _child_construct_mandatory(element, NS_AAS + "second", cls.construct_reference)
+            _failsafe_construct(element.find(NS_AAS + "first"), cls.construct_reference, cls.failsafe),
+            _failsafe_construct(element.find(NS_AAS + "second"), cls.construct_reference, cls.failsafe)
         )
         cls._amend_abstract_attributes(relationship_element, element)
         return relationship_element

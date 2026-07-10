@@ -472,6 +472,42 @@ class XmlDeserializationDataSpecTest(unittest.TestCase):
         self.assertIsNone(ds_content.value_format)
 
 
+    def test_optional_first_second_relationship_element(self) -> None:
+        xml = _xml_wrap("""
+        <aas:submodels>
+            <aas:submodel>
+                <aas:id>http://example.org/test_submodel</aas:id>
+                <aas:submodelElements>
+                    <aas:relationshipElement>
+                        <aas:idShort>test_optional_second_relationship_element</aas:idShort>
+                        <aas:category>PARAMETER</aas:category>
+                        <aas:first>
+                            <aas:type>ModelReference</aas:type>
+                            <aas:keys>
+                                <aas:key>
+                                    <aas:type>Submodel</aas:type>
+                                    <aas:value>http://example.org/Test_Submodel</aas:value>
+                                </aas:key>
+                                <aas:key>
+                                    <aas:type>AnnotatedRelationshipElement</aas:type>
+                                    <aas:value>test_ref</aas:value>
+                                </aas:key>
+                            </aas:keys>
+                        </aas:first>
+                    </aas:relationshipElement>
+                </aas:submodelElements>
+            </aas:submodel>
+        </aas:submodels>
+        """)
+        object_store = read_aas_xml_file(io.StringIO(xml), failsafe=False)
+        submodel = object_store.get_item("http://example.org/test_submodel")
+        assert isinstance(submodel, model.Submodel)
+        re = submodel.get_referable("test_optional_second_relationship_element")
+        self.assertIsInstance(re, model.RelationshipElement)
+        assert isinstance(re, model.RelationshipElement)
+        self.assertIsNone(re.second)
+
+
 class XmlDeserializationDerivingTest(unittest.TestCase):
     def test_submodel_constructor_overriding(self) -> None:
         class EnhancedSubmodel(model.Submodel):

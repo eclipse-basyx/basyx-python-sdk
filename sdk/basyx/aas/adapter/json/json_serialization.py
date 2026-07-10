@@ -567,7 +567,10 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        data.update({'first': obj.first, 'second': obj.second})
+        if obj.first is not None:
+            data.update({'first': obj.first})
+        if obj.second is not None:
+            data.update({'second': obj.second})
         return data
 
     @classmethod

@@ -635,8 +635,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_relationship_element(
             cls, dct: Dict[str, object], object_class=model.RelationshipElement) -> model.RelationshipElement:
         ret = object_class(id_short=None,
-                           first=cls._construct_reference(_get_ts(dct, 'first', dict)),
-                           second=cls._construct_reference(_get_ts(dct, 'second', dict)))
+                           first=cls._construct_reference(_get_ts(dct, 'first', dict)) if 'first' in dct else None,
+                           second=cls._construct_reference(_get_ts(dct, 'second', dict)) if 'second' in dct else None)
         cls._amend_abstract_attributes(ret, dct)
         return ret
 
@@ -646,8 +646,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
             -> model.AnnotatedRelationshipElement:
         ret = object_class(
             id_short=None,
-            first=cls._construct_reference(_get_ts(dct, 'first', dict)),
-            second=cls._construct_reference(_get_ts(dct, 'second', dict)))
+            first=cls._construct_reference(_get_ts(dct, 'first', dict)) if 'first' in dct else None,
+            second=cls._construct_reference(_get_ts(dct, 'second', dict)) if 'second' in dct else None)
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'annotations' in dct:
             for element in _get_ts(dct, 'annotations', list):

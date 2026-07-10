@@ -208,6 +208,12 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
 
         self._checkNormalAndStripped("annotations", are)
 
+    def test_relationship_element_omits_none_first_second(self) -> None:
+        re = model.RelationshipElement("test_re")
+        data = json.loads(json.dumps(re, cls=AASToJsonEncoder))
+        self.assertNotIn("first", data)
+        self.assertNotIn("second", data)
+
     def test_stripped_entity(self) -> None:
         mlp = model.MultiLanguageProperty("test_multi_language_property", category="PARAMETER")
         entity = model.Entity("test_entity", model.EntityType.CO_MANAGED_ENTITY, statement=[mlp])
