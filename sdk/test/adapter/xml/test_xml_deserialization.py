@@ -471,7 +471,6 @@ class XmlDeserializationDataSpecTest(unittest.TestCase):
         self.assertEqual("test_value", ds_content.value)
         self.assertIsNone(ds_content.value_format)
 
-
     def test_optional_first_second_relationship_element(self) -> None:
         xml = _xml_wrap("""
         <aas:submodels>
