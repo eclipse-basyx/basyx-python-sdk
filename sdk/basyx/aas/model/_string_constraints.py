@@ -105,14 +105,12 @@ def check_version_type(value: str, type_name: str = "VersionType") -> None:
 def create_check_function(min_length: int = 0, max_length: Optional[int] = None, pattern: Optional[re.Pattern] = None) \
         -> Callable[[str, str], None]:
     """
-    Returns a new ``check_type`` function with mandatory ``type_name`` for the given min_length, max_length and pattern
-    constraints.
+     Returns a ``check_type`` function for the given constraints.
 
-    This is the type-independent alternative to :func:`~.check_content_type`, :func:`~.check_identifier`, etc. It is
-    used for the definition of the :class:`ConstrainedLangStringSets <basyx.aas.model.base.ConstrainedLangStringSet>`,
-    as a "Basic" constrained string type only exists for :class:`~basyx.aas.model.base.MultiLanguageNameType`, where all
-    values are :class:`NameTypes <basyx.aas.model.base.NameType>`. All other
-    :class:`:class:`ConstrainedLangStringSets <basyx.aas.model.base.ConstrainedLangStringSet>` use custom constraints.
+    Use this instead of the named :func:`~.check_content_type`, :func:`~.check_identifier`, etc. when the
+    constraints do not correspond to a predefined constrained string type — for example, in
+    :class:`ConstrainedLangStringSets <basyx.aas.model.base.ConstrainedLangStringSet>` that define their own
+    length and pattern rules.
     """
     def check_fn(value: str, type_name: str) -> None:
         return check(value, type_name, min_length, max_length, pattern)
