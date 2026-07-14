@@ -38,7 +38,7 @@ requires-python = ">=3.10"
 dependencies = [
     "pyecma376-2>=0.2.4",
     "jsonschema>=4.21.1",
-    "basyx-python-sdk @ file:../sdk",
+    "basyx-python-sdk>=1.0.0",
 ]
 
 [project.optional-dependencies]
@@ -51,6 +51,9 @@ dev = [
 
 [project.urls]
 "Homepage" = "https://github.com/eclipse-basyx/basyx-python-sdk"
+
+[project.scripts]
+aas-compliance-check = "aas_compliance_tool.cli:main"
 
 [tool.setuptools]
 packages = { find = { include = ["aas_compliance_tool*"], exclude = ["test*"] } }

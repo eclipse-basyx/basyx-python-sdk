@@ -215,12 +215,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        # TODO(#592): revisit when the sdk<->compliance_tool version pinning is fixed.
+        # Need tags so setuptools_scm builds the local sdk as >=1.0.0, else the loose
+        # `basyx-python-sdk>=1.0.0` pin lets pip replace it with the PyPI release.
+        fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install Python dependencies
-      # install the local sdk in editable mode so it does not get overwritten
+      # install the local sdk first so its version satisfies the >=1.0.0 pin and pip keeps it instead of PyPI
       run: |
         python -m pip install --upgrade pip
         python -m pip install ../sdk
@@ -242,12 +247,17 @@ jobs:
         working-directory: ./compliance_tool
     steps:
     - uses: actions/checkout@v4
+      with:
+        # TODO(#592): revisit when the sdk<->compliance_tool version pinning is fixed.
+        # Need tags so setuptools_scm builds the local sdk as >=1.0.0, else the loose
+        # `basyx-python-sdk>=1.0.0` pin lets pip replace it with the PyPI release.
+        fetch-depth: 0
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install Python dependencies
-      # install the local sdk in editable mode so it does not get overwritten
+      # install the local sdk first so its version satisfies the >=1.0.0 pin and pip keeps it instead of PyPI
       run: |
         python -m pip install --upgrade pip
         python -m pip install ../sdk
