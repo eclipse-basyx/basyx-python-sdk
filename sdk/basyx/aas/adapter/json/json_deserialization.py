@@ -693,7 +693,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    @classmethod
     def _construct_blob(cls, dct: Dict[str, object], object_class=model.Blob) -> model.Blob:
         ret = object_class(
             id_short=None,
