@@ -23,7 +23,7 @@ Each of them has a similar table at the top of the release notes.
 This repository is structured into separate packages. 
 The `sdk` directory provides the AAS metamodel as Python objects and fundamental functionalities to handle AAS.
 The `server` implements a specification-compliant Docker HTTP server for AASs.
-The `compliance_tool` is to be determined.
+The `compliance_tool` is a command-line tool for checking whether JSON and XML files comply with the AAS specification.
 
 * [SDK](./sdk/README.md):
   * Modelling of AASs as Python objects
@@ -36,6 +36,8 @@ The `compliance_tool` is to be determined.
 * [Server](./server/README.md): Docker Image of a specification compliant HTTP Server implementing the interfaces:
   * Asset Administration Shell Repository
   * Submodel Repository
+  * Registry
+  * Discovery
 * [Compliance Tool](./compliance_tool/README.md): A command-line tool for checking compliance of JSON and XML files
   to the specification of the AAS
 

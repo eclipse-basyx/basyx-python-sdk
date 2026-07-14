@@ -8,7 +8,6 @@ for Industry 4.0 Systems.
 ## Features
 
 * Modelling of AASs as Python objects
-    * **except for**: *HasDataSpecification*
 * Reading and writing of AASX package files
 * (De-)serialization of AAS objects into/from JSON and XML
 * Storing of AAS objects in CouchDB, Backend infrastructure for easy expansion 
@@ -17,7 +16,7 @@ for Industry 4.0 Systems.
 
 ### Project Structure
 
-The BaSyx Python SDK project provides the `basax.aas` Python package with 6 submodules:
+The BaSyx Python SDK project provides the `basyx.aas` Python package with 5 submodules:
 
 * `basyx.aas.model`: The AAS metamodel implemented in python
 * `basyx.aas.adapter`: Adapters for various file formats 
@@ -55,7 +54,7 @@ Development/testing/documentation/example dependencies:
 * `lxml-stubs` (Apache License)
 * `types-python-dateutil` (Apache License v2.0)
 
-Dependencies for building the documentation (see `docs/add-requirements.txt`):
+Dependencies for building the documentation (see the `docs` extra in `pyproject.toml`):
 * `Sphinx` and its dependencies (BSD 2-clause License, MIT License, Apache License)
 * `sphinx-rtd-theme` and its dependencies (MIT License, PSF License)
 * `sphinx-argparse` (MIT License)

@@ -5,6 +5,8 @@ The server currently implements the following interfaces:
 
 - [Asset Administration Shell Repository Service][4]
 - [Submodel Repository Service][5]
+- [Registry Service][12]
+- [Discovery Service][13]
 
 It uses the [HTTP API][1] and the [*AASX*][7], [*JSON*][8], and [*XML*][9] Adapters of the [BaSyx Python SDK][3], to serve regarding files from a given directory.
 The files are only read, changes won't persist.
@@ -20,9 +22,9 @@ Pull the latest version via:
 $ docker pull eclipsebasyx/basyx-python-server:latest
 ```
 
-Or pin to a specific release:
+Or pin to a specific release by replacing `<version>` with the desired release number:
 ```
-$ docker pull eclipsebasyx/basyx-python-server:2.0.1
+$ docker pull eclipsebasyx/basyx-python-server:<version>
 ```
 
 ## Building
@@ -58,7 +60,7 @@ The container can be configured via environment variables. The most important on
 
 | Variable              | Description                                                                                                                                                                                                                                                                                                  | Default      |
 |-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|
-| `API_BASE_PATH`       | Base path under which the API is served.                                                                                                                                                                                                                                                                     | `/api/v3.0/` |
+| `API_BASE_PATH`       | Base path under which the API is served.                                                                                                                                                                                                                                                                     | `/api/v3.1/` |
 | `INPUT`               | Path inside the container pointing to the directory from which the server takes its start-up data (*AASX*, *JSON*, *XML*).                                                                                                                                                                                   | `/input`     |
 | `STORAGE`             | Path inside the container pointing to the directory used by the server to persistently store data (*JSON*).                                                                                                                                                                                                  | `/storage`   |
 | `STORAGE_PERSISTENCY` | Flag to enable data persistence via the [LocalFileBackend][2]. AAS/Submodels are stored as *JSON* files in the directory specified by `STORAGE`. Supplementary files, i.e. files referenced by `File` SubmodelElements, are not stored. If disabled, any changes made via the API are only stored in memory. | `False`      |
@@ -80,6 +82,8 @@ Example configurations can be found in the `./example_configurations` directory.
 Currently, we offer: 
 
 - [repository_standalone](example_configurations/repository_standalone/README.md): Standalone repository server
+- [registry_standalone](example_configurations/registry_standalone/README.md): Standalone registry server
+- [discovery_standalone](example_configurations/discovery_standalone/README.md): Standalone discovery server
 
 ## Running without Docker (Debugging Only)
 
@@ -144,3 +148,5 @@ This Dockerfile is inspired by the [tiangolo/uwsgi-nginx-docker][10] repository.
 [9]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/xml.html
 [10]: https://github.com/tiangolo/uwsgi-nginx-docker
 [11]: https://hub.docker.com/r/eclipsebasyx/basyx-python-server
+[12]: https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShellRegistryServiceSpecification/V3.1.1_SSP-001
+[13]: https://app.swaggerhub.com/apis/Plattform_i40/DiscoveryServiceSpecification/V3.1.1_SSP-001
