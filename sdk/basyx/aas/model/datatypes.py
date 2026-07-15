@@ -110,8 +110,13 @@ class GYearMonth:
 
     @classmethod
     def from_date(cls, date: datetime.date) -> "GYearMonth":
-        tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
-        return cls(date.year, date.month, tzinfo)
+        try:
+            tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
+            return cls(date.year, date.month, tzinfo)
+        except ValueError as e:
+            if date.year < 0:
+                raise ValueError("Negative years are not supported by Python's `datetime` library.") from e
+            raise e
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, GYearMonth):
@@ -135,8 +140,13 @@ class GYear:
 
     @classmethod
     def from_date(cls, date: datetime.date) -> "GYear":
-        tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
-        return cls(date.year, tzinfo)
+        try:
+            tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
+            return cls(date.year, tzinfo)
+        except ValueError as e:
+            if date.year < 0:
+                raise ValueError("Negative years are not supported by Python's `datetime` library.") from e
+            raise e
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, GYear):
@@ -166,7 +176,7 @@ class GMonthDay:
     @classmethod
     def from_date(cls, date: datetime.date) -> "GMonthDay":
         tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
-        return cls(date.month, date.year, tzinfo)
+        return cls(date.month, date.day, tzinfo)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, GMonthDay):
