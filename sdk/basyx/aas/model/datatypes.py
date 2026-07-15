@@ -106,17 +106,17 @@ class GYearMonth:
         self.tzinfo: Optional[datetime.tzinfo] = tzinfo
 
     def into_date(self, day: int = 1) -> Date:
-        return Date(self.year, self.month, day, self.tzinfo)
+        try:
+            return Date(self.year, self.month, day, self.tzinfo)
+        except ValueError as e:
+            if self.year < 0:
+                raise ValueError("Negative years are not supported by Python's `datetime` library.") from e
+            raise e
 
     @classmethod
     def from_date(cls, date: datetime.date) -> "GYearMonth":
-        try:
-            tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
-            return cls(date.year, date.month, tzinfo)
-        except ValueError as e:
-            if date.year < 0:
-                raise ValueError("Negative years are not supported by Python's `datetime` library.") from e
-            raise e
+        tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
+        return cls(date.year, date.month, tzinfo)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, GYearMonth):
@@ -136,17 +136,17 @@ class GYear:
         self.tzinfo: Optional[datetime.tzinfo] = tzinfo
 
     def into_date(self, month: int = 1, day: int = 1) -> Date:
-        return Date(self.year, month, day, self.tzinfo)
+        try:
+            return Date(self.year, month, day, self.tzinfo)
+        except ValueError as e:
+            if self.year < 0:
+                raise ValueError("Negative years are not supported by Python's `datetime` library.") from e
+            raise e
 
     @classmethod
     def from_date(cls, date: datetime.date) -> "GYear":
-        try:
-            tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
-            return cls(date.year, tzinfo)
-        except ValueError as e:
-            if date.year < 0:
-                raise ValueError("Negative years are not supported by Python's `datetime` library.") from e
-            raise e
+        tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
+        return cls(date.year, tzinfo)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, GYear):

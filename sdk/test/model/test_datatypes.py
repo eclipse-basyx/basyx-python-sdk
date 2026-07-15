@@ -188,6 +188,14 @@ class TestDateTimeTypes(unittest.TestCase):
             model.datatypes.from_xsd("10-10", model.datatypes.GYearMonth)
         self.assertEqual("Value is not a valid XSD GYearMonth string", str(cm.exception))
 
+    def test_partial_dates_negative_year_into_date(self) -> None:
+        # Python's `datetime` library does not support negative years. Converting a G-Class with a negative year into a
+        # `Date` must therefore fail with a clear error message instead of the cryptic "year -2001 is out of range".
+        for value in (model.datatypes.GYear(-2001), model.datatypes.GYearMonth(-2001, 5)):
+            with self.assertRaises(ValueError) as cm:
+                value.into_date()
+            self.assertEqual("Negative years are not supported by Python's `datetime` library.", str(cm.exception))
+
     def test_copy_date(self) -> None:
         date = model.datatypes.Date(2020, 1, 24)
         date_copy_shallow = copy.copy(date)
