@@ -36,7 +36,8 @@ The `compliance_tool` is a command-line tool for checking whether JSON and XML f
 * [Server](./server/README.md): Docker Image of a specification compliant HTTP Server implementing the interfaces:
   * Asset Administration Shell Repository
   * Submodel Repository
-  * Registry
+  * Asset Administration Shell Registry Service
+  * Submodel Registry Service
   * Discovery
 * [Compliance Tool](./compliance_tool/README.md): A command-line tool for checking compliance of JSON and XML files
   to the specification of the AAS

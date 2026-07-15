@@ -5,7 +5,8 @@ The server currently implements the following interfaces:
 
 - [Asset Administration Shell Repository Service][4]
 - [Submodel Repository Service][5]
-- [Registry Service][12]
+- [Asset Administration Shell Registry Service][12]
+- [Submodel Registry Service][14]
 - [Discovery Service][13]
 
 It uses the [HTTP API][1] and the [*AASX*][7], [*JSON*][8], and [*XML*][9] Adapters of the [BaSyx Python SDK][3], to serve regarding files from a given directory.
@@ -40,10 +41,10 @@ Note that when cloning this repository on Windows, Git may convert the line sepa
 
 ### Storage
 
-The server makes use of two directories:
+The repository and registry servers make use of two directories:
 
-- **`/input`** - *start-up data*: Directory from which the server loads AAS and Submodel files in *AASX*, *JSON* or *XML* format during start-up. The server will not modify these files.
-- **`/storage`** - *persistent store*: Directory where all AAS and Submodels are stored as individual *JSON* files if the server is [configured](#options) for persistence. The server will modify these files.
+- **`/input`** - *start-up data*: Directory from which the server loads its start-up data during start-up. The repository server loads AAS and Submodel files in *AASX*, *JSON* or *XML* format, while the registry server loads AAS and Submodel descriptors from *JSON* files only. The server will not modify these files.
+- **`/storage`** - *persistent store*: Directory where the server's data is stored as individual *JSON* files if the server is [configured](#options) for persistence. The repository server stores AAS and Submodels, while the registry server stores AAS and Submodel descriptors. The server will modify these files.
 
 The directories can be mapped via the `-v` option from another image or a local directory.
 To mount the host directories into the container, `-v ./input:/input -v ./storage:/storage` can be used.
@@ -58,12 +59,12 @@ To expose it on the host on port 8080, use the option `-p 8080:80` when running 
 
 The container can be configured via environment variables. The most important ones are summarised below:
 
-| Variable              | Description                                                                                                                                                                                                                                                                                                  | Default      |
-|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|
-| `API_BASE_PATH`       | Base path under which the API is served.                                                                                                                                                                                                                                                                     | `/api/v3.1/` |
-| `INPUT`               | Path inside the container pointing to the directory from which the server takes its start-up data (*AASX*, *JSON*, *XML*).                                                                                                                                                                                   | `/input`     |
-| `STORAGE`             | Path inside the container pointing to the directory used by the server to persistently store data (*JSON*).                                                                                                                                                                                                  | `/storage`   |
-| `STORAGE_PERSISTENCY` | Flag to enable data persistence via the [LocalFileBackend][2]. AAS/Submodels are stored as *JSON* files in the directory specified by `STORAGE`. Supplementary files, i.e. files referenced by `File` SubmodelElements, are not stored. If disabled, any changes made via the API are only stored in memory. | `False`      |
+| Variable              | Description                                                                                                                                                                                                                                                                                                                                                                    | Default      |
+|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|
+| `API_BASE_PATH`       | Base path under which the API is served.                                                                                                                                                                                                                                                                                                                                       | `/api/v3.1/` |
+| `INPUT`               | Path inside the container pointing to the directory from which the server takes its start-up data. The repository server takes *AASX*, *JSON* and *XML* files, while the registry server takes AAS/Submodel descriptors from *JSON* files only.                                                                                                                                | `/input`     |
+| `STORAGE`             | Path inside the container pointing to the directory used by the repository or registry server to persistently store data (*JSON*).                                                                                                                                                                                                                                             | `/storage`   |
+| `STORAGE_PERSISTENCY` | Flag to enable data persistence via the [LocalFileBackend][2]. AAS/Submodels (repository server) or AAS/Submodel descriptors (registry server) are stored as *JSON* files in the directory specified by `STORAGE`. Supplementary files, i.e. files referenced by `File` SubmodelElements, are not stored. If disabled, any changes made via the API are only stored in memory. | `False`      |
 | `STORAGE_OVERWRITE`   | Flag to enable storage overwrite if `STORAGE_PERSISTENCY` is enabled. Any AAS/Submodel from the `INPUT` directory already present in the LocalFileBackend replaces its existing version. If disabled, the existing version is kept.                                                                          | `False`      |
 
 
@@ -150,3 +151,4 @@ This Dockerfile is inspired by the [tiangolo/uwsgi-nginx-docker][10] repository.
 [11]: https://hub.docker.com/r/eclipsebasyx/basyx-python-server
 [12]: https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShellRegistryServiceSpecification/V3.1.1_SSP-001
 [13]: https://app.swaggerhub.com/apis/Plattform_i40/DiscoveryServiceSpecification/V3.1.1_SSP-001
+[14]: https://app.swaggerhub.com/apis/Plattform_i40/SubmodelRegistryServiceSpecification/V3.1.1_SSP-001
