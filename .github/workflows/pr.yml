@@ -129,32 +129,34 @@ jobs:
       run: |
         python -m pycodestyle --count --max-line-length 120 basyx test
 
-#   sdk-readme-codeblocks:
-#     # This job runs the same static code analysis (mypy and pycodestyle) on the codeblocks in our docstrings.
-#     runs-on: ubuntu-latest
-#     defaults:
-#       run:
-#         working-directory: ./sdk
-#     steps:
-#     - uses: actions/checkout@v4
-#     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
-#       uses: actions/setup-python@v5
-#       with:
-#         python-version: ${{ env.X_PYTHON_MIN_VERSION }}
-#     - name: Install Python dependencies
-#       run: |
-#         python -m pip install --upgrade pip
-#         python -m pip install .[dev]
-#     - name: Check typing with MyPy
-#       shell: bash
-#       run: |
-#         python -m mypy <(python -m codeblocks python README.md)
-#     - name: Check code style with PyCodestyle
-#       run: |
-#         python -m codeblocks --wrap python README.md | python -m pycodestyle --count --max-line-length 120 -
-#     - name: Run readme codeblocks with Python
-#       run: |
-#         python -m codeblocks python README.md | python
+  sdk-readme-codeblocks:
+    # This job runs the same static code analysis (mypy and pycodestyle) on the codeblocks in our docstrings.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./sdk
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
+        cache: "pip"
+        cache-dependency-path: "**/pyproject.toml"
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .[dev]
+    - name: Check typing with MyPy
+      shell: bash
+      run: |
+        python -m mypy <(python -m codeblocks python README.md)
+    - name: Check code style with PyCodestyle
+      run: |
+        python -m codeblocks --wrap python README.md | python -m pycodestyle --count --max-line-length 120 -
+    - name: Run readme codeblocks with Python
+      run: |
+        python -m codeblocks python README.md | python
 
 #   sdk-docs:
 #     # This job checks, if the automatically generated documentation using sphinx can be compiled
