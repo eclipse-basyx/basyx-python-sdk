@@ -75,7 +75,7 @@ class Endpoint:
     }
     VERSION_PATTERN = re.compile(r"^\d+(\.\d+)*$")
 
-    def __init__(self, interface: base.NameType, protocol_information: ProtocolInformation):  # noqa: E501
+    def __init__(self, interface: base.NameType, protocol_information: ProtocolInformation):
 
         self.interface = interface
         self.protocol_information = protocol_information
@@ -111,6 +111,6 @@ class Endpoint:
     @protocol_information.setter
     def protocol_information(self, protocol_information: ProtocolInformation):
         if protocol_information is None:
-            raise ValueError("Invalid value for `protocol_information`, must not be `None`")  # noqa: E501
+            raise ValueError("Invalid value for `protocol_information`, must not be `None`")
 
         self._protocol_information = protocol_information

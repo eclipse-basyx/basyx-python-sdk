@@ -192,7 +192,7 @@ class WSGIApp(ObjectStoreWSGIApp):
                                                         Rule(
                                                             "/$metadata",
                                                             methods=["GET"],
-                                                            endpoint=self.get_submodel_submodel_elements_id_short_path_metadata,  # noqa: E501
+                                                            endpoint=self.get_submodel_submodel_elements_id_short_path_metadata,
                                                         ),
                                                         Rule(
                                                             "/$metadata",
@@ -202,7 +202,7 @@ class WSGIApp(ObjectStoreWSGIApp):
                                                         Rule(
                                                             "/$reference",
                                                             methods=["GET"],
-                                                            endpoint=self.get_submodel_submodel_elements_id_short_path_reference,  # noqa: E501
+                                                            endpoint=self.get_submodel_submodel_elements_id_short_path_reference,
                                                         ),
                                                         Rule("/$value", methods=["GET"], endpoint=self.not_implemented),
                                                         Rule(
@@ -278,17 +278,17 @@ class WSGIApp(ObjectStoreWSGIApp):
                                                                 Rule(
                                                                     "/<base64url:qualifier_type>",
                                                                     methods=["GET"],
-                                                                    endpoint=self.get_submodel_submodel_element_qualifiers,  # noqa: E501
+                                                                    endpoint=self.get_submodel_submodel_element_qualifiers,
                                                                 ),
                                                                 Rule(
                                                                     "/<base64url:qualifier_type>",
                                                                     methods=["PUT"],
-                                                                    endpoint=self.put_submodel_submodel_element_qualifiers,  # noqa: E501
+                                                                    endpoint=self.put_submodel_submodel_element_qualifiers,
                                                                 ),
                                                                 Rule(
                                                                     "/<base64url:qualifier_type>",
                                                                     methods=["DELETE"],
-                                                                    endpoint=self.delete_submodel_submodel_element_qualifiers,  # noqa: E501
+                                                                    endpoint=self.delete_submodel_submodel_element_qualifiers,
                                                                 ),
                                                             ],
                                                         ),
