@@ -130,8 +130,8 @@ class AASDataChecker(DataChecker):
                 return self.check_property_equal(object_, expected_object)  # type: ignore
             if isinstance(object_, model.MultiLanguageProperty):
                 return self.check_multi_language_property_equal(
-                    object_, expected_object
-                )  # type: ignore
+                    object_, expected_object  # type: ignore
+                )
             if isinstance(object_, model.Range):
                 return self.check_range_equal(object_, expected_object)  # type: ignore
             if isinstance(object_, model.Blob):
@@ -142,14 +142,14 @@ class AASDataChecker(DataChecker):
                 return self.check_reference_element_equal(object_, expected_object)  # type: ignore
             if isinstance(object_, model.SubmodelElementCollection):
                 return self.check_submodel_element_collection_equal(
-                    object_, expected_object
-                )  # type: ignore
+                    object_, expected_object  # type: ignore
+                )
             if isinstance(object_, model.SubmodelElementList):
                 return self.check_submodel_element_list_equal(object_, expected_object)  # type: ignore
             if isinstance(object_, model.AnnotatedRelationshipElement):
                 return self.check_annotated_relationship_element_equal(
-                    object_, expected_object
-                )  # type: ignore
+                    object_, expected_object  # type: ignore
+                )
             if isinstance(object_, model.RelationshipElement):
                 return self.check_relationship_element_equal(object_, expected_object)  # type: ignore
             if isinstance(object_, model.Operation):
@@ -1200,8 +1200,8 @@ class AASDataChecker(DataChecker):
                 value=expected_value.value_list,
             ):
                 self._check_value_list_equal(
-                    object_.value_list, expected_value.value_list
-                )  # type: ignore
+                    object_.value_list, expected_value.value_list  # type: ignore
+                )
 
         if object_.value_list is not None:
             if self.check(
@@ -1210,8 +1210,8 @@ class AASDataChecker(DataChecker):
                 value=len(object_.value_list),
             ):
                 self._check_value_list_equal(
-                    object_.value_list, expected_value.value_list
-                )  # type: ignore
+                    object_.value_list, expected_value.value_list  # type: ignore
+                )
 
     def _check_value_list_equal(
         self, object_: model.ValueList, expected_value: model.ValueList
@@ -1361,8 +1361,8 @@ class AASDataChecker(DataChecker):
             return self.check(
                 getattr(object_, attribute_name) is expected_value,  # type:ignore
                 "Attribute {} of {} must be == {}".format(
-                    attribute_name, repr(object_), expected_value.__name__
-                ),  # type:ignore
+                    attribute_name, repr(object_), expected_value.__name__  # type:ignore
+                ),
                 **kwargs,
             )
         else:

@@ -605,8 +605,8 @@ class TestFloatType(unittest.TestCase):
             5300, model.datatypes.from_xsd("5.3E3", model.datatypes.Double)
         )
         self.assertTrue(
-            math.isnan(model.datatypes.from_xsd("NaN", model.datatypes.Double))
-        )  # type: ignore
+            math.isnan(model.datatypes.from_xsd("NaN", model.datatypes.Double))  # type: ignore
+        )
         self.assertEqual(
             float("inf"), model.datatypes.from_xsd("INF", model.datatypes.Double)
         )

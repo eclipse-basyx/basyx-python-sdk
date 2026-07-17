@@ -667,8 +667,8 @@ class AASFromXmlDecoder:
         # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
         return cls.construct_model_reference_expect_type(
-            element, model.Referable, **kwargs
-        )  # type: ignore
+            element, model.Referable, **kwargs  # type: ignore
+        )
 
     @classmethod
     def _construct_operation_variable(

@@ -340,8 +340,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
                             data_specification_content=_get_ts(
                                 dspec,
                                 "dataSpecificationContent",
-                                model.DataSpecificationContent,
-                            ),  # type: ignore
+                                model.DataSpecificationContent,  # type: ignore
+                            ),
                         )
                     )
         if isinstance(obj, model.HasExtension) and not cls.stripped:
@@ -752,8 +752,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
         ret = object_class(
             id_short=None,
             observed=cls._construct_model_reference(
-                _get_ts(dct, "observed", dict), model.Referable
-            ),  # type: ignore
+                _get_ts(dct, "observed", dict), model.Referable  # type: ignore
+            ),
             direction=DIRECTION_INVERSE[_get_ts(dct, "direction", str)],
             state=STATE_OF_EVENT_INVERSE[_get_ts(dct, "state", str)],
         )
