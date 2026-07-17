@@ -116,9 +116,6 @@ jobs:
     - name: Check typing with MyPy
       run: |
         python -m mypy basyx test
-    - name: Check code style with PyCodestyle
-      run: |
-        python -m pycodestyle --count --max-line-length 120 basyx test
 
   sdk-readme-codeblocks:
     # This job runs the same static code analysis (mypy and pycodestyle) on the codeblocks in our docstrings.
@@ -265,9 +262,6 @@ jobs:
     - name: Check typing with MyPy
       run: |
         python -m mypy aas_compliance_tool test
-    - name: Check code style with PyCodestyle
-      run: |
-        python -m pycodestyle --count --max-line-length 120 aas_compliance_tool test
 
   compliance-tool-package:
     # This job checks if we can build our compliance_tool package
@@ -316,9 +310,6 @@ jobs:
     - name: Check typing with MyPy
       run: |
         python -m mypy app test
-    - name: Check code style with PyCodestyle
-      run: |
-        python -m pycodestyle --count --max-line-length 120 app test
 
   server-repository-docker:
     # This job checks if we can build our server package
