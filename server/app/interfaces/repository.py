@@ -492,8 +492,8 @@ class WSGIApp(ObjectStoreWSGIApp):
         if semantic_id is not None:
             spec_semantic_id = HTTPApiDecoder.base64url_json(
                 semantic_id,
-                model.Reference,
-                False,  # type: ignore[type-abstract]
+                model.Reference,  # type: ignore[type-abstract]
+                False,
             )
             submodels = filter(lambda sm: sm.semantic_id == spec_semantic_id, submodels)
         paginated_submodels, paging_metadata = self._get_slice(request, submodels)
@@ -784,8 +784,8 @@ class WSGIApp(ObjectStoreWSGIApp):
         # see https://github.com/python/mypy/issues/5374
         new_submodel_element = HTTPApiDecoder.request_body(
             request,
-            model.SubmodelElement,
-            is_stripped_request(request),  # type: ignore[type-abstract]
+            model.SubmodelElement,  # type: ignore[type-abstract]
+            is_stripped_request(request),
         )
         try:
             parent.add_referable(new_submodel_element)
@@ -813,8 +813,8 @@ class WSGIApp(ObjectStoreWSGIApp):
         # see https://github.com/python/mypy/issues/5374
         new_submodel_element = HTTPApiDecoder.request_body(
             request,
-            model.SubmodelElement,
-            is_stripped_request(request),  # type: ignore[type-abstract]
+            model.SubmodelElement,  # type: ignore[type-abstract]
+            is_stripped_request(request),
         )
         submodel_element.update_from(new_submodel_element)
         self.object_store.commit(self._get_submodel(url_args))
