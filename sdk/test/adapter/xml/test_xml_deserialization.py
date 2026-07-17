@@ -480,7 +480,7 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
 
 class XmlDeserializationDataSpecTest(unittest.TestCase):
     def test_data_spec_iec61360_value_without_value_format(self) -> None:
-        xml = _xml_wrap(f"""
+        xml = _xml_wrap("""
         <aas:conceptDescriptions>
             <aas:conceptDescription>
                 <aas:id>http://example.org/test_cd</aas:id>

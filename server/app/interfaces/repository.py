@@ -682,7 +682,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
         if "level" in request.args:
-            raise BadRequest(f"level cannot be used when retrieving metadata!")
+            raise BadRequest("level cannot be used when retrieving metadata!")
         submodels, paging_metadata = self._get_submodels(request)
         return response_t(list(submodels), paging_metadata=paging_metadata, stripped=True)
 
@@ -709,7 +709,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
         if "level" in request.args:
-            raise BadRequest(f"level cannot be used when retrieving metadata!")
+            raise BadRequest("level cannot be used when retrieving metadata!")
         submodel = self._get_submodel(url_args)
         return response_t(submodel, stripped=True)
 
@@ -738,7 +738,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
         if "level" in request.args:
-            raise BadRequest(f"level cannot be used when retrieving metadata!")
+            raise BadRequest("level cannot be used when retrieving metadata!")
         submodel_elements, paging_metadata = self._get_submodel_submodel_elements(request, url_args)
         return response_t(list(submodel_elements), paging_metadata=paging_metadata, stripped=True)
 
@@ -761,7 +761,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
         if "level" in request.args:
-            raise BadRequest(f"level cannot be used when retrieving metadata!")
+            raise BadRequest("level cannot be used when retrieving metadata!")
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         if isinstance(submodel_element, model.Capability) or isinstance(submodel_element, model.Operation):
             raise BadRequest(f"{submodel_element.id_short} does not allow the content modifier metadata!")

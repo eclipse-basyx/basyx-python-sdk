@@ -1677,16 +1677,16 @@ class LangStringSetTest(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             model.LangStringSet({"x": "bar"})
         self.assertEqual(
-            f"The language tag must follow the format defined in BCP 47. "
-            f"Given language tag: x",
+            "The language tag must follow the format defined in BCP 47. "
+            "Given language tag: x",
             cm.exception.args[0],
         )
 
         with self.assertRaises(ValueError) as cm:
             model.LangStringSet({"foo-oo1": "bar"})
         self.assertEqual(
-            f"The language tag must follow the format defined in BCP 47. "
-            f"Given language tag: foo-oo1",
+            "The language tag must follow the format defined in BCP 47. "
+            "Given language tag: foo-oo1",
             cm.exception.args[0],
         )
 

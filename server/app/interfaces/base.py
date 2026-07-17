@@ -487,5 +487,5 @@ def is_stripped_request(request: Request) -> bool:
         raise BadRequest(f"Level {level} is not a valid level!")
     extent = request.args.get("extent")
     if extent is not None:
-        raise werkzeug.exceptions.NotImplemented(f"The parameter extent is not yet implemented for this server!")
+        raise werkzeug.exceptions.NotImplemented("The parameter extent is not yet implemented for this server!")
     return level == "core"
