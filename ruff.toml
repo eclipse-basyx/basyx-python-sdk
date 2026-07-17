@@ -1,0 +1,33 @@
+line-length = 120        # matches the current pycodestyle --max-line-length 120
+target-version = "py310" # matches X_PYTHON_MIN_VERSION in ci.yml
+
+[format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+
+[lint]
+select = [
+    "E",       # pycodestyle errors
+    "W",       # pycodestyle warnings
+    "I",       # isort
+    "N",       # pep8-naming
+    "F4",      # pyflakes: imports/__future__
+    "F5",      # pyflakes: format strings
+    "F7",      # pyflakes: control flow (return/break/continue outside loop/func)
+    "F8",      # pyflakes: undefined/unused names
+    "RUF100",  # unused noqa
+    "COM818",  # enforce trailing comma
+    "B",       # flake8-bugbear
+    "D204", "D211", "D201", "D202", "D300",  # basic docstring formatting
+    "T20",     # prevent native print() statements
+    "A",       # prevent shadowing of python builtins
+]
+
+# TODO: Revisit these
+ignore = [
+    "F403",  # star imports - high existing usage
+    "F405",  # may-be-undefined from star imports
+    "N818",  # Exception name should be named with Error suffix
+]

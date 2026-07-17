@@ -27,12 +27,14 @@ from app.util.converters import IdentifierToBase64URLConverter, IdShortPathConve
 from .base import ObjectStoreWSGIApp, APIResponse, is_stripped_request, HTTPApiDecoder, T
 from app.model import ServiceSpecificationProfileEnum, ServiceDescription
 
-SUPPORTED_PROFILES: ServiceDescription = ServiceDescription([
-    ServiceSpecificationProfileEnum.AAS_REPOSITORY_FULL,
-    ServiceSpecificationProfileEnum.SUBMODEL_REPOSITORY_FULL,
-    ServiceSpecificationProfileEnum.AAS_REPOSITORY_READ,
-    ServiceSpecificationProfileEnum.SUBMODEL_REPOSITORY_READ,
-])
+SUPPORTED_PROFILES: ServiceDescription = ServiceDescription(
+    [
+        ServiceSpecificationProfileEnum.AAS_REPOSITORY_FULL,
+        ServiceSpecificationProfileEnum.SUBMODEL_REPOSITORY_FULL,
+        ServiceSpecificationProfileEnum.AAS_REPOSITORY_READ,
+        ServiceSpecificationProfileEnum.SUBMODEL_REPOSITORY_READ,
+    ]
+)
 
 
 class WSGIApp(ObjectStoreWSGIApp):
@@ -431,7 +433,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         raise NotFound(f"The AAS {aas!r} doesn't have a submodel reference to {submodel_id!r}!")
 
     def _get_shells(
-            self, request: Request
+        self, request: Request
     ) -> Tuple[Iterator[model.AssetAdministrationShell], Optional[PagingMetadata]]:
         aas: Iterator[model.AssetAdministrationShell] = self._get_all_obj_of_type(model.AssetAdministrationShell)
 
@@ -489,7 +491,9 @@ class WSGIApp(ObjectStoreWSGIApp):
         semantic_id = request.args.get("semanticId")
         if semantic_id is not None:
             spec_semantic_id = HTTPApiDecoder.base64url_json(
-                semantic_id, model.Reference, False  # type: ignore[type-abstract]
+                semantic_id,
+                model.Reference,
+                False,  # type: ignore[type-abstract]
             )
             submodels = filter(lambda sm: sm.semantic_id == spec_semantic_id, submodels)
         paginated_submodels, paging_metadata = self._get_slice(request, submodels)
@@ -590,18 +594,20 @@ class WSGIApp(ObjectStoreWSGIApp):
         submodel_refs, paging_metadata = self._get_slice(request, sorted_submodel_refs)
         return response_t(list(submodel_refs), paging_metadata=paging_metadata)
 
-    def post_aas_submodel_refs(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
-                               map_adapter: MapAdapter, **_kwargs) -> Response:
+    def post_aas_submodel_refs(
+        self, request: Request, url_args: Dict, response_t: Type[APIResponse], map_adapter: MapAdapter, **_kwargs
+    ) -> Response:
         aas = self._get_shell(url_args)
         sm_ref = HTTPApiDecoder.request_body(request, model.ModelReference, False)
         if sm_ref in aas.submodel:
             raise Conflict(f"{sm_ref!r} already exists!")
         aas.submodel.add(sm_ref)
         self.object_store.commit(aas)
-        created_resource_url = map_adapter.build(self.delete_aas_submodel_refs_specific, {
-            "aas_id": aas.id,
-            "submodel_id": sm_ref.key[0].value
-        }, force_external=True)
+        created_resource_url = map_adapter.build(
+            self.delete_aas_submodel_refs_specific,
+            {"aas_id": aas.id, "submodel_id": sm_ref.key[0].value},
+            force_external=True,
+        )
         return response_t(sm_ref, status=201, headers={"Location": created_resource_url})
 
     def delete_aas_submodel_refs_specific(
@@ -672,8 +678,9 @@ class WSGIApp(ObjectStoreWSGIApp):
         created_resource_url = map_adapter.build(self.get_submodel, {"submodel_id": submodel.id}, force_external=True)
         return response_t(submodel, status=201, headers={"Location": created_resource_url})
 
-    def get_submodel_all_metadata(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
-                                  **_kwargs) -> Response:
+    def get_submodel_all_metadata(
+        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
+    ) -> Response:
         if "level" in request.args:
             raise BadRequest(f"level cannot be used when retrieving metadata!")
         submodels, paging_metadata = self._get_submodels(request)
@@ -698,8 +705,9 @@ class WSGIApp(ObjectStoreWSGIApp):
         submodel = self._get_submodel(url_args)
         return response_t(submodel, stripped=is_stripped_request(request))
 
-    def get_submodels_metadata(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
-                               **_kwargs) -> Response:
+    def get_submodels_metadata(
+        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
+    ) -> Response:
         if "level" in request.args:
             raise BadRequest(f"level cannot be used when retrieving metadata!")
         submodel = self._get_submodel(url_args)
@@ -726,8 +734,9 @@ class WSGIApp(ObjectStoreWSGIApp):
             list(submodel_elements), paging_metadata=paging_metadata, stripped=is_stripped_request(request)
         )
 
-    def get_submodel_submodel_elements_metadata(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
-                                                **_kwargs) -> Response:
+    def get_submodel_submodel_elements_metadata(
+        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
+    ) -> Response:
         if "level" in request.args:
             raise BadRequest(f"level cannot be used when retrieving metadata!")
         submodel_elements, paging_metadata = self._get_submodel_submodel_elements(request, url_args)
@@ -748,8 +757,9 @@ class WSGIApp(ObjectStoreWSGIApp):
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         return response_t(submodel_element, stripped=is_stripped_request(request))
 
-    def get_submodel_submodel_elements_id_short_path_metadata(self, request: Request, url_args: Dict,
-                                                              response_t: Type[APIResponse], **_kwargs) -> Response:
+    def get_submodel_submodel_elements_id_short_path_metadata(
+        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
+    ) -> Response:
         if "level" in request.args:
             raise BadRequest(f"level cannot be used when retrieving metadata!")
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
@@ -773,7 +783,9 @@ class WSGIApp(ObjectStoreWSGIApp):
         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
         new_submodel_element = HTTPApiDecoder.request_body(
-            request, model.SubmodelElement, is_stripped_request(request)  # type: ignore[type-abstract]
+            request,
+            model.SubmodelElement,
+            is_stripped_request(request),  # type: ignore[type-abstract]
         )
         try:
             parent.add_referable(new_submodel_element)
@@ -781,7 +793,7 @@ class WSGIApp(ObjectStoreWSGIApp):
             if e.constraint_id != 22:
                 raise
             raise Conflict(
-                f"SubmodelElement with idShort {new_submodel_element.id_short} already exists " f"within {parent}!"
+                f"SubmodelElement with idShort {new_submodel_element.id_short} already exists within {parent}!"
             )
         self.object_store.commit(self._get_submodel(url_args))
         submodel = self._get_submodel(url_args)
@@ -800,7 +812,9 @@ class WSGIApp(ObjectStoreWSGIApp):
         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
         new_submodel_element = HTTPApiDecoder.request_body(
-            request, model.SubmodelElement, is_stripped_request(request)  # type: ignore[type-abstract]
+            request,
+            model.SubmodelElement,
+            is_stripped_request(request),  # type: ignore[type-abstract]
         )
         submodel_element.update_from(new_submodel_element)
         self.object_store.commit(self._get_submodel(url_args))
@@ -961,8 +975,9 @@ class WSGIApp(ObjectStoreWSGIApp):
     ) -> Response:
         concept_descriptions: Iterator[model.ConceptDescription] = self._get_all_obj_of_type(model.ConceptDescription)
         concept_descriptions, paging_metadata = self._get_slice(request, concept_descriptions)
-        return response_t(list(concept_descriptions), paging_metadata=paging_metadata,
-                          stripped=is_stripped_request(request))
+        return response_t(
+            list(concept_descriptions), paging_metadata=paging_metadata, stripped=is_stripped_request(request)
+        )
 
     def post_concept_description(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], map_adapter: MapAdapter

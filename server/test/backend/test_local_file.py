@@ -76,7 +76,7 @@ class LocalFileBackendTest(TestCase):
         with self.assertRaises(KeyError) as cm:
             self.descriptor_store.add(self.aasd1)
         self.assertEqual(
-            "'Descriptor with id https://example.org/AASDescriptor/1 already exists in " "local file database'",
+            "'Descriptor with id https://example.org/AASDescriptor/1 already exists in local file database'",
             str(cm.exception),
         )
 
@@ -85,7 +85,7 @@ class LocalFileBackendTest(TestCase):
             self.descriptor_store.get_item("https://example.org/AASDescriptor/1")
         self.assertIsNone(self.descriptor_store.get("https://example.org/AASDescriptor/1"))
         self.assertEqual(
-            "'No Identifiable with id https://example.org/AASDescriptor/1 found in local " "file database'",
+            "'No Identifiable with id https://example.org/AASDescriptor/1 found in local file database'",
             str(cm.exception),
         )
 

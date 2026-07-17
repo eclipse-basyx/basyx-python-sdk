@@ -90,8 +90,12 @@ class PagingMetadata:
 class APIResponse(abc.ABC, Response):
     @abc.abstractmethod
     def __init__(
-            self, obj: Optional[ResponseData] = None, paging_metadata: Optional[PagingMetadata] = None,
-            stripped: bool = False, *args, **kwargs
+        self,
+        obj: Optional[ResponseData] = None,
+        paging_metadata: Optional[PagingMetadata] = None,
+        stripped: bool = False,
+        *args,
+        **kwargs,
     ):
         super().__init__(*args, **kwargs)
         if obj is None:
@@ -229,8 +233,10 @@ class BaseWSGIApp:
         limit_str = request.args.get("limit", default="100")
         cursor_str = request.args.get("cursor", default="1")
         try:
-            limit, cursor = (NonNegativeInteger(int(limit_str)),
-                             NonNegativeInteger(int(cursor_str) - 1))  # cursor is 1-indexed
+            limit, cursor = (
+                NonNegativeInteger(int(limit_str)),
+                NonNegativeInteger(int(cursor_str) - 1),
+            )  # cursor is 1-indexed
         except ValueError:
             raise BadRequest("Limit can not be negative, cursor must be positive!")
         start_index = cursor

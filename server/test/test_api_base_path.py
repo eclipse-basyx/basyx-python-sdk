@@ -47,8 +47,4 @@ class APIBasePathConsistencyTest(unittest.TestCase):
             values[str(path.relative_to(SERVER_ROOT))] = _extract(path)
 
         distinct = set(values.values())
-        self.assertEqual(
-            1,
-            len(distinct),
-            _list_divergences(values)
-        )
+        self.assertEqual(1, len(distinct), _list_divergences(values))

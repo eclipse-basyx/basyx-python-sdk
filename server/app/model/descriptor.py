@@ -41,7 +41,6 @@ class Descriptor(model.HasExtension, metaclass=abc.ABCMeta):
 
 
 class SubmodelDescriptor(Descriptor):
-
     def __init__(
         self,
         id_: model.Identifier,
@@ -63,7 +62,6 @@ class SubmodelDescriptor(Descriptor):
 
 
 class AssetAdministrationShellDescriptor(Descriptor):
-
     def __init__(
         self,
         id_: model.Identifier,

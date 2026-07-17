@@ -35,7 +35,7 @@ class DictDescriptorStoreTest(unittest.TestCase):
         with self.assertRaises(KeyError) as cm:
             descriptor_store.add(aasd3)
         self.assertEqual(
-            "'Descriptor object with same id https://example.org/AASDescriptor/1 is already " "stored in this store'",
+            "'Descriptor object with same id https://example.org/AASDescriptor/1 is already stored in this store'",
             str(cm.exception),
         )
         self.assertEqual(2, len(descriptor_store))

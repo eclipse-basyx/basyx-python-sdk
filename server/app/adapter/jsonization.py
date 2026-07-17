@@ -208,7 +208,6 @@ class ServerStrictStrippedAASFromJsonDecoder(ServerStrictAASFromJsonDecoder, Ser
 
 
 class ServerAASToJsonEncoder(AASToJsonEncoder):
-
     @classmethod
     def _get_aas_class_serializers(cls) -> Dict[Type, Callable]:
         serializers = super()._get_aas_class_serializers()

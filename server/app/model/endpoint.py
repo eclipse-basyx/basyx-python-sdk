@@ -38,7 +38,6 @@ class SecurityAttributeObject:
 
 
 class ProtocolInformation:
-
     def __init__(
         self,
         href: str,
