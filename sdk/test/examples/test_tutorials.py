@@ -9,6 +9,7 @@ Tests for the tutorials
 
 Functions to test if a tutorial is executable
 """
+
 import os
 import tempfile
 import unittest
@@ -21,7 +22,11 @@ from .._helper.test_helpers import COUCHDB_OKAY, TEST_CONFIG, COUCHDB_ERROR
 class TutorialTest(unittest.TestCase):
     def test_tutorial_create_simple_aas(self):
         from basyx.aas.examples import tutorial_create_simple_aas
-        self.assertEqual(tutorial_create_simple_aas.submodel.get_referable('ExampleProperty').value, 'exampleValue')
+
+        self.assertEqual(
+            tutorial_create_simple_aas.submodel.get_referable("ExampleProperty").value,
+            "exampleValue",
+        )
         store = model.DictIdentifiableStore({tutorial_create_simple_aas.submodel})
         next(iter(tutorial_create_simple_aas.aas.submodel)).resolve(store)
 
@@ -29,21 +34,28 @@ class TutorialTest(unittest.TestCase):
         from basyx.aas.examples import tutorial_storage
         # The tutorial already includes assert statements for the relevant points. So no further checks are required.
 
-    @unittest.skipUnless(COUCHDB_OKAY, "No CouchDB is reachable at {}/{}: {}".format(TEST_CONFIG['couchdb']['url'],
-                                                                                     TEST_CONFIG['couchdb']['database'],
-                                                                                     COUCHDB_ERROR))
+    @unittest.skipUnless(
+        COUCHDB_OKAY,
+        "No CouchDB is reachable at {}/{}: {}".format(
+            TEST_CONFIG["couchdb"]["url"],
+            TEST_CONFIG["couchdb"]["database"],
+            COUCHDB_ERROR,
+        ),
+    )
     def test_tutorial_backend_couchdb(self):
         from basyx.aas.examples import tutorial_backend_couchdb
 
     def test_tutorial_serialization_deserialization_json(self):
         with temporary_workingdirectory():
             from basyx.aas.examples import tutorial_serialization_deserialization
+
             pass
         # The tutorial already includes assert statements for the relevant points. So no further checks are required.
 
     def test_tutorial_aasx(self):
         with temporary_workingdirectory():
             from basyx.aas.examples import tutorial_aasx
+
             pass
         # The tutorial already includes assert statements for the relevant points. So no further checks are required.
 

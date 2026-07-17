@@ -14,28 +14,29 @@ class LoadDirectoryTest(unittest.TestCase):
             id_="http://example.org/JSON_AAS",
             asset_information=model.AssetInformation(
                 global_asset_id="http://example.org/JSON_Asset"
-            )
+            ),
         )
 
         xml_aas = model.AssetAdministrationShell(
             id_="http://example.org/XML_AAS",
             asset_information=model.AssetInformation(
                 global_asset_id="http://example.org/XML_Asset"
-            )
+            ),
         )
 
         aasx_aas = model.AssetAdministrationShell(
             id_="http://example.org/aasx_AAS",
             asset_information=model.AssetInformation(
                 global_asset_id="http://example.org/aasx_Asset"
-            )
+            ),
         )
 
         # load TestFile.pdf to save into aasx
         file_container = adapter.aasx.DictSupplementaryFileContainer()
         with open(Path(__file__).parent / "aasx" / "TestFile.pdf", "rb") as pdf:
             resulting_file_name = file_container.add_file(
-                "/aasx/suppl/file.pdf", pdf, "application/json")
+                "/aasx/suppl/file.pdf", pdf, "application/json"
+            )
 
         # create submodel for aasx_aas that refers to pdf
         sm_with_file = model.Submodel(
@@ -44,9 +45,9 @@ class LoadDirectoryTest(unittest.TestCase):
                 model.File(
                     id_short="SampleFile",
                     content_type="application/json",
-                    value=resulting_file_name
+                    value=resulting_file_name,
                 )
-            }
+            },
         )
         aasx_aas.submodel.add(model.ModelReference.from_referable(sm_with_file))
 
@@ -54,17 +55,19 @@ class LoadDirectoryTest(unittest.TestCase):
             temp_dir_path = Path(temp_dir)
 
             # save to json file
-            adapter.json.write_aas_json_file(temp_dir_path / "testAAS.json",
-                                             model.DictIdentifiableStore([json_aas]))
+            adapter.json.write_aas_json_file(
+                temp_dir_path / "testAAS.json", model.DictIdentifiableStore([json_aas])
+            )
             # save to xml file
-            adapter.xml.write_aas_xml_file(temp_dir_path / "testAAS.xml",
-                                           model.DictIdentifiableStore([xml_aas]))
+            adapter.xml.write_aas_xml_file(
+                temp_dir_path / "testAAS.xml", model.DictIdentifiableStore([xml_aas])
+            )
             # save to aasx file
             with adapter.aasx.AASXWriter(temp_dir_path / "testAAS.aasx") as writer:
                 writer.write_aas(
                     aas_ids=["http://example.org/aasx_AAS"],
                     object_store=model.DictIdentifiableStore([aasx_aas, sm_with_file]),
-                    file_store=file_container
+                    file_store=file_container,
                 )
 
             # ---- Act ----

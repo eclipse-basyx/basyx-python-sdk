@@ -16,7 +16,9 @@ from pathlib import Path
 from typing import Union
 
 
-def load_directory(directory: Union[Path, str]) -> tuple[DictIdentifiableStore, DictSupplementaryFileContainer]:
+def load_directory(
+    directory: Union[Path, str],
+) -> tuple[DictIdentifiableStore, DictSupplementaryFileContainer]:
     """
     Create a new :class:`~basyx.aas.model.provider.DictIdentifiableStore` and use it to load Asset Administration Shell
     and Submodel files in ``AASX``, ``JSON`` and ``XML`` format from a given directory into memory. Additionally, load
@@ -46,6 +48,8 @@ def load_directory(directory: Union[Path, str]) -> tuple[DictIdentifiableStore, 
                 read_aas_xml_file_into(dict_identifiable_store, f)
         elif suffix == ".aasx":
             with AASXReader(file) as reader:
-                reader.read_into(object_store=dict_identifiable_store, file_store=file_container)
+                reader.read_into(
+                    object_store=dict_identifiable_store, file_store=file_container
+                )
 
     return dict_identifiable_store, file_container

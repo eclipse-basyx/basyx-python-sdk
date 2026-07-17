@@ -10,10 +10,19 @@ import json
 import unittest
 
 from basyx.aas import model
-from basyx.aas.adapter.json import AASToJsonEncoder, write_aas_json_file, read_aas_json_file
+from basyx.aas.adapter.json import (
+    AASToJsonEncoder,
+    write_aas_json_file,
+    read_aas_json_file,
+)
 
-from basyx.aas.examples.data import example_aas_missing_attributes, example_aas, \
-    example_aas_mandatory_attributes, example_submodel_template, create_example
+from basyx.aas.examples.data import (
+    example_aas_missing_attributes,
+    example_aas,
+    example_aas_mandatory_attributes,
+    example_submodel_template,
+    create_example,
+)
 from basyx.aas.examples.data._helper import AASDataChecker
 
 from typing import Iterable, IO
@@ -27,20 +36,28 @@ class JsonSerializationDeserializationTest(unittest.TestCase):
         assert submodel_identifier is not None
         submodel_reference = model.ModelReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier)
-        test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id="test"),
-                                                  aas_identifier, submodel={submodel_reference})
+        test_aas = model.AssetAdministrationShell(
+            model.AssetInformation(global_asset_id="test"),
+            aas_identifier,
+            submodel={submodel_reference},
+        )
 
         # serialize object to json
-        json_data = json.dumps({
-                'assetAdministrationShells': [test_aas],
-                'submodels': [submodel],
-                'assets': [],
-                'conceptDescriptions': [],
-            }, cls=AASToJsonEncoder)
+        json_data = json.dumps(
+            {
+                "assetAdministrationShells": [test_aas],
+                "submodels": [submodel],
+                "assets": [],
+                "conceptDescriptions": [],
+            },
+            cls=AASToJsonEncoder,
+        )
         json_data_new = json.loads(json_data)
 
         # try deserializing the json string into a DictIdentifiableStore of AAS objects with help of the json module
-        json_identifiable_store = read_aas_json_file(io.StringIO(json_data), failsafe=False)
+        json_identifiable_store = read_aas_json_file(
+            io.StringIO(json_data), failsafe=False
+        )
 
     def test_example_serialization_deserialization(self) -> None:
         # test with TextIO and BinaryIO, which should both be supported
@@ -66,7 +83,9 @@ class JsonSerializationDeserializationTest2(unittest.TestCase):
         file.seek(0)
         json_identifiable_store = read_aas_json_file(file, failsafe=False)
         checker = AASDataChecker(raise_immediately=True)
-        example_aas_mandatory_attributes.check_full_example(checker, json_identifiable_store)
+        example_aas_mandatory_attributes.check_full_example(
+            checker, json_identifiable_store
+        )
 
 
 class JsonSerializationDeserializationTest3(unittest.TestCase):
@@ -78,12 +97,16 @@ class JsonSerializationDeserializationTest3(unittest.TestCase):
         file.seek(0)
         json_identifiable_store = read_aas_json_file(file, failsafe=False)
         checker = AASDataChecker(raise_immediately=True)
-        example_aas_missing_attributes.check_full_example(checker, json_identifiable_store)
+        example_aas_missing_attributes.check_full_example(
+            checker, json_identifiable_store
+        )
 
 
 class JsonSerializationDeserializationTest4(unittest.TestCase):
     def test_example_submodel_template_serialization_deserialization(self) -> None:
-        data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+        data: model.DictIdentifiableStore[model.Identifiable] = (
+            model.DictIdentifiableStore()
+        )
         data.add(example_submodel_template.create_example_submodel_template())
         file = io.StringIO()
         write_aas_json_file(file=file, data=data)

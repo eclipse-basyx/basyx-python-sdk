@@ -44,21 +44,29 @@ import basyx.aas.backend.couchdb
 # password of a CouchDB user account which is "member" of this database (see above). Alternatively, you can provide
 # your CouchDB server's admin credentials.
 config = ConfigParser()
-config.read([Path(__file__).parent.parent.parent.parent / 'test' / 'test_config.default.ini',
-             Path(__file__).parent.parent.parent.parent / 'test' / 'test_config.ini'])
+config.read(
+    [
+        Path(__file__).parent.parent.parent.parent / "test" / "test_config.default.ini",
+        Path(__file__).parent.parent.parent.parent / "test" / "test_config.ini",
+    ]
+)
 
-couchdb_url = config['couchdb']['url']
-couchdb_database = config['couchdb']['database']
-couchdb_user = config['couchdb']['user']
-couchdb_password = config['couchdb']['password']
+couchdb_url = config["couchdb"]["url"]
+couchdb_database = config["couchdb"]["database"]
+couchdb_user = config["couchdb"]["user"]
+couchdb_password = config["couchdb"]["password"]
 
 
 # Provide the login credentials to the CouchDB backend.
 # These credentials are used when communication with this CouchDB server is required via the CouchDBIdentifiableStore.
-basyx.aas.backend.couchdb.register_credentials(couchdb_url, couchdb_user, couchdb_password)
+basyx.aas.backend.couchdb.register_credentials(
+    couchdb_url, couchdb_user, couchdb_password
+)
 
 # Now, we create a CouchDBIdentifiableStore as an interface for managing the objects in the CouchDB server.
-identifiable_store = basyx.aas.backend.couchdb.CouchDBIdentifiableStore(couchdb_url, couchdb_database)
+identifiable_store = basyx.aas.backend.couchdb.CouchDBIdentifiableStore(
+    couchdb_url, couchdb_database
+)
 
 
 ###########################################################
@@ -66,8 +74,12 @@ identifiable_store = basyx.aas.backend.couchdb.CouchDBIdentifiableStore(couchdb_
 ###########################################################
 
 # Create some example objects
-example_submodel1 = basyx.aas.examples.data.example_aas.create_example_asset_identification_submodel()
-example_submodel2 = basyx.aas.examples.data.example_aas.create_example_bill_of_material_submodel()
+example_submodel1 = (
+    basyx.aas.examples.data.example_aas.create_example_asset_identification_submodel()
+)
+example_submodel2 = (
+    basyx.aas.examples.data.example_aas.create_example_bill_of_material_submodel()
+)
 
 # The CouchDBIdentifiableStore behaves just like other ObjectStore implementations (see `tutorial_storage.py`). The
 # objects are transferred to the CouchDB immediately.

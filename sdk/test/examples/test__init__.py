@@ -11,7 +11,6 @@ from basyx.aas.examples.data import create_example, create_example_aas_binding
 
 
 class TestExampleFunctions(unittest.TestCase):
-
     def test_create_example(self):
         identifiable_store = create_example()
 
@@ -20,9 +19,9 @@ class TestExampleFunctions(unittest.TestCase):
 
         # Check that the object store contains expected elements
         expected_ids = [
-            'https://example.org/Test_AssetAdministrationShell',
-            'https://example.org/Test_Submodel_Template',
-            'https://example.org/Test_ConceptDescription_Mandatory'
+            "https://example.org/Test_AssetAdministrationShell",
+            "https://example.org/Test_Submodel_Template",
+            "https://example.org/Test_ConceptDescription_Mandatory",
         ]
         for id in expected_ids:
             self.assertIsNotNone(identifiable_store.get_item(id))
@@ -34,9 +33,9 @@ class TestExampleFunctions(unittest.TestCase):
         self.assertGreater(len(identifiable_store), 0)
 
         # Check that the object store contains expected elements
-        aas_id = 'https://example.org/Test_AssetAdministrationShell'
-        sm_id = 'https://example.org/Test_Submodel_Template'
-        cd_id = 'https://example.org/Test_ConceptDescription_Mandatory'
+        aas_id = "https://example.org/Test_AssetAdministrationShell"
+        sm_id = "https://example.org/Test_Submodel_Template"
+        cd_id = "https://example.org/Test_ConceptDescription_Mandatory"
 
         aas = identifiable_store.get_item(aas_id)
         sm = identifiable_store.get_item(sm_id)

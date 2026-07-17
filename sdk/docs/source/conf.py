@@ -15,15 +15,15 @@ import sys
 import datetime
 
 
-sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath("../.."))
 from basyx.aas import __version__
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'Eclipse BaSyx Python SDK'
-project_copyright = str(datetime.datetime.now().year) + ', the Eclipse BaSyx Authors'
-author = 'The Eclipse BaSyx Authors'
+project = "Eclipse BaSyx Python SDK"
+project_copyright = str(datetime.datetime.now().year) + ", the Eclipse BaSyx Authors"
+author = "The Eclipse BaSyx Authors"
 
 # The full version, including alpha/beta/rc tags
 release = __version__
@@ -36,11 +36,11 @@ release = __version__
 # ones.
 
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.coverage',
-    'sphinx.ext.intersphinx',
-    'sphinx_rtd_theme',
-    'sphinxarg.ext'
+    "sphinx.ext.autodoc",
+    "sphinx.ext.coverage",
+    "sphinx.ext.intersphinx",
+    "sphinx_rtd_theme",
+    "sphinxarg.ext",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -55,16 +55,13 @@ exclude_patterns = []
 add_module_names = False
 
 # Include all public documented and undocumented members by default.
-autodoc_default_options = {
-    'members': True,
-    'undoc-members': True
-}
+autodoc_default_options = {"members": True, "undoc-members": True}
 
 # Mapping for correctly linking other module documentations.
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', None),
-    'dateutil': ('https://dateutil.readthedocs.io/en/stable/', None),
-    'lxml': ('https://lxml.de/apidoc/', None)
+    "python": ("https://docs.python.org/3", None),
+    "dateutil": ("https://dateutil.readthedocs.io/en/stable/", None),
+    "lxml": ("https://lxml.de/apidoc/", None),
 }
 
 
@@ -86,23 +83,23 @@ def setup(app):
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # Fix white-space wrapping in tables.
 # See https://github.com/readthedocs/sphinx_rtd_theme/issues/1505
 # Once fixed, this can be removed and '_static' can be removed from html_static_path.
-html_style = 'custom.css'
+html_style = "custom.css"
 
 # Configuration of the 'Edit on GitHub' button at the top right.
 html_context = {
-    'display_github': True,
-    'github_user': 'eclipse-basyx',
-    'github_repo': 'basyx-python-sdk',
-    'github_version': release,
-    'conf_py_path': '/docs/source/'
+    "display_github": True,
+    "github_user": "eclipse-basyx",
+    "github_repo": "basyx-python-sdk",
+    "github_version": release,
+    "conf_py_path": "/docs/source/",
 }
