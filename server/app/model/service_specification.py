@@ -1,5 +1,5 @@
-from typing import List
 import enum
+from typing import List
 
 
 class ServiceSpecificationProfileEnum(str, enum.Enum):

@@ -8,12 +8,12 @@ specialized Concept Descriptions) are imported into this top-level package, for 
     from basyx.aas.model import AssetAdministrationShell, Submodel, Property
 """
 
+from . import datatypes
 from .aas import *
 from .base import *
-from .submodel import *
-from .provider import *
 from .concept import ConceptDescription
-from . import datatypes
+from .provider import *
+from .submodel import *
 
 # A mapping of BaSyx Python SDK implementation classes to the corresponding `KeyTypes` enum members for all classes
 # that are covered by this enum.

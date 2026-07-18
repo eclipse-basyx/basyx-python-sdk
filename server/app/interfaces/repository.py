@@ -23,9 +23,10 @@ from werkzeug.exceptions import BadRequest, Conflict, NotFound
 from werkzeug.routing import MapAdapter, Rule, Submount
 
 from app.interfaces.base import PagingMetadata
+from app.model import ServiceDescription, ServiceSpecificationProfileEnum
 from app.util.converters import IdentifierToBase64URLConverter, IdShortPathConverter, base64url_decode
-from .base import ObjectStoreWSGIApp, APIResponse, is_stripped_request, HTTPApiDecoder, T
-from app.model import ServiceSpecificationProfileEnum, ServiceDescription
+
+from .base import APIResponse, HTTPApiDecoder, ObjectStoreWSGIApp, T, is_stripped_request
 
 SUPPORTED_PROFILES: ServiceDescription = ServiceDescription(
     [

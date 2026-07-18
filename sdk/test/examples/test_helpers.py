@@ -6,8 +6,8 @@
 # SPDX-License-Identifier: MIT
 import unittest
 
-from basyx.aas.examples.data._helper import DataChecker, AASDataChecker
 from basyx.aas import model
+from basyx.aas.examples.data._helper import AASDataChecker, DataChecker
 
 
 class DataCheckerTest(unittest.TestCase):

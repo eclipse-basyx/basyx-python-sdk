@@ -15,8 +15,8 @@ If you want to get single example objects or want to get more information use th
 import datetime
 import logging
 
-from ._helper import AASDataChecker
 from ... import model
+from ._helper import AASDataChecker
 
 logger = logging.getLogger(__name__)
 

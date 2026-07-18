@@ -28,7 +28,7 @@ import base64
 import datetime
 import decimal
 import re
-from typing import Type, Union, Dict, Optional
+from typing import Dict, Optional, Type, Union
 
 import dateutil.relativedelta
 

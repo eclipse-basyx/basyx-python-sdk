@@ -13,20 +13,19 @@ Helper classes for checking two objects for completeness and correctness and rep
 
 import pprint
 from typing import (
+    Any,
+    Dict,
+    Iterable,
+    Iterator,
     List,
     NamedTuple,
-    Iterator,
-    Dict,
-    Any,
-    Type,
-    Union,
     Set,
-    Iterable,
+    Type,
     TypeVar,
+    Union,
 )
 
 from ... import model
-
 
 _LIST_OR_COLLECTION = TypeVar(
     "_LIST_OR_COLLECTION", model.SubmodelElementList, model.SubmodelElementCollection

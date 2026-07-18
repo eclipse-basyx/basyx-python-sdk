@@ -1,9 +1,8 @@
-import unittest
 import tempfile
+import unittest
 from pathlib import Path
 
-from basyx.aas import model
-from basyx.aas import adapter
+from basyx.aas import adapter, model
 
 
 class LoadDirectoryTest(unittest.TestCase):

@@ -4,9 +4,9 @@
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
-import unittest
 import pathlib
 import re
+import unittest
 
 SERVER_ROOT = pathlib.Path(__file__).resolve().parent.parent
 

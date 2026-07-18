@@ -8,10 +8,11 @@
 This module defines a :class:`~.ComplianceToolStateManager` to store :class:`LogRecords <logging.LogRecord>`
 for single steps in a compliance check of the compliance tool
 """
-import logging
 import enum
+import logging
 import pprint
-from typing import List, Dict
+from typing import Dict, List
+
 from basyx.aas.examples.data._helper import DataChecker
 
 

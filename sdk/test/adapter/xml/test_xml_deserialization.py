@@ -8,19 +8,19 @@
 import io
 import logging
 import unittest
+from typing import Iterable, Type, Union
 
 from basyx.aas import model
+from basyx.aas.adapter._generic import XML_NS_MAP
 from basyx.aas.adapter.xml import (
     StrictAASFromXmlDecoder,
     XMLConstructables,
+    read_aas_xml_element,
     read_aas_xml_file,
     read_aas_xml_file_into,
-    read_aas_xml_element,
 )
 from basyx.aas.adapter.xml.xml_deserialization import _tag_replace_namespace
-from basyx.aas.adapter._generic import XML_NS_MAP
 from lxml import etree
-from typing import Iterable, Type, Union
 
 
 def _xml_wrap(xml: str) -> str:

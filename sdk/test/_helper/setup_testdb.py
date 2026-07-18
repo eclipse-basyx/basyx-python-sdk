@@ -17,14 +17,14 @@ If no CouchDB server at the configured URL, the script will exit with exit code 
 in CI), provide the ``--failsafe`` option.
 """
 
+import argparse
 import base64
 import configparser
-import argparse
 import json
 import os.path
 import sys
-import urllib.request
 import urllib.error
+import urllib.request
 
 # Parse test config (required to setup the CouchDB as expected)
 TEST_CONFIG = configparser.ConfigParser()

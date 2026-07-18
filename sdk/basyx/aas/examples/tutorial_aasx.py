@@ -15,6 +15,7 @@ import datetime
 from pathlib import Path  # Used for easier handling of auxiliary file's local path
 
 import pyecma376_2  # The base library for Open Packaging Specifications. We will use the OPCCoreProperties class.
+
 from basyx.aas import model
 from basyx.aas.adapter import aasx
 

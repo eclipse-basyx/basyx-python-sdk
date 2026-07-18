@@ -6,8 +6,8 @@
 # SPDX-License-Identifier: MIT
 
 import unittest
-import dateutil.tz
 
+import dateutil.tz
 from basyx.aas import model
 
 

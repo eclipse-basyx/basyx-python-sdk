@@ -19,8 +19,7 @@ these identifiables by id and resolving references.
 # Step 4: using the IdentifiableStore to resolve a reference
 
 from basyx.aas import model
-from basyx.aas.model import AssetInformation, AssetAdministrationShell, Submodel
-
+from basyx.aas.model import AssetAdministrationShell, AssetInformation, Submodel
 
 ######################################################################################
 # Step 1: Creating AssetInformation, Submodel and Asset Administration Shell objects #

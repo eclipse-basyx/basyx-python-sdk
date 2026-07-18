@@ -1,8 +1,8 @@
+import base64
 import configparser
 import os.path
-import urllib.request
 import urllib.error
-import base64
+import urllib.request
 
 TEST_CONFIG = configparser.ConfigParser()
 TEST_CONFIG.read(

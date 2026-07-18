@@ -7,11 +7,11 @@
 import unittest
 from unittest import mock
 
-from ._test_helper import create_mock_effect
 from aas_compliance_tool import compliance_check_xml as compliance_tool
 from aas_compliance_tool.state_manager import ComplianceToolStateManager, Status
-
 from basyx.aas.examples.data._helper import CheckResult
+
+from ._test_helper import create_mock_effect
 
 
 class ComplianceToolXmlTest(unittest.TestCase):

@@ -28,13 +28,14 @@ import io
 import itertools
 import logging
 import os
-from typing import Dict, Tuple, IO, Union, List, Set, Optional, Iterable, Iterator
+from typing import IO, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union
 
-from .xml import read_aas_xml_file, write_aas_xml_file
-from .. import model
-from .json import read_aas_json_file, write_aas_json_file
 import pyecma376_2
+
+from .. import model
 from ..util import traversal
+from .json import read_aas_json_file, write_aas_json_file
+from .xml import read_aas_xml_file, write_aas_xml_file
 
 logger = logging.getLogger(__name__)
 

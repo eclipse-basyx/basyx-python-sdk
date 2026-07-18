@@ -4,9 +4,11 @@ using the API from the great https://github.com/endoflife-date/endoflife.date pr
 """
 import argparse
 import sys
+from datetime import datetime
+
 import requests
 from packaging.version import InvalidVersion
-from datetime import datetime
+
 
 def main(min_version: str, max_version: str) -> None:
     # Fetch supported Python versions and check min/max versions

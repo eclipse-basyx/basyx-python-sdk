@@ -9,9 +9,9 @@ The main module of the AAS metamodel. It is used to define the class structures 
 AssetAdministrationShell.
 """
 
-from typing import Optional, Set, Iterable, List
+from typing import Iterable, List, Optional, Set
 
-from . import base, _string_constraints
+from . import _string_constraints, base
 from .submodel import Submodel
 
 

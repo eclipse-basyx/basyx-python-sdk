@@ -8,18 +8,15 @@ import io
 import os
 import unittest
 
-from lxml import etree
-
 from basyx.aas import model
 from basyx.aas.adapter.xml import write_aas_xml_file, xml_serialization
-
 from basyx.aas.examples.data import (
-    example_aas_missing_attributes,
     example_aas,
-    example_submodel_template,
     example_aas_mandatory_attributes,
+    example_aas_missing_attributes,
+    example_submodel_template,
 )
-
+from lxml import etree
 
 XML_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), "../schemas/aasXMLSchema.xsd")
 

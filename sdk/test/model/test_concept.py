@@ -6,8 +6,8 @@
 # SPDX-License-Identifier: MIT
 import unittest
 
-from basyx.aas.examples.data import example_aas
 from basyx.aas import model
+from basyx.aas.examples.data import example_aas
 
 
 class ConceptDescriptionTest(unittest.TestCase):

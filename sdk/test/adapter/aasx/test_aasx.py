@@ -17,9 +17,9 @@ import pyecma376_2
 from basyx.aas import model
 from basyx.aas.adapter import aasx
 from basyx.aas.examples.data import (
+    _helper,
     example_aas,
     example_aas_mandatory_attributes,
-    _helper,
 )
 
 

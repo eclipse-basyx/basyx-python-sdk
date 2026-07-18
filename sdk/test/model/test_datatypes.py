@@ -4,13 +4,12 @@
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
+import copy
 import datetime
 import math
 import unittest
-import copy
 
 import dateutil
-
 from basyx.aas import model
 
 

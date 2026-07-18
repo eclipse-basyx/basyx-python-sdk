@@ -7,11 +7,11 @@
 import unittest
 from unittest import mock
 
-from ._test_helper import create_example_aas_core_properties, create_read_into_mock
 from aas_compliance_tool import compliance_check_aasx as compliance_tool
 from aas_compliance_tool.state_manager import ComplianceToolStateManager, Status
-
 from basyx.aas.examples.data._helper import CheckResult
+
+from ._test_helper import create_example_aas_core_properties, create_read_into_mock
 
 
 class ComplianceToolAASXTest(unittest.TestCase):

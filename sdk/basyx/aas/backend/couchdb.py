@@ -12,20 +12,21 @@ The :class:`~CouchDBIdentifiableStore` handles adding, deleting and otherwise ma
 CouchDB.
 """
 
+import json
+import logging
 import threading
-import warnings
-import weakref
-from typing import Dict, Any, Optional, Iterator, Iterable, Tuple, MutableMapping
+import urllib.error
 import urllib.parse
 import urllib.request
-import urllib.error
-import logging
-import json
+import warnings
+import weakref
+from typing import Any, Dict, Iterable, Iterator, MutableMapping, Optional, Tuple
+
 import urllib3  # type: ignore
 
-from ..adapter.json import json_serialization, json_deserialization
 from basyx.aas import model
 
+from ..adapter.json import json_deserialization, json_serialization
 
 logger = logging.getLogger(__name__)
 _http_pool_manager = urllib3.PoolManager()

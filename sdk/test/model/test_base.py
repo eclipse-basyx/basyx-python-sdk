@@ -6,13 +6,13 @@
 # SPDX-License-Identifier: MIT
 
 import unittest
-from unittest import mock
-from typing import Callable, Dict, Iterable, List, Optional, Type, TypeVar
 from collections import OrderedDict
+from typing import Callable, Dict, Iterable, List, Optional, Type, TypeVar
+from unittest import mock
 
 from basyx.aas import model
-from basyx.aas.model import Identifier, Identifiable
 from basyx.aas.examples.data import example_aas
+from basyx.aas.model import Identifiable, Identifier
 
 
 class KeyTest(unittest.TestCase):

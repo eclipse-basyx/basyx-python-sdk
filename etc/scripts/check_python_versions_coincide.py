@@ -2,10 +2,12 @@
 This helper script checks if the Python versions defined in a `pyproject.toml` coincide with the given `min_version`
 and `max_version` and returns an error if they don't.
 """
-import re
 import argparse
+import re
 import sys
-from packaging.version import Version, InvalidVersion
+
+from packaging.version import InvalidVersion, Version
+
 
 def main(pyproject_toml_path: str, min_version: str, max_version: str) -> None:
     # Load and check `requires-python` version from `pyproject.toml`

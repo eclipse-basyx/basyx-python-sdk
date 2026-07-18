@@ -15,9 +15,9 @@ from werkzeug.wrappers import Request, Response
 
 from app import model as server_model
 from app.adapter import jsonization
-from app.interfaces.base import BaseWSGIApp, HTTPApiDecoder, APIResponse
+from app.interfaces.base import APIResponse, BaseWSGIApp, HTTPApiDecoder
+from app.model import ServiceDescription, ServiceSpecificationProfileEnum
 from app.util.converters import IdentifierToBase64URLConverter, base64url_decode
-from app.model import ServiceSpecificationProfileEnum, ServiceDescription
 
 SUPPORTED_PROFILES: ServiceDescription = ServiceDescription(
     [

@@ -4,7 +4,7 @@ This module implements the Registry interface defined in the
 – Application Programming Interface'.
 """
 
-from typing import Dict, Iterator, Tuple, Type, Optional
+from typing import Dict, Iterator, Optional, Tuple, Type
 
 import werkzeug.exceptions
 import werkzeug.routing
@@ -16,8 +16,8 @@ from werkzeug.routing import MapAdapter, Rule, Submount
 from werkzeug.wrappers import Request, Response
 
 import app.model as server_model
-from app.interfaces.base import APIResponse, HTTPApiDecoder, ObjectStoreWSGIApp, is_stripped_request, PagingMetadata
-from app.model import DictDescriptorStore, ServiceSpecificationProfileEnum, ServiceDescription
+from app.interfaces.base import APIResponse, HTTPApiDecoder, ObjectStoreWSGIApp, PagingMetadata, is_stripped_request
+from app.model import DictDescriptorStore, ServiceDescription, ServiceSpecificationProfileEnum
 from app.util.converters import IdentifierToBase64URLConverter, base64url_decode
 
 SUPPORTED_PROFILES: ServiceDescription = ServiceDescription(

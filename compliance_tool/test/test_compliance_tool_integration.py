@@ -15,13 +15,12 @@ from io import StringIO
 from typing import cast
 from unittest.mock import patch
 
+from aas_compliance_tool.cli import main
 from basyx.aas import model
 from basyx.aas.adapter import aasx
 from basyx.aas.adapter.json import write_aas_json_file
 from basyx.aas.adapter.xml import write_aas_xml_file
 from basyx.aas.examples.data.example_aas import create_full_example
-
-from aas_compliance_tool.cli import main
 
 
 class ComplianceToolIntegrationTest(unittest.TestCase):

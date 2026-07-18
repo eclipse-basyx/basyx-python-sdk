@@ -16,6 +16,7 @@ select = [
     "COM818",  # enforce trailing comma
     "F7",      # pyflakes: control flow (return/break/continue outside loop/func)
     "D204", "D211", "D201", "D300",  # basic docstring formatting
+    "I",       # isort
 ]
 
 # TODO: Revisit these
@@ -29,7 +30,6 @@ ignore = [
     "A",       # prevent shadowing of python builtins
     "FIX",     # prevent the creation of T0DO / F1XME comments
     # Checked, need manual work:
-    "I",       # isort
     "F4",      # pyflakes: imports/__future__
     "F8",      # pyflakes: undefined/unused names
     "PIE",     # small readability improvements

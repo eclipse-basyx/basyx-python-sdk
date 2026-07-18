@@ -11,8 +11,7 @@ import urllib.error
 from basyx.aas.backend import couchdb
 from basyx.aas.examples.data.example_aas import *
 
-from test._helper.test_helpers import TEST_CONFIG, COUCHDB_OKAY, COUCHDB_ERROR
-
+from test._helper.test_helpers import COUCHDB_ERROR, COUCHDB_OKAY, TEST_CONFIG
 
 source_core: str = (
     "couchdb://"

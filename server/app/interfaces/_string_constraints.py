@@ -21,7 +21,8 @@ The following types aliased in the :mod:`~server.app.interfaces.base` module are
 """
 
 from typing import Callable, Type
-from basyx.aas.model._string_constraints import check, constrain_attr, _T
+
+from basyx.aas.model._string_constraints import _T, check, constrain_attr
 
 
 def check_code_type(value: str, type_name: str = "CodeType") -> None:

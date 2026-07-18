@@ -31,21 +31,22 @@ import base64
 import contextlib
 import inspect
 import io
+import json
 from typing import (
+    Callable,
     ContextManager,
-    List,
     Dict,
+    Iterable,
+    List,
     Optional,
     TextIO,
-    Type,
-    Callable,
-    get_args,
-    Iterable,
     Tuple,
+    Type,
+    get_args,
 )
-import json
 
 from basyx.aas import model
+
 from .. import _generic
 from .._generic import JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES
 

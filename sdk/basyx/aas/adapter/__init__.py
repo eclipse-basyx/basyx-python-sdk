@@ -8,12 +8,13 @@ This package contains different kinds of adapters.
 * :ref:`aasx <adapter.aasx>`: This package offers functions for reading and writing AASX-files.
 """
 
+from pathlib import Path
+from typing import Union
+
 from basyx.aas.adapter.aasx import AASXReader, DictSupplementaryFileContainer
 from basyx.aas.adapter.json import read_aas_json_file_into
 from basyx.aas.adapter.xml import read_aas_xml_file_into
 from basyx.aas.model.provider import DictIdentifiableStore
-from pathlib import Path
-from typing import Union
 
 
 def load_directory(

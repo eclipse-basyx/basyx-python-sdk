@@ -9,12 +9,11 @@ import base64
 import json
 import unittest
 
+from app.interfaces.repository import WSGIApp
 from basyx.aas import model
 from basyx.aas.adapter.aasx import DictSupplementaryFileContainer
 from basyx.aas.examples.data.example_aas import create_full_example
 from werkzeug.test import Client
-
-from app.interfaces.repository import WSGIApp
 
 BASE_PATH = "/api/v3.1"
 

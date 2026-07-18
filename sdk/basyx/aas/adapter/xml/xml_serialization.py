@@ -31,11 +31,13 @@ How to use:
             write_aas_xml_file(fp, object_store)
 """
 
-from lxml import etree
-from typing import Callable, Dict, Optional, Type
 import base64
+from typing import Callable, Dict, Optional, Type
+
+from lxml import etree
 
 from basyx.aas import model
+
 from .. import _generic
 
 NS_AAS = _generic.XML_NS_AAS

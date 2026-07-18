@@ -29,6 +29,7 @@ import app.model
 from app.adapter import ServerAASToJsonEncoder, ServerStrictAASFromJsonDecoder, ServerStrictStrippedAASFromJsonDecoder
 from app.model import AssetAdministrationShellDescriptor, AssetLink, SubmodelDescriptor
 from app.util.converters import base64url_decode
+
 from . import _string_constraints
 
 # The following string aliases are constrained by the decorator functions defined in the string_constraints module,

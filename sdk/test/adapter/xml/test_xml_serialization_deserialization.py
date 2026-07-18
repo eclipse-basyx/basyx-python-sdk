@@ -10,19 +10,18 @@ import unittest
 
 from basyx.aas import model
 from basyx.aas.adapter.xml import (
-    write_aas_xml_file,
+    XMLConstructables,
+    read_aas_xml_element,
     read_aas_xml_file,
     write_aas_xml_element,
-    read_aas_xml_element,
-    XMLConstructables,
+    write_aas_xml_file,
 )
-
 from basyx.aas.examples.data import (
-    example_aas_missing_attributes,
+    create_example,
     example_aas,
     example_aas_mandatory_attributes,
+    example_aas_missing_attributes,
     example_submodel_template,
-    create_example,
 )
 from basyx.aas.examples.data._helper import AASDataChecker
 

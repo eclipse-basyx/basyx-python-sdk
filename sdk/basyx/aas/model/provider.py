@@ -13,20 +13,19 @@ This module implements Registries for the AAS, in order to enable resolving glob
 import abc
 import warnings
 from typing import (
-    MutableSet,
-    Iterator,
-    Generic,
-    TypeVar,
     Dict,
-    List,
-    Optional,
+    Generic,
     Iterable,
+    Iterator,
+    List,
+    MutableSet,
+    Optional,
     Set,
     Tuple,
+    TypeVar,
 )
 
-from .base import Identifier, Identifiable
-
+from .base import Identifiable, Identifier
 
 _KEY = TypeVar("_KEY")  # Generic key type
 _VALUE = TypeVar("_VALUE")  # Generic value type

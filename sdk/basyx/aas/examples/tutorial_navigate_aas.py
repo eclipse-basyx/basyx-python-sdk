@@ -5,8 +5,9 @@
 Tutorial for navigating a Submodel's hierarchy using IdShorts and IdShortPaths.
 """
 
-from basyx.aas import model
 from typing import cast
+
+from basyx.aas import model
 
 # In this tutorial, you will learn how to create a Submodel with different kinds of SubmodelElements and how to navigate
 # through them using IdShorts and IdShortPaths.

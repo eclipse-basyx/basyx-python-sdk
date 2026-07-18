@@ -12,30 +12,30 @@ the higher level classes to inherit from.
 import abc
 import inspect
 import itertools
+import re
 from enum import Enum, unique
 from typing import (
-    List,
-    Optional,
-    Set,
-    TypeVar,
-    MutableSet,
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
     Generic,
     Iterable,
-    Dict,
     Iterator,
+    List,
+    MutableMapping,
+    MutableSequence,
+    MutableSet,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    TypeVar,
     Union,
     overload,
-    MutableSequence,
-    Type,
-    Any,
-    TYPE_CHECKING,
-    Tuple,
-    Callable,
-    MutableMapping,
 )
-import re
 
-from . import datatypes, _string_constraints
+from . import _string_constraints, datatypes
 
 if TYPE_CHECKING:
     from . import provider

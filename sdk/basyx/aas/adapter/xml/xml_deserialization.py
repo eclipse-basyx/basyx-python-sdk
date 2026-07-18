@@ -41,27 +41,28 @@ found. Constructor functions of these elements will then again search for mandat
 and construct them if available, and so on.
 """
 
-from ... import model
-from lxml import etree
-import logging
 import base64
 import enum
-
+import logging
 from typing import Any, Callable, Dict, Iterable, Optional, Set, Tuple, Type, TypeVar
+
+from lxml import etree
+
+from ... import model
 from .._generic import (
-    XML_NS_MAP,
-    XML_NS_AAS,
-    MODELLING_KIND_INVERSE,
     ASSET_KIND_INVERSE,
-    KEY_TYPES_INVERSE,
+    DIRECTION_INVERSE,
     ENTITY_TYPES_INVERSE,
     IEC61360_DATA_TYPES_INVERSE,
     IEC61360_LEVEL_TYPES_INVERSE,
     KEY_TYPES_CLASSES_INVERSE,
-    REFERENCE_TYPES_INVERSE,
-    DIRECTION_INVERSE,
-    STATE_OF_EVENT_INVERSE,
+    KEY_TYPES_INVERSE,
+    MODELLING_KIND_INVERSE,
     QUALIFIER_KIND_INVERSE,
+    REFERENCE_TYPES_INVERSE,
+    STATE_OF_EVENT_INVERSE,
+    XML_NS_AAS,
+    XML_NS_MAP,
     PathOrIO,
 )
 

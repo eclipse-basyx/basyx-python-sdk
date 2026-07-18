@@ -9,8 +9,8 @@ CouchDBIdentifiableStore and CouchDB Backend.
 from configparser import ConfigParser
 from pathlib import Path
 
-import basyx.aas.examples.data.example_aas
 import basyx.aas.backend.couchdb
+import basyx.aas.examples.data.example_aas
 
 # To execute this tutorial, you'll need a running CouchDB server, including an empty database and a user account with
 # access to that database.

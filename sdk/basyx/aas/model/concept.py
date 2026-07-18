@@ -8,7 +8,7 @@
 This module contains the class :class:`~.ConceptDescription` from the AAS metamodel.
 """
 
-from typing import Optional, Set, Iterable, List
+from typing import Iterable, List, Optional, Set
 
 from . import base
 
