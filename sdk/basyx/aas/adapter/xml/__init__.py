@@ -26,3 +26,18 @@ from .xml_serialization import (
     write_aas_xml_element,
     write_aas_xml_file,
 )
+
+__all__ = [
+    "AASFromXmlDecoder",
+    "StrictAASFromXmlDecoder",
+    "StrictStrippedAASFromXmlDecoder",
+    "StrippedAASFromXmlDecoder",
+    "XMLConstructables",
+    "read_aas_xml_element",
+    "read_aas_xml_file",
+    "read_aas_xml_file_into",
+    "object_store_to_xml_element",
+    "object_to_xml_element",
+    "write_aas_xml_element",
+    "write_aas_xml_file",
+]

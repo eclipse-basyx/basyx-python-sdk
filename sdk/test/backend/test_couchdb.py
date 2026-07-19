@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: MIT
 import unittest
 import unittest.mock
-import urllib.error
 
 from basyx.aas.backend import couchdb
 from basyx.aas.examples.data.example_aas import *

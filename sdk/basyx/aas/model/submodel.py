@@ -16,7 +16,6 @@ from typing import (
     Iterable,
     List,
     Optional,
-    Set,
     Type,
     TypeVar,
     Union,

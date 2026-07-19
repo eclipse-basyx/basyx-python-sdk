@@ -7,7 +7,6 @@
 import datetime
 import hashlib
 import io
-import os
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout

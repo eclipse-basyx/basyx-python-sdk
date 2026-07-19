@@ -32,7 +32,7 @@ How to use:
 """
 
 import base64
-from typing import Callable, Dict, Optional, Type
+from typing import Dict, Optional, Type
 
 from lxml import etree
 

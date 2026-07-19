@@ -12,7 +12,6 @@ All functions reports any issues using the given
 :class:`LogRecords <logging.LogRecord>`
 """
 import datetime
-import io
 import logging
 from typing import Optional, Tuple, cast
 
@@ -23,9 +22,7 @@ from basyx.aas.adapter.json import json_deserialization
 from basyx.aas.adapter.xml import xml_deserialization
 from basyx.aas.examples.data import create_example_aas_binding, example_aas
 from basyx.aas.examples.data._helper import AASDataChecker, DataChecker
-from lxml import etree  # type: ignore
 
-from aas_compliance_tool import compliance_check_json, compliance_check_xml
 from aas_compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 

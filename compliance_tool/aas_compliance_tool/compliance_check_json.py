@@ -11,10 +11,8 @@ All functions reports any issues using the given
 :class:`~basyx.aas.compliance_tool.state_manager.ComplianceToolStateManager` by adding new steps and associated
 :class:`LogRecords <logging.LogRecord>`
 """
-import json
 import logging
-import os
-from typing import IO, Optional
+from typing import Optional
 
 from basyx.aas import model
 from basyx.aas.adapter.json import json_deserialization

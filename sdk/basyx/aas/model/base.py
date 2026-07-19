@@ -10,7 +10,6 @@ the higher level classes to inherit from.
 """
 
 import abc
-import inspect
 import itertools
 import re
 from enum import Enum, unique
@@ -927,7 +926,6 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                     f"id_short of {self!r} cannot be unset, since it is already "
                     f"contained in {self.parent!r}",
                 )
-            from .submodel import SubmodelElementList
 
             for set_ in self.parent.namespace_element_sets:
                 if set_.contains_id("id_short", id_short):

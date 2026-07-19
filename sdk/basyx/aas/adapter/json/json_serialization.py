@@ -29,7 +29,6 @@ conversion functions to handle all the attributes of abstract base classes.
 
 import base64
 import contextlib
-import inspect
 import io
 import json
 from typing import (

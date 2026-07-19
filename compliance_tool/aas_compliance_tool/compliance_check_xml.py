@@ -12,14 +12,12 @@ All functions reports any issues using the given
 :class:`LogRecords <logging.LogRecord>`
 """
 import logging
-import os
 from typing import Optional
 
 from basyx.aas import model
 from basyx.aas.adapter.xml import xml_deserialization
 from basyx.aas.examples.data import create_example, example_aas
 from basyx.aas.examples.data._helper import AASDataChecker
-from lxml import etree  # type: ignore
 
 from aas_compliance_tool.state_manager import ComplianceToolStateManager, Status
 

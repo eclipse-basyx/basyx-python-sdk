@@ -19,7 +19,6 @@ from basyx.aas.adapter import aasx
 from basyx.aas.examples.data import (
     _helper,
     example_aas,
-    example_aas_mandatory_attributes,
 )
 
 

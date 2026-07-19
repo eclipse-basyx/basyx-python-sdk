@@ -31,3 +31,16 @@ from .json_serialization import (
     object_store_to_json,
     write_aas_json_file,
 )
+
+__all__ = [
+    "AASFromJsonDecoder",
+    "StrictAASFromJsonDecoder",
+    "StrictStrippedAASFromJsonDecoder",
+    "StrippedAASFromJsonDecoder",
+    "read_aas_json_file",
+    "read_aas_json_file_into",
+    "AASToJsonEncoder",
+    "StrippedAASToJsonEncoder",
+    "object_store_to_json",
+    "write_aas_json_file",
+]
