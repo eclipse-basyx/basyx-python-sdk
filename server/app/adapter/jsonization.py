@@ -64,7 +64,6 @@ class ServerAASFromJsonDecoder(AASFromJsonDecoder):
             ret.asset_kind = ASSET_KIND_INVERSE[_get_ts(dct, "assetKind", str)]
         if "assetType" in dct:
             ret.asset_type = _get_ts(dct, "assetType", str)
-        global_asset_id = None
         if "globalAssetId" in dct:
             ret.global_asset_id = _get_ts(dct, "globalAssetId", str)
         specific_asset_id = set()

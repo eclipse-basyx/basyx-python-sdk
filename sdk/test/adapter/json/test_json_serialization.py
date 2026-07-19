@@ -40,7 +40,7 @@ class JsonSerializationTest(unittest.TestCase):
                 {"en-US": "Germany", "de": "Deutschland"}
             ),
         )
-        json_data = json.dumps(test_object, cls=AASToJsonEncoder)
+        json.dumps(test_object, cls=AASToJsonEncoder)
 
     def test_random_object_serialization(self) -> None:
         aas_identifier = "AAS1"
@@ -65,7 +65,7 @@ class JsonSerializationTest(unittest.TestCase):
             },
             cls=AASToJsonEncoder,
         )
-        json_data_new = json.loads(json_data)
+        json.loads(json_data)
 
 
 class JsonSerializationSchemaTest(unittest.TestCase):

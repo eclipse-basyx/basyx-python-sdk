@@ -2292,7 +2292,7 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         if self._item_add_hook is not None:
             try:
                 self._item_add_hook(element, self.__iter__())
-            except Exception as e:
+            except Exception:
                 self._execute_item_del_hook(element)
                 raise
 
@@ -2392,20 +2392,20 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
                     referable.update_from(other_object)  # type: ignore
                 elif isinstance(other_object, Qualifier):
                     backend, case_sensitive = self._backend["type"]
-                    qualifier = backend[
+                    qualifier = backend[  # noqa: F841 qualifier currently unused
                         other_object.type
                         if case_sensitive
                         else other_object.type.upper()
                     ]
-                    # qualifier.update_from(other_object) # TODO: What should happend here?
+                    # qualifier.update_from(other_object) # TODO: What should happend here? Remove noqa when done
                 elif isinstance(other_object, Extension):
                     backend, case_sensitive = self._backend["name"]
-                    extension = backend[
+                    extension = backend[  # noqa: F841 extension currently unused
                         other_object.name
                         if case_sensitive
                         else other_object.name.upper()
                     ]
-                    # extension.update_from(other_object) # TODO: What should happend here?
+                    # extension.update_from(other_object) # TODO: What should happend here? Remove noqa when done
                 else:
                     raise TypeError("Type not implemented")
             except KeyError:

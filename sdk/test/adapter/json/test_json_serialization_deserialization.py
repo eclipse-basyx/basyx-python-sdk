@@ -50,10 +50,10 @@ class JsonSerializationDeserializationTest(unittest.TestCase):
             },
             cls=AASToJsonEncoder,
         )
-        json_data_new = json.loads(json_data)
+        json.loads(json_data)
 
         # try deserializing the json string into a DictIdentifiableStore of AAS objects with help of the json module
-        json_identifiable_store = read_aas_json_file(
+        read_aas_json_file(
             io.StringIO(json_data), failsafe=False
         )
 

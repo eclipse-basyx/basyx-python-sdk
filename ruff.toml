@@ -17,6 +17,7 @@ select = [
     "F7",      # pyflakes: control flow (return/break/continue outside loop/func)
     "D204", "D211", "D201", "D300",  # basic docstring formatting
     "I",       # isort
+    "F8",      # pyflakes: undefined/unused names
 ]
 
 # TODO: Revisit these
@@ -31,7 +32,6 @@ ignore = [
     "FIX",     # prevent the creation of T0DO / F1XME comments
     # Checked, need manual work:
     "F4",      # pyflakes: imports/__future__
-    "F8",      # pyflakes: undefined/unused names
     "PIE",     # small readability improvements
     "PYI",     # typing best practices
     # Evaluate if we want to use:

@@ -100,7 +100,7 @@ def generate_example_referable_tree() -> model.Referable:
         referable = ExampleReferableWithNamespace()
         referable.id_short = id_short
         if child:
-            namespace_set = model.NamespaceSet(
+            model.NamespaceSet(
                 parent=referable, attribute_names=[("id_short", True)], items=[child]
             )
         return referable
@@ -115,7 +115,7 @@ def generate_example_referable_tree() -> model.Referable:
     example_parent = generate_example_referable_with_namespace(
         "exampleParent", example_referable
     )
-    example_grandparent = generate_example_referable_with_namespace(
+    generate_example_referable_with_namespace(
         "exampleGrandparent", example_parent
     )
 
@@ -698,7 +698,7 @@ class ModelNamespaceTest(unittest.TestCase):
 
     def test_Namespace(self) -> None:
         with self.assertRaises(model.AASConstraintViolation) as cm:
-            namespace_test = ExampleNamespaceReferable(
+            ExampleNamespaceReferable(
                 [self.prop1, self.prop2, self.prop1alt]
             )
         self.assertEqual(
@@ -1324,7 +1324,7 @@ class ModelReferenceTest(unittest.TestCase):
         self.assertIs(submodel, cm_6.exception.value)
 
         with self.assertRaises(ValueError) as cm_7:
-            ref7 = model.ModelReference((), model.Submodel)
+            model.ModelReference((), model.Submodel)
         self.assertEqual("A reference must have at least one key!", str(cm_7.exception))
 
         ref8 = model.ModelReference(
@@ -1401,7 +1401,7 @@ class ModelReferenceTest(unittest.TestCase):
         # Test exception for element without identifiable ancestor
         submodel.submodel_element.remove(collection)
         with self.assertRaises(ValueError) as cm:
-            ref3 = model.ModelReference.from_referable(prop)
+            model.ModelReference.from_referable(prop)
         self.assertEqual(
             "The given Referable object is not embedded within an Identifiable object",
             str(cm.exception).split(":")[0],
@@ -1429,7 +1429,7 @@ class ModelReferenceTest(unittest.TestCase):
 class AdministrativeInformationTest(unittest.TestCase):
     def test_setting_version_revision(self) -> None:
         with self.assertRaises(model.AASConstraintViolation) as cm:
-            obj = model.AdministrativeInformation(revision="9")
+            model.AdministrativeInformation(revision="9")
         self.assertEqual(
             "A revision requires a version. This means, if there is no version there is no "
             "revision neither. Please set version first. (Constraint AASd-005)",

@@ -918,9 +918,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_file(
         cls, dct: Dict[str, object], object_class=model.File
     ) -> model.File:
-        content_type = (
-            _get_ts(dct, "contentType", str) if "contentType" in dct else None
-        )
         ret = object_class(
             id_short=None,
             value=None,

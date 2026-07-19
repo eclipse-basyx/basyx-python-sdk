@@ -31,7 +31,7 @@ class XMLSerializationTest(unittest.TestCase):
                 {"en-US": "Germany", "de": "Deutschland"}
             ),
         )
-        xml_data = xml_serialization.property_to_xml(
+        xml_serialization.property_to_xml(
             test_object, xml_serialization.NS_AAS + "test_object"
         )
         # todo: is this a correct way to test it?
@@ -105,7 +105,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         # validate serialization against schema
         parser = etree.XMLParser(schema=aas_schema)
         test_file.seek(0)
-        root = etree.parse(test_file, parser=parser)
+        etree.parse(test_file, parser=parser)
 
     def test_full_example_serialization(self) -> None:
         data = example_aas.create_full_example()
@@ -118,7 +118,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         # validate serialization against schema
         parser = etree.XMLParser(schema=aas_schema)
         file.seek(0)
-        root = etree.parse(file, parser=parser)
+        etree.parse(file, parser=parser)
 
     def test_submodel_template_serialization(self) -> None:
         data: model.DictIdentifiableStore[model.Identifiable] = (
@@ -134,7 +134,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         # validate serialization against schema
         parser = etree.XMLParser(schema=aas_schema)
         file.seek(0)
-        root = etree.parse(file, parser=parser)
+        etree.parse(file, parser=parser)
 
     def test_full_empty_example_serialization(self) -> None:
         data = example_aas_mandatory_attributes.create_full_example()
@@ -147,7 +147,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         # validate serialization against schema
         parser = etree.XMLParser(schema=aas_schema)
         file.seek(0)
-        root = etree.parse(file, parser=parser)
+        etree.parse(file, parser=parser)
 
     def test_missing_serialization(self) -> None:
         data = example_aas_missing_attributes.create_full_example()
@@ -160,7 +160,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         # validate serialization against schema
         parser = etree.XMLParser(schema=aas_schema)
         file.seek(0)
-        root = etree.parse(file, parser=parser)
+        etree.parse(file, parser=parser)
 
     def test_concept_description(self) -> None:
         data: model.DictIdentifiableStore[model.Identifiable] = (
@@ -176,4 +176,4 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         # validate serialization against schema
         parser = etree.XMLParser(schema=aas_schema)
         file.seek(0)
-        root = etree.parse(file, parser=parser)
+        etree.parse(file, parser=parser)

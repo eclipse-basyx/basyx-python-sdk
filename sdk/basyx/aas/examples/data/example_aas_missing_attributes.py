@@ -292,36 +292,6 @@ def create_example_submodel() -> model.Submodel:
         )
     )
 
-    operation_variable_property = model.Property(
-        id_short="ExampleProperty",
-        value_type=model.datatypes.String,
-        value="exampleValue",
-        value_id=model.ExternalReference(
-            (
-                model.Key(
-                    type_=model.KeyTypes.GLOBAL_REFERENCE,
-                    value="http://example.org/ValueId/ExampleValueId",
-                ),
-            )
-        ),
-        display_name=model.MultiLanguageNameType(
-            {"en-US": "ExampleProperty", "de": "BeispielProperty"}
-        ),
-        category="CONSTANT",
-        description=model.MultiLanguageTextType(
-            {"en-US": "Example Property object", "de": "Beispiel Property Element"}
-        ),
-        parent=None,
-        semantic_id=model.ExternalReference(
-            (
-                model.Key(
-                    type_=model.KeyTypes.GLOBAL_REFERENCE,
-                    value="http://example.org/Properties/ExampleProperty",
-                ),
-            )
-        ),
-        qualifier=(),
-    )
 
     input_variable_property = model.Property(
         id_short="ExamplePropertyInput",

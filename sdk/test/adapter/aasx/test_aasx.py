@@ -730,7 +730,7 @@ class AASXWriterReferencedSubmodelsTest(unittest.TestCase):
                 fd, filename = tempfile.mkstemp(suffix=".aasx")
                 os.close(fd)
 
-                with warnings.catch_warnings(record=True) as w:
+                with warnings.catch_warnings(record=True):
                     with aasx.AASXWriter(filename) as writer:
                         # write_aas only takes the AAS id and IdentifiableStore
                         writer.write_aas(
@@ -764,7 +764,7 @@ class AASXWriterReferencedSubmodelsTest(unittest.TestCase):
                 fd, filename = tempfile.mkstemp(suffix=".aasx")
                 os.close(fd)
 
-                with warnings.catch_warnings(record=True) as w:
+                with warnings.catch_warnings(record=True):
                     with aasx.AASXWriter(filename) as writer:
                         writer.write_all_aas_objects(
                             part_name="/aasx/my_aas_part.xml",
