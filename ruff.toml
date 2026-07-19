@@ -19,6 +19,7 @@ select = [
     "I",       # isort
     "F8",      # pyflakes: undefined/unused names
     "F4",      # pyflakes: imports/__future__
+    "PIE",     # small readability improvements
 ]
 
 # TODO: Revisit these
@@ -32,7 +33,6 @@ ignore = [
     "A",       # prevent shadowing of python builtins
     "FIX",     # prevent the creation of T0DO / F1XME comments
     # Checked, need manual work:
-    "PIE",     # small readability improvements
     "PYI",     # typing best practices
     # Evaluate if we want to use:
     "S",        # security related precautions

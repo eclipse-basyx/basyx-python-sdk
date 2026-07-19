@@ -276,7 +276,6 @@ class HexBinary(bytearray):
 class Float(float):
     """A 32bit IEEE754 float. This can not be represented with Python"""
 
-    pass
 
 
 class Long(int):

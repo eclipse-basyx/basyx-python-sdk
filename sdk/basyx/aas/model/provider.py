@@ -41,7 +41,6 @@ class AbstractObjectProvider(Generic[_KEY, _VALUE], metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_item(self, key: _KEY) -> _VALUE:
         """Retrieve the item or raise a KeyError."""
-        pass
 
     def get(self, key: _KEY, default: Optional[_VALUE] = None) -> Optional[_VALUE]:
         """Retrieve the item or return a default value."""

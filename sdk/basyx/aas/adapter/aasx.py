@@ -958,7 +958,7 @@ class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
         :return: The file name as stored in the SupplementaryFileContainer. Typically, ``name`` or a modified version of
             ``name`` to resolve conflicts.
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def get_content_type(self, name: str) -> str:
@@ -969,7 +969,7 @@ class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
         :return: The file's content_type
         :raises KeyError: If no file with this name is stored
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def get_sha256(self, name: str) -> bytes:
@@ -982,7 +982,7 @@ class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
         :return: The file content's sha256 hash sum
         :raises KeyError: If no file with this name is stored
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def write_file(self, name: str, file: IO[bytes]) -> None:
@@ -993,28 +993,28 @@ class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
         :param file: A binary file-like object with write() method to write the file contents into
         :raises KeyError: If no file with this name is stored
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def delete_file(self, name: str) -> None:
         """
         Deletes a file from this SupplementaryFileContainer given its name.
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def __contains__(self, item: str) -> bool:
         """
         Check if a file with the given name is stored in this SupplementaryFileContainer.
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def __iter__(self) -> Iterator[str]:
         """
         Return an iterator over all file names stored in this SupplementaryFileContainer.
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
 
 class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer):

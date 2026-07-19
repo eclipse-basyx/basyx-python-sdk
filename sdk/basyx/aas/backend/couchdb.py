@@ -583,14 +583,12 @@ class CouchDBError(Exception):
 class CouchDBConnectionError(CouchDBError):
     """Exception raised when the CouchDB server could not be reached"""
 
-    pass
 
 
 class CouchDBResponseError(CouchDBError):
     """Exception raised by when an HTTP of the CouchDB server could not be handled (e.g.
     no JSON body)"""
 
-    pass
 
 
 class CouchDBServerError(CouchDBError):
@@ -606,4 +604,3 @@ class CouchDBServerError(CouchDBError):
 class CouchDBConflictError(CouchDBError):
     """Exception raised when an object could not be committed due to a concurrent modification in the database"""
 
-    pass

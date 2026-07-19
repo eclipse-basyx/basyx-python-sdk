@@ -203,7 +203,6 @@ class ServerStrictStrippedAASFromJsonDecoder(ServerStrictAASFromJsonDecoder, Ser
     Non-failsafe decoder for stripped JSON objects.
     """
 
-    pass
 
 
 class ServerAASToJsonEncoder(AASToJsonEncoder):

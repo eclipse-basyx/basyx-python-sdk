@@ -41,7 +41,6 @@ class AbstractIdentifierGenerator(metaclass=abc.ABCMeta):
                          fragment of an IRI). It may be ignored by some implementations of or be changed if the
                          resulting id is already existing.
         """
-        pass
 
 
 class UUIDGenerator(AbstractIdentifierGenerator):
@@ -148,7 +147,7 @@ _iri_segment_quote_table_tmpl: Dict[Union[str, int], Optional[str]] = {
     ]
 }
 # Remove ASCII control characters
-_iri_segment_quote_table_tmpl.update({i: None for i in range(0, 0x1F)})
+_iri_segment_quote_table_tmpl.update({i: None for i in range(0x1F)})
 _iri_segment_quote_table_tmpl[0x7F] = None
 _iri_segment_quote_table: Dict[int, Optional[str]] = str.maketrans(
     _iri_segment_quote_table_tmpl

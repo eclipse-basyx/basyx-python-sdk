@@ -1639,7 +1639,6 @@ class StrictStrippedAASFromXmlDecoder(
     Non-failsafe decoder for stripped XML elements.
     """
 
-    pass
 
 
 def _parse_xml_document(

@@ -1024,7 +1024,6 @@ class StrictStrippedAASFromJsonDecoder(
     Non-failsafe decoder for stripped JSON objects.
     """
 
-    pass
 
 
 def _select_decoder(
