@@ -12,6 +12,7 @@ concurrency:
 env:
   X_PYTHON_MIN_VERSION: "3.10"
   X_PYTHON_MAX_VERSION: "3.12"
+  X_API_VERSION: "v3.1"
 
 jobs:
   check-python-versions:
@@ -350,7 +351,7 @@ jobs:
           docker build -t basyx-python-${{ matrix.service }} -f Dockerfile ../../..
       - name: Run container
         run: |
-           docker run -d --name basyx-python-${{ matrix.service }} basyx-python-${{ matrix.service }}
+           docker run -d --name basyx-python-${{ matrix.service }} -p 9080:80 basyx-python-${{ matrix.service }}
       - name: Wait for container and server initialization
         run: |
           timeout 30s bash -c '
@@ -358,9 +359,9 @@ jobs:
               sleep 2
             done
           '
-      - name: Check if container is running
+      - name: Check if service is alive
         run: |
-          docker inspect --format='{{.State.Running}}' basyx-python-${{ matrix.service }} | grep true
+          curl -f http://localhost:9080/api/${{ env.X_API_VERSION }}/description
       - name: Stop and remove the container
         run: |
           docker stop basyx-python-${{ matrix.service }} && docker rm basyx-python-${{ matrix.service }}
