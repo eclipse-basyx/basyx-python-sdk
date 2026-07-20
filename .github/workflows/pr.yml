@@ -333,31 +333,35 @@ jobs:
       run: |
         python -m pycodestyle --count --max-line-length 120 app test
 
-  server-repository-docker:
+  server-docker:
     # This job checks if we can build our server package
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: ["repository", "discovery", "registry"]
+      fail-fast: false
     defaults:
       run:
-        working-directory: ./server/docker/repository
+        working-directory: ./server/docker/${{ matrix.service }}
     steps:
       - uses: actions/checkout@v4
       - name: Build the Docker image
         run: |
-          docker build -t basyx-python-server -f Dockerfile ../../..
+          docker build -t basyx-python-${{ matrix.service }} -f Dockerfile ../../..
       - name: Run container
         run: |
-           docker run -d --name basyx-python-server basyx-python-server
+           docker run -d --name basyx-python-${{ matrix.service }} basyx-python-${{ matrix.service }}
       - name: Wait for container and server initialization
         run: |
           timeout 30s bash -c '
-            until docker logs basyx-python-server 2>&1 | grep -q "INFO success: quit_on_failure entered RUNNING state"; do
+            until docker logs basyx-python-${{ matrix.service }} 2>&1 | grep -q "INFO success: quit_on_failure entered RUNNING state"; do
               sleep 2
             done
           '
       - name: Check if container is running
         run: |
-          docker inspect --format='{{.State.Running}}' basyx-python-server | grep true
+          docker inspect --format='{{.State.Running}}' basyx-python-${{ matrix.service }} | grep true
       - name: Stop and remove the container
         run: |
-          docker stop basyx-python-server && docker rm basyx-python-server
+          docker stop basyx-python-${{ matrix.service }} && docker rm basyx-python-${{ matrix.service }}
 
