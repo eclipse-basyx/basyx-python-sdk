@@ -32,7 +32,6 @@ ignore = [
     "T20",     # prevent native print() statements
     "A",       # prevent shadowing of python builtins
     "FIX",     # prevent the creation of T0DO / F1XME comments
-    # Checked, need manual work:
     "PYI",     # typing best practices
     # Evaluate if we want to use:
     "S",        # security related precautions

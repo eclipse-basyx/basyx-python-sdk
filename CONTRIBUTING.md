@@ -143,6 +143,8 @@ before new code can be added:
 - We run the developed unittests and aim for a code coverage of at least 80%.
 - We perform static code analysis for type-checking and codestyle, not just in the code itself, but also in codeblocks 
   that are inside docstrings and the `README.md`.
+- We apply a set of [ruff](https://docs.astral.sh/ruff/) linter rules (see [ruff.toml](ruff.toml)) to ensure a certain 
+  codestyle and prevent issues / bad practices to arise.
 - We check that the automatically generated developer documentation compiles.
 - We check that the Python Versions we support match between the different subprojects in the monorepository and are 
   not End of Life.
@@ -164,8 +166,8 @@ pip install .[dev]
 
 Running all checks:
 ```bash
+ruff check
 mypy basyx test
-pycodestyle --max-line-length 120 basyx test
 python -m unittest
 coverage run --source basyx --branch -m unittest
 coverage report -m
@@ -185,6 +187,7 @@ of it without error.
 For that, you need to have Docker installed on your system. 
 In the directory with the `Dockerfile`: 
 ```bash
+ruff check
 docker build -t basyx-python-server .
 docker run --name basyx-python-server basyx-python-server
 ```
@@ -204,8 +207,8 @@ itself.
 
 Then you can run the checks via:
 ```bash
+ruff check
 mypy basyx test
-pycodestyle --max-line-length 120 basyx test
 python -m unittest
 coverage run --source basyx --branch -m unittest
 coverage report -m
