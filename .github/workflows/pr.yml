@@ -357,7 +357,7 @@ jobs:
           platform: linux/amd64
       - name: Run container
         run: |
-           docker run -d --name basyx-python-${{ matrix.service }} -p 9080:80 ${{ steps.build.outputs.image-digest }}
+           docker run -d --name basyx-python-${{ matrix.service }} -p 9080:80 --pull=never ${{ steps.build.outputs.image-digest }}
       - name: Wait for container and server initialization
         run: |
           timeout 30s bash -c '

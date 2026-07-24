@@ -20,7 +20,7 @@ inputs:
 outputs:
   image-digest:
     description: The image name + digest of the built image
-    value: ${{ steps.build.outputs.imageid }}@${{ steps.build.outputs.digest }}
+    value: ${{ steps.naming.outputs.image-name }}@${{ steps.build.outputs.digest }}
 
 runs:
   using: composite
@@ -32,25 +32,26 @@ runs:
       uses: docker/setup-buildx-action@v4
 
     - name: Generate Image Title
-      id: capitalize
+      id: naming
       shell: bash
       run: |
         profile="${{ inputs.server-profile }}"
         echo "profile-title=${profile^}" >> "$GITHUB_OUTPUT"
+        echo "image-name=eclipsebasyx/basyx-python-${{ inputs.server-profile }}" >> $GITHUB_OUTPUT
 
     - name: Extract Docker image metadata
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: eclipsebasyx/basyx-python-${{ inputs.server-profile }}
+        images: ${{ steps.naming.outputs.image-name }}
         # This fetches the latest git tag and adds an additional "latest" to it, so e.g. `2.1.0,latest`
         tags: |
           type=semver,pattern={{version}}
           type=raw,value=latest,enable=${{ inputs.publish == 'true' && true || false }}
           type=sha,prefix=pr-,enable=${{ inputs.load == 'true' && true || false }}
         labels: |
-          org.opencontainers.image.title=BaSyx Python ${{ steps.capitalize.outputs.profile-title }} Service
-          org.opencontainers.image.description=Eclipse BaSyx Python SDK - ${{ steps.capitalize.outputs.profile-title }} HTTP Server
+          org.opencontainers.image.title=BaSyx Python ${{ steps.naming.outputs.profile-title }} Service
+          org.opencontainers.image.description=Eclipse BaSyx Python SDK - ${{ steps.naming.outputs.profile-title }} HTTP Server
           org.opencontainers.image.source=https://github.com/eclipse-basyx/basyx-python-sdk/tree/main/server
           org.opencontainers.image.licenses=MIT
 
