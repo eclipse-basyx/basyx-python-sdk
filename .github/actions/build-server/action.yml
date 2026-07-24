@@ -18,9 +18,9 @@ inputs:
     default: "false"
 
 outputs:
-  image-digest:
-    description: The image name + digest of the built image
-    value: ${{ steps.naming.outputs.image-name }}@${{ steps.build.outputs.digest }}
+  image-ref:
+    description: Reference to the locally-runnable image (valid if load="true")
+    value: ${{ steps.naming.outputs.image-name }}:${{ steps.naming.outputs.local-tag }}
 
 runs:
   using: composite
@@ -38,6 +38,7 @@ runs:
         profile="${{ inputs.server-profile }}"
         echo "profile-title=${profile^}" >> "$GITHUB_OUTPUT"
         echo "image-name=eclipsebasyx/basyx-python-${{ inputs.server-profile }}" >> $GITHUB_OUTPUT
+        echo "local-tag=ci-${{ github.run_id }}" >> $GITHUB_OUTPUT
 
     - name: Extract Docker image metadata
       id: meta
@@ -48,7 +49,7 @@ runs:
         tags: |
           type=semver,pattern={{version}}
           type=raw,value=latest,enable=${{ inputs.publish == 'true' && true || false }}
-          type=sha,prefix=pr-,enable=${{ inputs.load == 'true' && true || false }}
+          type=raw,value=${{ steps.naming.outputs.local-tag }},enable=${{ inputs.load == 'true' && true || false }}
         labels: |
           org.opencontainers.image.title=BaSyx Python ${{ steps.naming.outputs.profile-title }} Service
           org.opencontainers.image.description=Eclipse BaSyx Python SDK - ${{ steps.naming.outputs.profile-title }} HTTP Server
@@ -64,5 +65,5 @@ runs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         platforms: ${{ inputs.platform }}
-        #push: ${{ inputs.publish == 'true' && true || false }}
+        push: ${{ inputs.publish == 'true' && true || false }}
         load: ${{ inputs.load == 'true' && true || false }}
