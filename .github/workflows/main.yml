@@ -1,0 +1,47 @@
+name: main.yml
+on:
+  pull_request:
+     #branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  server-docker-arm:
+    # This job checks if we can build our server package
+    runs-on: ubuntu-24.04-arm
+    strategy:
+      matrix:
+        service: [ "repository", "discovery", "registry" ]
+      fail-fast: false
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+
+      - uses: ./.github/actions/build-server
+        id: build
+        with:
+          server-profile: ${{ matrix.service }}
+          load: true
+          publish: false
+          platform: linux/arm64
+      - name: Run container
+        run: |
+          docker run -d --name basyx-python-${{ matrix.service }} -p 9080:80 --pull=never ${{ steps.build.outputs.image-ref }}
+      - name: Wait for container and server initialization
+        run: |
+          timeout 30s bash -c '
+            until docker logs basyx-python-${{ matrix.service }} 2>&1 | grep -q "INFO success: quit_on_failure entered RUNNING state"; do
+              sleep 2
+            done
+          '
+      - name: Check if service is alive
+        run: |
+          curl -f http://localhost:9080/api/${{ env.X_API_VERSION }}/description
+      - name: Stop and remove the container
+        run: |
+          docker stop basyx-python-${{ matrix.service }} && docker rm basyx-python-${{ matrix.service }}
