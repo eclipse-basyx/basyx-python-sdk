@@ -122,7 +122,7 @@ jobs:
         python -m coverage report -m
 
   sdk-static-analysis:
-    # This job runs static code analysis, namely pycodestyle and mypy
+    # This job runs static code analysis, namely ruff and mypy
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -142,12 +142,12 @@ jobs:
     - name: Check typing with MyPy
       run: |
         python -m mypy basyx test
-    - name: Check code style with PyCodestyle
+    - name: Check formatting and linting rules with Ruff
       run: |
-        python -m pycodestyle --count --max-line-length 120 basyx test
+        python -m ruff check
 
   sdk-readme-codeblocks:
-    # This job runs the same static code analysis (mypy and pycodestyle) on the codeblocks in our docstrings.
+    # This job runs the same static code analysis (mypy and ruff) on the codeblocks in our docstrings.
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -167,7 +167,7 @@ jobs:
     - name: Check typing with MyPy
       run: |
         python -m mypy <(python -m codeblocks python README.md)
-    - name: Check code style with PyCodestyle
+    - name: Check formatting and linting rules with Ruff
       run: |
         python -m codeblocks --wrap python README.md | python -m pycodestyle --count --max-line-length 120 -
     - name: Run readme codeblocks with Python
@@ -261,7 +261,7 @@ jobs:
         python -m coverage report -m
 
   compliance-tool-static-analysis:
-    # This job runs static code analysis, namely pycodestyle and mypy
+    # This job runs static code analysis, namely ruff and mypy
     runs-on: ubuntu-latest
 
     defaults:
@@ -284,9 +284,9 @@ jobs:
     - name: Check typing with MyPy
       run: |
         python -m mypy aas_compliance_tool test
-    - name: Check code style with PyCodestyle
+    - name: Check formatting and linting rules with Ruff
       run: |
-        python -m pycodestyle --count --max-line-length 120 aas_compliance_tool test
+        python -m ruff check 
 
   compliance-tool-package:
     # This job checks if we can build our compliance_tool package
@@ -311,7 +311,7 @@ jobs:
 
 
   server-static-analysis:
-    # This job runs static code analysis, namely pycodestyle and mypy
+    # This job runs static code analysis, namely ruff and mypy
     runs-on: ubuntu-latest
 
     defaults:
@@ -333,9 +333,9 @@ jobs:
     - name: Check typing with MyPy
       run: |
         python -m mypy app test
-    - name: Check code style with PyCodestyle
+    - name: Check formatting and linting rules with Ruff
       run: |
-        python -m pycodestyle --count --max-line-length 120 app test
+        python -m ruff check
 
   server-docker:
     # This job checks if we can build our server package

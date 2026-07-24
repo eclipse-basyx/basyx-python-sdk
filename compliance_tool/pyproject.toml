@@ -45,6 +45,7 @@ dependencies = [
 dev = [
     "mypy",
     "pycodestyle",
+    "ruff==0.16.0",
     "codeblocks",
     "coverage",
 ]

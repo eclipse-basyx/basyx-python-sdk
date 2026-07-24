@@ -44,6 +44,7 @@ dependencies = [
 dev = [
     "mypy",
     "pycodestyle",
+    "ruff==0.16.0",
     "codeblocks",
     "schemathesis~=3.7",
     "jsonschema~=4.7",
