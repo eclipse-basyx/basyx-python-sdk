@@ -25,9 +25,9 @@ jobs:
       run:
         working-directory: ./etc/scripts
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
       - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
         with:
           python-version: ${{ env.X_PYTHON_MIN_VERSION }}
           cache: "pip"
@@ -79,7 +79,7 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
     - name: Verify Matrix Version matches Global Version
       run: |
         if [ "${{ matrix.python-version }}" != "${{ env.X_PYTHON_MIN_VERSION }}" ] && [ "${{ matrix.python-version }}" != "${{ env.X_PYTHON_MAX_VERSION }}" ]; then
@@ -87,7 +87,7 @@ jobs:
           exit 1
         fi
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
         python-version: ${{ matrix.python-version }}
         cache: "pip"
@@ -119,9 +119,9 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
-      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
         python-version: ${{ env.X_PYTHON_MIN_VERSION }}
         cache: "pip"
@@ -144,9 +144,9 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
-      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
         python-version: ${{ env.X_PYTHON_MIN_VERSION }}
         cache: "pip"
@@ -172,9 +172,9 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
     - name: Set up Python ${{ env.X_PYTHON_MAX_VERSION }}
-      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
         python-version: ${{ env.X_PYTHON_MAX_VERSION }}
         cache: "pip"
@@ -194,9 +194,9 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
-      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
         python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install dependencies
@@ -211,7 +211,7 @@ jobs:
     # This job checks that the copyright year in the header of all files is up to date
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
       with:
         fetch-depth: 0  # Ensure full history is available
     - name: Run copyright check
@@ -230,9 +230,9 @@ jobs:
         working-directory: ./compliance_tool
 
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
         python-version: ${{ matrix.python-version }}
         cache: "pip"
@@ -259,9 +259,9 @@ jobs:
       run:
         working-directory: ./compliance_tool
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
-      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5 
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
         python-version: ${{ env.X_PYTHON_MIN_VERSION }}
         cache: "pip"
@@ -287,9 +287,9 @@ jobs:
       run:
         working-directory: ./compliance_tool
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
-      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
         python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install dependencies
@@ -309,9 +309,9 @@ jobs:
       run:
         working-directory: ./server
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
-      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
         python-version: ${{ env.X_PYTHON_MIN_VERSION }}
         cache: "pip"
@@ -339,7 +339,7 @@ jobs:
       run:
         working-directory: ./server/docker/${{ matrix.service }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
       - name: Build the Docker image
         run: |
           docker build -t basyx-python-${{ matrix.service }} -f Dockerfile ../../..
