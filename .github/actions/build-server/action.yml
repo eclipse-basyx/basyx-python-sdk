@@ -1,0 +1,70 @@
+name: build-server
+description: Sets up the build context and builds a docker image
+inputs:
+  server-profile:
+    required: true
+    description: The profile of the server to build (discovery, registry, repository)
+  load:
+    required: false
+    description: Set to "true" to use image in further steps (only works for single architecture builds)
+    default: "false"
+  platform:
+    required: false
+    description: The target platforms to build the image for
+    default: "linux/amd64"
+  publish:
+    required: false
+    description: Set to "true" to publish image to Docker Hub (requires login)
+    default: "false"
+
+outputs:
+  image-digest:
+    description: The image name + digest of the built image
+    value: ${{ steps.build.outputs.imageid }}@${{ steps.build.outputs.digest }}
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+
+    - name: Setup QEMU
+      uses: docker/setup-qemu-action@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+
+    - name: Generate Image Title
+      id: capitalize
+      shell: bash
+      run: |
+        profile="${{ inputs.server-profile }}"
+        echo "profile-title=${profile^}" >> "$GITHUB_OUTPUT"
+
+    - name: Extract Docker image metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: eclipsebasyx/basyx-python-${{ inputs.server-profile }}
+        # This fetches the latest git tag and adds an additional "latest" to it, so e.g. `2.1.0,latest`
+        tags: |
+          type=semver,pattern={{version}}
+          type=raw,value=latest,enable=${{ inputs.publish == 'true' && true || false }}
+          type=sha,prefix=pr-,enable=${{ inputs.load == 'true' && true || false }}
+        labels: |
+          org.opencontainers.image.title=BaSyx Python ${{ steps.capitalize.outputs.profile-title }} Service
+          org.opencontainers.image.description=Eclipse BaSyx Python SDK - ${{ steps.capitalize.outputs.profile-title }} HTTP Server
+          org.opencontainers.image.source=https://github.com/eclipse-basyx/basyx-python-sdk/tree/main/server
+          org.opencontainers.image.licenses=MIT
+
+    - name: Build Docker Image
+      id: build
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: ./server/docker/${{ inputs.server-profile }}/Dockerfile
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        platforms: ${{ inputs.platform }}
+        #push: ${{ inputs.publish == 'true' && true || false }}
+        load: ${{ inputs.load == 'true' && true || false }}

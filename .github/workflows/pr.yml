@@ -344,17 +344,17 @@ jobs:
       matrix:
         service: ["repository", "discovery", "registry"]
       fail-fast: false
-    defaults:
-      run:
-        working-directory: ./server/docker/${{ matrix.service }}
     steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
-      - name: Build the Docker image
-        run: |
-          docker build -t basyx-python-${{ matrix.service }} -f Dockerfile ../../..
+      - uses: ./.github/actions/build-server
+        id: build
+        with:
+          server-profile: ${{ matrix.service }}
+          load: true
+          publish: false
+          platform: linux/amd64
       - name: Run container
         run: |
-           docker run -d --name basyx-python-${{ matrix.service }} -p 9080:80 basyx-python-${{ matrix.service }}
+           docker run -d --name basyx-python-${{ matrix.service }} -p 9080:80 ${{ steps.build.outputs.image-digest }}
       - name: Wait for container and server initialization
         run: |
           timeout 30s bash -c '
