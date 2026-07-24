@@ -44,14 +44,23 @@ jobs:
 
       - name: Check Python Versions coincide with all pyproject.toml Files
         run: |
-          for file in ../../sdk/pyproject.toml ../../compliance_tool/pyproject.toml; do
+          for file in ../../sdk/pyproject.toml ../../compliance_tool/pyproject.toml ../../server/pyproject.toml; do
             python check_python_versions_coincide.py \
               $file \
               ${{ env.X_PYTHON_MIN_VERSION }} \
               ${{ env.X_PYTHON_MAX_VERSION }}
           done
 
-      # Todo: Check other pyproject.toml here as well, as we add them
+      - name: Check Python Versions coincide with all Dockerfiles
+        run: |
+          for file in ../../server/docker/repository/Dockerfile \
+                      ../../server/docker/registry/Dockerfile  \
+                      ../../server/docker/discovery/Dockerfile; do
+            python check_python_versions_coincide.py --docker \
+              $file \
+              ${{ env.X_PYTHON_MIN_VERSION }} \
+              ${{ env.X_PYTHON_MAX_VERSION }}
+          done
 
   sdk-test:
     # This job runs the unittests on the python versions specified down at the matrix
