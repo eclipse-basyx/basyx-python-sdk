@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
     strategy:
       matrix:
-        service: [ "repository", "discovery", "registry" ]
+        profile: [ "repository", "discovery", "registry" ]
       fail-fast: false
     steps:
       - name: Checkout Repository
@@ -28,13 +28,13 @@ jobs:
       - uses: ./.github/actions/build-server
         id: build
         with:
-          server-profile: ${{ matrix.service }}
+          server-profile: ${{ matrix.profile }}
           load: true
           publish: false
           platform: linux/arm64
       - name: Run container
         run: |
-          docker run -d --name basyx-python-${{ matrix.service }} -p 9080:80 --pull=never ${{ steps.build.outputs.image-ref }}
+          docker run -d --name basyx-python-${{ matrix.profile }} -p 9080:80 --pull=never ${{ steps.build.outputs.image-ref }}
       - name: Wait for container and server initialization
         run: |
           timeout 30s bash -c '
@@ -47,4 +47,4 @@ jobs:
           curl -f http://localhost:9080/api/${{ env.X_API_VERSION }}/description
       - name: Stop and remove the container
         run: |
-          docker stop basyx-python-${{ matrix.service }} && docker rm basyx-python-${{ matrix.service }}
+          docker stop basyx-python-${{ matrix.profile }} && docker rm basyx-python-${{ matrix.profile }}

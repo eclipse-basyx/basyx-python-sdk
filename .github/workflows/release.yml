@@ -62,7 +62,7 @@ jobs:
         with:
           password: ${{ secrets.PYPI_ORG_TOKEN }}
 
-  server-repository-publish:
+  server-publish:
     # This job publishes the server docker image to DockerHub
     runs-on: ubuntu-latest
     strategy:
