@@ -10,6 +10,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  X_API_VERSION: "v3.1"
+
 jobs:
   server-docker-arm:
     # This job checks if we can build our server package
