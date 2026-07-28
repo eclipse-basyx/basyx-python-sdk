@@ -324,7 +324,7 @@ jobs:
           docker build -t basyx-python-server -f Dockerfile ../../..
       - name: Run container
         run: |
-           docker run -d --name basyx-python-server basyx-python-server
+           docker run -d -v ./input:/input -v ./storage:/storage --name basyx-python-server basyx-python-server
       - name: Wait for container and server initialization
         run: |
           timeout 30s bash -c '
@@ -339,3 +339,67 @@ jobs:
         run: |
           docker stop basyx-python-server && docker rm basyx-python-server
 
+  server-aas-test-engines:
+    # This job checks if our server is compliant
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.X_PYTHON_MIN_VERSION }}
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install aas-test-engines
+      - name: Prepare test data
+        run: |
+           mkdir -p input
+           curl -L -o input/TestDataWithThumbnail.aasx \
+           https://media.githubusercontent.com/media/admin-shell-io/aas-test-engines/main/bin/check_servers/test_data/TestDataWithThumbnail.aasx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build Docker image with cache
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./server/Dockerfile
+          push: false
+          tags: basyx-python-server
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          load: true
+      - name: Run container
+        run: |
+          docker run -d -p 8081:80 -v ./input:/input -v ./storage:/storage --name basyx-python-server basyx-python-server
+      - name: Wait for container and server initialization
+        run: |
+          timeout 30s bash -c '
+            until docker logs basyx-python-server 2>&1 | grep -q "INFO success: quit_on_failure entered RUNNING state"; do
+              sleep 2
+            done
+          '
+      - name: Check if container is running
+        run: |
+          docker inspect --format='{{.State.Running}}' basyx-python-server | grep true
+      - name: Run AAS Test Engines compliance check
+        run: |
+          FILTER=$(tr -d '\n' < ../etc/scripts/aas_test_engines_filter.txt)
+          aas_test_engines check_server \
+            http://localhost:8081/api/v3.0 \
+            https://admin-shell.io/aas/API/3/0/AssetAdministrationShellRepositoryServiceSpecification/SSP-002 \
+            --filter "$FILTER" \
+            --output html > result.html
+      - name: Upload test results as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aas-test-results
+          path: ./server/result.html
+      - name: Stop and remove the container
+        if: always()
+        run: |
+          docker stop basyx-python-server && docker rm basyx-python-server

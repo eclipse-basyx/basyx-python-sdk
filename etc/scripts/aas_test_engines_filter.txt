@@ -1,0 +1,10 @@
+*~GetSubmodelById:
+GetSubmodelById-ValueOnly:
+GetSubmodelById-Path:
+GetAllSubmodelElements:
+GetAllSubmodelElements-ValueOnly:
+GetAllSubmodelElements-Path:
+GetSubmodelElementByPath:
+GetSubmodelElementByPath-ValueOnly:
+GetSubmodelElementByPath-Path:
+GenerateSerializationByIds
