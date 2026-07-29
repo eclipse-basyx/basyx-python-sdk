@@ -286,7 +286,7 @@ jobs:
         python -m mypy aas_compliance_tool test
     - name: Check formatting and linting rules with Ruff
       run: |
-        python -m ruff check 
+        python -m ruff check
 
   compliance-tool-package:
     # This job checks if we can build our compliance_tool package
