@@ -167,7 +167,10 @@ jobs:
     - name: Check typing with MyPy
       run: |
         python -m mypy <(python -m codeblocks python README.md)
-    - name: Check formatting and linting rules with Ruff
+    - name: Check formatting with PyCodestyle
+      # (2026-07-30, paul-gerber-svg)
+      # Check with PyCodestyle here. Codeblocks wraps all blocks into one file.
+      # Therefore, Ruff rules are too strict here.
       run: |
         python -m codeblocks --wrap python README.md | python -m pycodestyle --count --max-line-length 120 -
     - name: Run readme codeblocks with Python
