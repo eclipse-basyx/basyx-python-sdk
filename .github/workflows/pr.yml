@@ -264,6 +264,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+      with:
+        # TODO(#592): revisit when the sdk<->compliance_tool version pinning is fixed.
+        # Need tags so setuptools_scm builds the local sdk as >=1.0.0, else the loose
+        # `basyx-python-sdk>=1.0.0` pin lets pip replace it with the PyPI release.
+        fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
