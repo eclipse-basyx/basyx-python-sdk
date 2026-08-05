@@ -1,4 +1,4 @@
-name: main.yml
+name: main
 on:
   pull_request:
      branches: [main]
@@ -38,7 +38,7 @@ jobs:
       - name: Wait for container and server initialization
         run: |
           timeout 30s bash -c '
-            until docker logs basyx-python-${{ matrix.profile}} 2>&1 | grep -q "INFO success: quit_on_failure entered RUNNING state"; do
+            until docker logs basyx-python-${{ matrix.profile }} 2>&1 | grep -q "INFO success: quit_on_failure entered RUNNING state"; do
               sleep 2
             done
           '
