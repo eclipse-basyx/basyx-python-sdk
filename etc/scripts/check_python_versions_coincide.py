@@ -23,7 +23,7 @@ def get_version_dockerfile(file_path: str) -> str:
     with open(file_path, "r") as f:
         pyproject_content = f.read()
 
-    match = re.search(r'^FROM\s+python:([\d.]+)', pyproject_content)
+    match = re.search(r'^FROM\s+python:([\d.]+)', pyproject_content, re.MULTILINE)
     if not match:
         print(f"Error: Definition of base image `FROM python:x.x` not found in `{file_path}`")
         sys.exit(1)
@@ -41,6 +41,10 @@ def main(file_path: str, is_dockerfile: bool, min_version: str, max_version: str
         if Version(used_version) < Version(min_version):
             print(f"Error: Python version in `{file_path}` ({used_version}) "
                   f"is smaller than `min_version` ({min_version}).")
+            sys.exit(1)
+        if Version(used_version) > Version(max_version):
+            print(f"Error: Python version in `{file_path}` ({used_version}) "
+                  f"is greater than `max_version` ({max_version}).")
             sys.exit(1)
 
     except FileNotFoundError:

@@ -18,6 +18,27 @@ env:
   X_API_VERSION: "v3.1"
 
 jobs:
+  helper-scripts-static-analysis:
+    #This job runs static code analysis with ruff on the helper scripts in ./etc/scripts
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./etc/scripts
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+      - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
+        with:
+          python-version: ${{ env.X_PYTHON_MIN_VERSION }}
+      - name: Install Ruff
+      # Revisit when Ruff version is specified in single source of truth
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ruff==0.16.0
+      - name: Check formatting and linting rules with Ruff
+        run: |
+          python -m ruff check 
+
   check-python-versions:
     # This job checks that the Python Versions we support match and are not End of Life
     runs-on: ubuntu-latest
