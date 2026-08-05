@@ -177,7 +177,7 @@ We aim to cover our code with tests by at least 80%.
 
 This should help you sort out the most important bugs in your code.
 Note that there are more checks that run in the CI once you open a Pull Request.
-If you want to run the additional checks, please refer to the [CI definition](./.github/workflows/ci.yml).
+If you want to run the additional checks, please refer to the [CI definition](./.github/workflows/pr.yml).
 
 ### Testing the Server
 Currently, the automated server tests are still under development. 
@@ -217,4 +217,4 @@ coverage report -m
 We aim to cover our code with tests by at least 80%.
 This should help you sort out the most important bugs in your code.
 Note that there are more checks that run in the CI once you open a Pull Request.
-If you want to run the additional checks, please refer to the [CI definition](./.github/workflows/ci.yml).
+If you want to run the additional checks, please refer to the [CI definition](./.github/workflows/pr.yml).
