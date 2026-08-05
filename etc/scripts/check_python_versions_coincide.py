@@ -8,6 +8,7 @@ import sys
 
 from packaging.version import InvalidVersion, Version
 
+
 def get_version_pyproject(file_path: str) -> str:
     with open(file_path, "r") as f:
         pyproject_content = f.read()
@@ -56,7 +57,8 @@ def main(file_path: str, is_dockerfile: bool, min_version: str, max_version: str
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Check Python version support and alignment with pyproject.toml or Dockerfile.")
+    parser = argparse.ArgumentParser(
+        description="Check Python version support and alignment with pyproject.toml or Dockerfile.")
     parser.add_argument("file_path", help="Path to the `pyproject.toml` or `Dockerfile` file to check.")
     parser.add_argument("--docker", action="store_true",
                         help="Set, if checking a `Dockerfile`, otherwise `pyproject.toml` is assumed.")
