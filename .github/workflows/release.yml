@@ -4,6 +4,9 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+
 env:
   TARGET_PLATFORM: "linux/amd64,linux/arm/v7,linux/arm64"
 
@@ -63,7 +66,7 @@ jobs:
           password: ${{ secrets.PYPI_ORG_TOKEN }}
 
   server-publish:
-    # This job publishes the server docker image to DockerHub
+    # This job publishes multi-platform docker images for all server profiles to DockerHub
     runs-on: ubuntu-latest
     strategy:
       matrix:
