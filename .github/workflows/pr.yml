@@ -238,6 +238,7 @@ jobs:
         python -m pip install build
     - name: Copy LICENSE into build directory
       run: cp ../LICENSE .
+    - name: Create source and wheel dist
       run: |
         python -m build
 
