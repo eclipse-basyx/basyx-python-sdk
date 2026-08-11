@@ -1,4 +1,8 @@
-# Eclipse BaSyx Python SDK
+<p align="center">
+  <img src="etc/logo.svg" alt="Eclipse BaSyx Python SDK logo" width="150">
+</p>
+
+<h1 align="center">Eclipse BaSyx Python SDK</h1>
 
 The Eclipse BaSyx Python project focuses on providing a Python implementation of the Asset Administration Shell (AAS) 
 for Industry 4.0 Systems.
