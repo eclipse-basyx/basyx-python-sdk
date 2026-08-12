@@ -20,6 +20,7 @@ select = [
     "F8",      # pyflakes: undefined/unused names
     "F4",      # pyflakes: imports/__future__
     "PIE",     # small readability improvements
+    "CPY001",  # flake8-copyright: missing copyright header
 ]
 
 # TODO: Revisit these
@@ -37,3 +38,10 @@ ignore = [
     "S",        # security related precautions
     "BLE",      # prevent unspecified excepts
 ]
+
+[lint.per-file-ignores]
+"**/__init__.py" = ["CPY001"]
+
+[lint.flake8-copyright]
+notice-rgx = "(?i)Copyright \\(c\\) \\d{4} the Eclipse BaSyx Authors"
+min-file-size = 1  # bytes; skip only truly empty files
