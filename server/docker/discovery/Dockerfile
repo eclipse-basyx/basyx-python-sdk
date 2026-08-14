@@ -15,6 +15,7 @@ RUN apk update && \
     pip install uwsgi && \
     apk del git bash
 
+COPY ./LICENSE /LICENSE
 COPY ./sdk /sdk
 COPY ./server/app /server/app
 COPY ./server/pyproject.toml /server/pyproject.toml

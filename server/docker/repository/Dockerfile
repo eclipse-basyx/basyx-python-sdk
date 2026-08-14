@@ -17,6 +17,7 @@ RUN apk update && \
 
 # Copy only the files we need to run the container
 # The argumentation for this is to keep the containers as slim as possible.
+COPY ./LICENSE /LICENSE
 COPY ./sdk /sdk
 COPY ./server/app /server/app
 COPY ./server/pyproject.toml /server/pyproject.toml
