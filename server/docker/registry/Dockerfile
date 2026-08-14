@@ -16,12 +16,12 @@ RUN apk update && \
     apk del git bash
 
 
-COPY ./sdk /sdk
-COPY ./server/app /server/app
-COPY ./server/pyproject.toml /server/pyproject.toml
-COPY ./server/docker/registry/uwsgi.ini /etc/uwsgi/
-COPY ./server/docker/common/supervisord.ini /etc/supervisor/conf.d/supervisord.ini
-COPY ./server/docker/common/stop-supervisor.sh /etc/supervisor/stop-supervisor.sh
+COPY --from=sdk . /sdk
+COPY ./app /server/app
+COPY ./pyproject.toml /server/pyproject.toml
+COPY ./docker/registry/uwsgi.ini /etc/uwsgi/
+COPY ./docker/common/supervisord.ini /etc/supervisor/conf.d/supervisord.ini
+COPY ./docker/common/stop-supervisor.sh /etc/supervisor/stop-supervisor.sh
 RUN chmod +x /etc/supervisor/stop-supervisor.sh
 
 # Makes it possible to use a different configuration
@@ -44,7 +44,7 @@ ENV STORAGE_OVERWRITE=False
 VOLUME ["/input", "/storage"]
 
 # Copy the entrypoint that will generate Nginx additional configs
-COPY server/docker/common/entrypoint.sh /entrypoint.sh
+COPY ./docker/common/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

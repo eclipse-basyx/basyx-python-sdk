@@ -20,19 +20,19 @@ See [below](#options) on how to configure this.
 Pre-built images are published to [Docker Hub][11] on every release.
 Pull the latest version via:
 ```
-$ docker pull eclipsebasyx/basyx-python-server:latest
+$ docker pull eclipsebasyx/basyx-python-repository:latest
 ```
 
 Or pin to a specific release by replacing `<version>` with the desired release number:
 ```
-$ docker pull eclipsebasyx/basyx-python-server:<version>
+$ docker pull eclipsebasyx/basyx-python-repository:<version>
 ```
 
 ## Building
 
-If you need to build the image locally (e.g. for development), run:
+If you need to build an image locally (e.g. for development), run in this directory:
 ```
-$ docker build -t basyx-python-server -f Dockerfile ..
+$ docker build -t basyx-python-repository -f docker/repository/Dockerfile --build-context sdk=../sdk .
 ```
 
 Note that when cloning this repository on Windows, Git may convert the line separators to CRLF. This breaks [`entrypoint.sh`](docker/repository/entrypoint.sh) and [`stop-supervisor.sh`](docker/common/stop-supervisor.sh). Ensure both files use LF line separators (`\n`) before building. 
@@ -96,7 +96,7 @@ The server can also be run directly on the host system without Docker, NGINX and
 1. Install the local SDK and the local server package.
    ```bash
    $ pip install ../sdk
-   $ pip install ./app
+   $ pip install .
    ```
 
 2. Run the server by executing the main function in [`./app/interfaces/repository.py`](./app/interfaces/repository.py).

@@ -1,8 +1,10 @@
 services:
   app:
     build:
-      context: ../../..
-      dockerfile: server/docker/registry/Dockerfile
+      context: ../..
+      additional_contexts:
+        - sdk=../../../sdk
+      dockerfile: ./docker/registry/Dockerfile
     ports:
     - "8083:80"
     volumes:

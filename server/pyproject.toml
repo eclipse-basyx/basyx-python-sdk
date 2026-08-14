@@ -38,6 +38,7 @@ requires-python = ">=3.10"
 dependencies = [
     "urllib3>=1.26,<3",
     "Werkzeug>=3.0.3,<4",
+    "basyx-python-sdk>=1.0.0" # TODO: declare proper cross-package dependencies (see issue #592)
 ]
 
 [project.optional-dependencies]

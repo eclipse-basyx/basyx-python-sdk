@@ -2,8 +2,10 @@ name: basyx-python-server
 services:
   app:
     build:
-      context: ../../..
-      dockerfile: server/docker/discovery/Dockerfile
+      context: ../..
+      additional_contexts:
+        - sdk=../../../sdk
+      dockerfile: ./docker/discovery/Dockerfile
     ports:
     - "8084:80"
     environment:
