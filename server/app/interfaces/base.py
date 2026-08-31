@@ -42,6 +42,8 @@ SchemeType = str
 
 T = TypeVar("T")
 
+AASX_CONTENT_TYPE: str = "application/asset-administration-shell-package+xml"
+
 
 @enum.unique
 class MessageType(enum.Enum):
@@ -184,6 +186,21 @@ class XmlResponseAlt(XmlResponse):
         super().__init__(*args, **kwargs, content_type=content_type)
 
 
+RESPONSE_TYPES: Dict[str, Type[APIResponse]] = {
+    "application/json": JsonResponse,
+    "application/xml": XmlResponse,
+    "text/xml": XmlResponseAlt,
+}
+
+# all content types the server accepts. AASX packages aren't served by any of the response classes, GET /serialization
+# builds them itself, but they are accepted here nonetheless, as content negotiation happens before the route is
+# matched.
+CONTENT_TYPES: Tuple[str, ...] = (*RESPONSE_TYPES, AASX_CONTENT_TYPE)
+
+# content type served if the client states no preference
+DEFAULT_CONTENT_TYPE: str = "application/json"
+
+
 class ResultToJsonEncoder(ServerAASToJsonEncoder):
     @classmethod
     def _result_to_json(cls, result: Result) -> Dict[str, object]:
@@ -268,19 +285,8 @@ class BaseWSGIApp:
 
     @staticmethod
     def get_response_type(request: Request) -> Type[APIResponse]:
-        response_types: Dict[str, Type[APIResponse]] = {
-            "application/json": JsonResponse,
-            "application/xml": XmlResponse,
-            "text/xml": XmlResponseAlt,
-        }
-        if len(request.accept_mimetypes) == 0 or request.accept_mimetypes.best in (None, "*/*"):
-            return JsonResponse
-        mime_type = request.accept_mimetypes.best_match(response_types)
-        if mime_type is None:
-            raise werkzeug.exceptions.NotAcceptable(
-                "This server supports the following content types: " + ", ".join(response_types.keys())
-            )
-        return response_types[mime_type]
+        # errors of the routes serving a content type of their own are returned as JSON
+        return RESPONSE_TYPES.get(get_content_type(request), JsonResponse)
 
     @staticmethod
     def http_exception_to_response(
@@ -480,6 +486,34 @@ class HTTPApiDecoder:
         """
         json_bytes = json.dumps(data).encode("utf-8")
         return cls.json(json_bytes, expect_type, stripped)
+
+
+def get_content_type(request: Request) -> str:
+    """
+    Determine the content type to serve, based on the Accept header of the request.
+
+    :raises NotAcceptable: If the client accepts none of the :data:`CONTENT_TYPES`
+    """
+    if len(request.accept_mimetypes) == 0 or request.accept_mimetypes.best in (None, "*/*"):
+        return DEFAULT_CONTENT_TYPE
+    content_type = request.accept_mimetypes.best_match(CONTENT_TYPES)
+    if content_type is None:
+        raise werkzeug.exceptions.NotAcceptable(
+            "This server supports the following content types: " + ", ".join(CONTENT_TYPES)
+        )
+    return content_type
+
+
+def get_bool_arg(request: Request, name: str, default: bool) -> bool:
+    """
+    Retrieve a boolean query parameter, which the specification defines as either ``true`` or ``false``.
+    """
+    arg = request.args.get(name)
+    if arg is None:
+        return default
+    if arg not in ("true", "false"):
+        raise BadRequest(f"{name} must be either 'true' or 'false', got {arg!r}!")
+    return arg == "true"
 
 
 def is_stripped_request(request: Request) -> bool:
