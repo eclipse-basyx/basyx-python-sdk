@@ -34,7 +34,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "Development Status :: 5 - Production/Stable"
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "urllib3>=1.26,<3",
     "Werkzeug>=3.0.3,<4",
@@ -42,7 +42,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "mypy",
+    "mypy==1.15.0",
     "pycodestyle",
     "ruff==0.16.0",
     "codeblocks",
@@ -59,7 +59,7 @@ dev = [
 packages = { find = { include = ["app*"], exclude = ["test*"] } }
 
 [tool.setuptools.package-data]
-app = ["py.typed"]
+app = ["py.typed", "config.toml"]
 
 [tool.mypy]
 exclude = "build/"

@@ -1,0 +1,38 @@
+[python]
+min = "3.11"
+max = "3.12"
+
+# Dependency versions (of those that are fixed globally). Checked against module .tomls dynamically.
+[dev_tools]
+mypy = "1.15.0"
+ruff = "0.16.0"
+
+# Spec versions, consumed by CI pipeline.
+[spec]
+aas = "v3.1.2"
+api_version = "v3.1"
+
+# This section lists entries that are expected in a certain modules config.toml
+[config.server]
+api_base_path = "/api/v3.1"
+
+# This section lists locations of toml and configuration files that are checked to coincide with the global versions
+# above.
+[configuration_locations]
+pyprojects = [
+    "sdk/pyproject.toml",
+    "server/pyproject.toml",
+    "compliance_tool/pyproject.toml",
+]
+
+configs = [
+    "server/app/config.toml",
+]
+
+# Dockerfiles are checked for a `FROM python:X.Y[-...]` line; `X.Y` must fall
+# within [python.min, python.max].
+dockerfiles = [
+    "server/docker/repository/Dockerfile",
+    "server/docker/registry/Dockerfile",
+    "server/docker/discovery/Dockerfile",
+]

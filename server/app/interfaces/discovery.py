@@ -14,6 +14,7 @@ from werkzeug.routing import Rule, Submount
 from werkzeug.wrappers import Request, Response
 
 from app import model as server_model
+from app._config import API_BASE_PATH
 from app.adapter import jsonization
 from app.interfaces.base import APIResponse, BaseWSGIApp, HTTPApiDecoder
 from app.model import ServiceDescription, ServiceSpecificationProfileEnum
@@ -119,7 +120,7 @@ class DiscoveryStore:
 
 
 class DiscoveryAPI(BaseWSGIApp):
-    def __init__(self, persistent_store: DiscoveryStore, base_path: str = "/api/v3.1"):
+    def __init__(self, persistent_store: DiscoveryStore, base_path: str = API_BASE_PATH):
         self.persistent_store: DiscoveryStore = persistent_store
         self.url_map = werkzeug.routing.Map(
             [

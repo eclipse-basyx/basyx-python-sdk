@@ -10,9 +10,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  X_API_VERSION: "v3.1"
-
 jobs:
   server-docker-arm:
     # This job checks if we can build our server package
@@ -24,6 +21,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+
+      - uses: ./.github/actions/load-versions
 
       - uses: ./.github/actions/build-server
         id: build

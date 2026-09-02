@@ -1,5 +1,5 @@
 line-length = 120        # matches the current pycodestyle --max-line-length 120
-target-version = "py310" # matches X_PYTHON_MIN_VERSION in pr.yml
+target-version = "py311"
 
 [format]
 quote-style = "double"
