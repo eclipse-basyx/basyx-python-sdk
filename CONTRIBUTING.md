@@ -1,5 +1,8 @@
 # Contributing Guide
 
+> [!NOTE] 
+> To contribute code, you must sign the [Eclipse Contributor Agreement (ECA)](#eclipse-contributor-agreement-eca).
+
 Thank you for investing your time in contributing to the Eclipse-BaSyx-Python SDK!
 
 In this guide you will get an overview of the contribution workflow from opening an
@@ -43,9 +46,7 @@ Please include a short paragraph on each of
 Additionally, if you have ideas on how to address the issue, please include them here!
 
 ## Contribute Changes
-
-Here's the standard workflow to contribute changes to Eclipse-BaSyx-Python.
-
+### Eclipse Contributor Agreement (ECA)
 Before contributing, please make sure, you fill out
 the [Eclipse Contributor Agreement (ECA)](https://www.eclipse.org/legal/ECA.php). This
 is done by creating an Eclipse account for your git e-mail address and then submitting
@@ -53,6 +54,8 @@ the following
 form: [https://accounts.eclipse.org/user/eca](https://accounts.eclipse.org/user/eca).
 The E-Mail address used to sign the ECA is the same one that needs to be used for
 committing.
+
+### Workflow
 
 After this, the workflow to submit contributions to Eclipse-BaSyx-Python is pretty
 standard, as the picture (based
