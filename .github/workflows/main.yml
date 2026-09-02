@@ -12,6 +12,8 @@ concurrency:
 
 env:
   X_API_VERSION: "v3.1"
+  X_PYTHON_MIN_VERSION: "3.10"
+  X_AAS_SPECS_RELEASE_TAG: "v3.1.2"
 
 jobs:
   server-docker-arm:
@@ -48,3 +50,22 @@ jobs:
       - name: Stop and remove the container
         run: |
           docker stop basyx-python-${{ matrix.profile }} && docker rm basyx-python-${{ matrix.profile }}
+
+  sdk-testdatagen:
+    runs-on: ubuntu-latest
+    steps:
+     - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+     - name: Set up Python
+       uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
+       with:
+         python-version: ${{ env.X_PYTHON_MIN_VERSION }}
+         cache: "pip"
+         cache-dependency-path: "**/pyproject.toml"
+     - name: Install Python dependencies
+       working-directory: ./sdk
+       run: |
+         python -m pip install --upgrade pip
+         python -m pip install .[dev]
+     - uses: ./.github/actions/sdk-test-testdatagen
+       with:
+         AAS_SPECS_RELEASE_TAG: ${{ env.X_AAS_SPECS_RELEASE_TAG }}
