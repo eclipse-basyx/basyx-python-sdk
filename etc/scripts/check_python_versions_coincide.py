@@ -1,3 +1,10 @@
+# Copyright (c) 2026 the Eclipse BaSyx Authors
+#
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
+#
+# SPDX-License-Identifier: MIT
+
 """
 This helper script checks if the Python versions defined in a `pyproject.toml` or `Dockerfile` coincide with the given
 `min_version` and `max_version` and returns an error if they don't.
