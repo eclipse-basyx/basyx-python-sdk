@@ -121,8 +121,8 @@ Several features and routes are currently not supported:
    - `/description`
    These routes are not implemented at this time.
 
-5. Value, Path, and PATCH Routes:
-   - All `/…/value$`, `/…/path$`, and `PATCH` routes are currently not implemented.
+5. Path and PATCH Routes:
+   - All `/…/$path` and `PATCH` routes are currently not implemented.
 
 6. Operation Invocation Routes: The following routes are not implemented because operation invocation
    is not yet supported by the `basyx-python-sdk`:
