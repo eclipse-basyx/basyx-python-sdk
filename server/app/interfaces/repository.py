@@ -79,8 +79,18 @@ class WSGIApp(ObjectStoreWSGIApp):
                                         ),
                                         Rule(
                                             "/asset-information/thumbnail",
-                                            methods=["GET", "PUT", "DELETE"],
-                                            endpoint=self.not_implemented,
+                                            methods=["GET"],
+                                            endpoint=self.get_aas_thumbnail,
+                                        ),
+                                        Rule(
+                                            "/asset-information/thumbnail",
+                                            methods=["PUT"],
+                                            endpoint=self.put_aas_thumbnail,
+                                        ),
+                                        Rule(
+                                            "/asset-information/thumbnail",
+                                            methods=["DELETE"],
+                                            endpoint=self.delete_aas_thumbnail,
                                         ),
                                         Rule("/submodel-refs", methods=["GET"], endpoint=self.get_aas_submodel_refs),
                                         Rule("/submodel-refs", methods=["POST"], endpoint=self.post_aas_submodel_refs),
@@ -584,6 +594,66 @@ class WSGIApp(ObjectStoreWSGIApp):
         aas = self._get_shell(url_args)
         aas.asset_information = HTTPApiDecoder.request_body(request, model.AssetInformation, False)
         self.object_store.commit(aas)
+        return response_t()
+
+    def get_aas_thumbnail(
+        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
+    ) -> Response:
+        shell = self._get_shell(url_args)
+        thumbnail = shell.asset_information.default_thumbnail
+        if thumbnail is None or not thumbnail.path:
+            raise NotFound(f"{shell!r} has no default thumbnail set!")
+        if not thumbnail.path.startswith("/"):
+            raise BadRequest(f"{shell!r} references an external thumbnail: {thumbnail.path}")
+        bytes_io = io.BytesIO()
+        try:
+            self.file_store.write_file(thumbnail.path, bytes_io)
+        except KeyError:
+            raise NotFound(f"No thumbnail file found at path: {thumbnail.path}")
+        return Response(bytes_io.getvalue(), content_type=thumbnail.content_type or "application/octet-stream")
+
+    def put_aas_thumbnail(
+        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
+    ) -> Response:
+        shell = self._get_shell(url_args)
+        filename = request.form.get("fileName")
+        if filename is None:
+            raise BadRequest("No 'fileName' specified!")
+        elif not filename.startswith("/"):
+            raise BadRequest(f"Given 'fileName' doesn't start with a slash (/): {filename}")
+
+        file_storage: Optional[FileStorage] = request.files.get("file")
+        if file_storage is None:
+            raise BadRequest("Missing file to upload")
+
+        old_thumbnail = shell.asset_information.default_thumbnail
+        new_path = self.file_store.add_file(filename, file_storage.stream, file_storage.mimetype)
+        if old_thumbnail is not None and old_thumbnail.path and old_thumbnail.path.startswith("/") \
+                and old_thumbnail.path != new_path:
+            try:
+                self.file_store.delete_file(old_thumbnail.path)
+            except KeyError:
+                pass
+
+        shell.asset_information.default_thumbnail = model.Resource(new_path, file_storage.mimetype)
+        self.object_store.commit(shell)
+        return response_t()
+
+    def delete_aas_thumbnail(
+        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
+    ) -> Response:
+        shell = self._get_shell(url_args)
+        thumbnail = shell.asset_information.default_thumbnail
+        if thumbnail is None or not thumbnail.path:
+            raise NotFound(f"{shell!r} has no default thumbnail set!")
+        if not thumbnail.path.startswith("/"):
+            raise BadRequest(f"{shell!r} references an external thumbnail: {thumbnail.path}")
+        try:
+            self.file_store.delete_file(thumbnail.path)
+        except KeyError:
+            pass
+        shell.asset_information.default_thumbnail = None
+        self.object_store.commit(shell)
         return response_t()
 
     def get_aas_submodel_refs(
