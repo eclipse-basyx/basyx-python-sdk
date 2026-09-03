@@ -232,8 +232,13 @@ class TestDateTimeTypes(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             model.datatypes.from_xsd("2020-01-24+11", model.datatypes.Date)
         self.assertEqual("Value is not a valid XSD date string", str(cm.exception))
+        with self.assertRaises(ValueError) as cm:
+            model.datatypes.from_xsd("02020-01-24", model.datatypes.Date)
+        self.assertEqual("Value is not a valid XSD date string", str(cm.exception))
         with self.assertRaises(NotImplementedError):
             model.datatypes.from_xsd("-2020-01-24", model.datatypes.Date)
+        with self.assertRaises(NotImplementedError):
+            model.datatypes.from_xsd(f"{datetime.MAXYEAR+1}-01-24", model.datatypes.Date)
 
     def test_serialize_date(self) -> None:
         self.assertEqual(
@@ -304,7 +309,13 @@ class TestDateTimeTypes(unittest.TestCase):
             model.datatypes.from_xsd("10", model.datatypes.GYear)
         self.assertEqual("Value is not a valid XSD GYear string", str(cm.exception))
         with self.assertRaises(ValueError) as cm:
+            model.datatypes.from_xsd("02010", model.datatypes.GYear)
+        self.assertEqual("Value is not a valid XSD GYear string", str(cm.exception))
+        with self.assertRaises(ValueError) as cm:
             model.datatypes.from_xsd("25-10", model.datatypes.GMonthDay)
+        self.assertEqual("Value is not a valid XSD GMonthDay string", str(cm.exception))
+        with self.assertRaises(ValueError) as cm:
+            model.datatypes.from_xsd("02025-10", model.datatypes.GMonthDay)
         self.assertEqual("Value is not a valid XSD GMonthDay string", str(cm.exception))
         with self.assertRaises(ValueError) as cm:
             model.datatypes.from_xsd("10-10", model.datatypes.GYearMonth)
@@ -325,6 +336,12 @@ class TestDateTimeTypes(unittest.TestCase):
                 "Negative years are not supported by Python's `datetime` library.",
                 str(cm.exception),
             )
+
+    def test_partial_dates_max_year_into_date(self) -> None:
+        for value in (model.datatypes.GYear(datetime.MAXYEAR+1), model.datatypes.GYearMonth(datetime.MAXYEAR+1, 1)):
+            with self.assertRaises(ValueError) as cm:
+                value.into_date()
+            self.assertEqual("Year of date exceeds Python's datetime.MAXYEAR.", str(cm.exception))
 
     def test_copy_date(self) -> None:
         date = model.datatypes.Date(2020, 1, 24)
@@ -413,10 +430,14 @@ class TestDateTimeTypes(unittest.TestCase):
             "--2020-01-24T15:25:17-00:20 is not a valid XSD datetime string",
             str(cm.exception),
         )
+        with self.assertRaises(ValueError):
+            model.datatypes.from_xsd("02020-01-24T15:25:17", model.datatypes.DateTime)
         with self.assertRaises(NotImplementedError):
             model.datatypes.from_xsd(
                 "-2020-01-24T15:25:17+01:00", model.datatypes.DateTime
             )
+        with self.assertRaises(NotImplementedError):
+            model.datatypes.from_xsd(f"{datetime.MAXYEAR+1}-01-24T15:25:17", model.datatypes.DateTime)
 
     def test_serialize_datetime(self) -> None:
         self.assertEqual(

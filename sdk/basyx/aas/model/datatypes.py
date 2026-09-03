@@ -121,6 +121,8 @@ class GYearMonth:
                 raise ValueError(
                     "Negative years are not supported by Python's `datetime` library."
                 ) from e
+            if self.year > datetime.MAXYEAR:
+                raise ValueError("Year of date exceeds Python's datetime.MAXYEAR.") from e
             raise e
 
     @classmethod
@@ -157,6 +159,8 @@ class GYear:
                 raise ValueError(
                     "Negative years are not supported by Python's `datetime` library."
                 ) from e
+            if self.year > datetime.MAXYEAR:
+                raise ValueError("Year of date exceeds Python's datetime.MAXYEAR.") from e
             raise e
 
     @classmethod
@@ -695,10 +699,10 @@ DURATION_RE = re.compile(
     r"^(-?)P(\d+Y)?(\d+M)?(\d+D)?(T(\d+H)?(\d+M)?((\d+)(\.\d+)?S)?)?$"
 )
 DATETIME_RE = re.compile(
-    r"^(-?)(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(\.\d+)?([+\-](\d\d):(\d\d)|Z)?$"
+    r"^(-?)([1-9]\d{4,}|\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(\.\d+)?([+\-](\d\d):(\d\d)|Z)?$"
 )
 TIME_RE = re.compile(r"^(\d\d):(\d\d):(\d\d)(\.\d+)?([+\-](\d\d):(\d\d)|Z)?$")
-DATE_RE = re.compile(r"^(-?)(\d\d\d\d)-(\d\d)-(\d\d)([+\-](\d\d):(\d\d)|Z)?$")
+DATE_RE = re.compile(r"^(-?)([1-9]\d{4,}|\d{4})-(\d\d)-(\d\d)([+\-](\d\d):(\d\d)|Z)?$")
 
 
 def _parse_xsd_duration(value: str) -> Duration:
@@ -739,6 +743,12 @@ def _parse_xsd_date(value: str) -> Date:
             "Negative dates are not supported: Python stdlib datetime requires year >= 1. "
             "Report at https://github.com/eclipse-basyx/basyx-python-sdk/issues"
         )
+    year = int(match[2])
+    if year > datetime.MAXYEAR:
+        raise NotImplementedError(
+            "Year of date exceeds Python datetime.MAXYEAR "
+            "Report at https://github.com/eclipse-basyx/basyx-python-sdk/issues"
+        )
     return Date(
         year=int(match[2]),
         month=int(match[3]),
@@ -754,6 +764,12 @@ def _parse_xsd_datetime(value: str) -> DateTime:
     if match[1]:
         raise NotImplementedError(
             "Negative dates are not supported: Python stdlib datetime requires year >= 1. "
+            "Report at https://github.com/eclipse-basyx/basyx-python-sdk/issues"
+        )
+    year = int(match[2])
+    if year > datetime.MAXYEAR:
+        raise NotImplementedError(
+            "Year of date exceeds Python datetime.MAXYEAR. "
             "Report at https://github.com/eclipse-basyx/basyx-python-sdk/issues"
         )
     microseconds = int(float(match[8]) * 1e6) if match[8] else 0
@@ -813,10 +829,10 @@ def _parse_xsd_bool(value: str) -> Boolean:
         raise ValueError("Invalid literal for XSD bool type")
 
 
-GYEAR_RE = re.compile(r"^(-?)(\d{4,})([+\-]\d\d:\d\d|Z)?$")
+GYEAR_RE = re.compile(r"^(-?)([1-9]\d{4,}|\d{4})([+\-]\d\d:\d\d|Z)?$")
 GMONTH_RE = re.compile(r"^--(\d\d)([+\-]\d\d:\d\d|Z)?$")
 GDAY_RE = re.compile(r"^---(\d\d)([+\-]\d\d:\d\d|Z)?$")
-GYEARMONTH_RE = re.compile(r"^(-?)(\d{4,})-(\d\d)([+\-]\d\d:\d\d|Z)?$")
+GYEARMONTH_RE = re.compile(r"^(-?)([1-9]\d{4,}|\d{4})-(\d\d)([+\-]\d\d:\d\d|Z)?$")
 GMONTHDAY_RE = re.compile(r"^--(\d\d)-(\d\d)([+\-]\d\d:\d\d|Z)?$")
 
 
