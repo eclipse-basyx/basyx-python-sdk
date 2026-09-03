@@ -8,12 +8,15 @@ import io
 import json
 import os
 import unittest
-from typing import Set, Union
+from typing import Iterable, Set, Union
 
 from basyx.aas import model
 from basyx.aas.adapter.json import (
     AASToJsonEncoder,
+    SortingAASToJsonEncoder,
+    SortingStrippedAASToJsonEncoder,
     StrippedAASToJsonEncoder,
+    object_store_to_json,
     write_aas_json_file,
 )
 from basyx.aas.examples.data import (
@@ -288,3 +291,122 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
         )
 
         self._checkNormalAndStripped({"submodels"}, aas)
+
+
+class JsonSerializationDeterministicOrderTest(unittest.TestCase):
+    """
+    Tests for the opt-in ``sort_arrays`` serialization option, which makes JSON arrays originating from unordered
+    Python sets deterministic. The assertions check for the *sorted* result, which is fully deterministic and does
+    not rely on (non-reproducible) set iteration order.
+    """
+
+    @staticmethod
+    def _submodel_store(ids: Iterable[str]) -> model.DictIdentifiableStore[model.Identifiable]:
+        store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+        for id_ in ids:
+            store.add(model.Submodel(id_))
+        return store
+
+    def test_top_level_arrays_sorted(self) -> None:
+        # the top-level object lists are backed by an unordered AbstractObjectStore
+        ids = ["http://example.org/sm_c", "http://example.org/sm_a", "http://example.org/sm_b"]
+        data = json.loads(object_store_to_json(self._submodel_store(ids), sort_arrays=True))
+        serialized_ids = [sm["id"] for sm in data["submodels"]]
+        self.assertEqual(serialized_ids, sorted(ids))
+
+    def test_order_independent_of_insertion_order(self) -> None:
+        ids = ["http://example.org/sm_c", "http://example.org/sm_a", "http://example.org/sm_b"]
+        out1 = object_store_to_json(self._submodel_store(ids), sort_arrays=True)
+        out2 = object_store_to_json(self._submodel_store(list(reversed(ids))), sort_arrays=True)
+        self.assertEqual(out1, out2)
+
+    def test_set_valued_attribute_sorted(self) -> None:
+        # the submodel references of an AssetAdministrationShell are stored in an unordered set
+        refs = {model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, v),), model.Submodel)
+                for v in ("SM_C", "SM_A", "SM_B")}
+        aas = model.AssetAdministrationShell(
+            model.AssetInformation(global_asset_id="http://example.org/asset"),
+            "http://example.org/aas", submodel=refs)
+        store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+        store.add(aas)
+        data = json.loads(object_store_to_json(store, sort_arrays=True))
+        values = [ref["keys"][0]["value"] for ref in data["assetAdministrationShells"][0]["submodels"]]
+        self.assertEqual(values, ["SM_A", "SM_B", "SM_C"])
+
+    def test_is_case_of_sorted(self) -> None:
+        # the isCaseOf references of a ConceptDescription are stored in an unordered set
+        refs: Set[model.Reference] = {
+            model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, v),))
+            for v in ("http://example.org/c", "http://example.org/a", "http://example.org/b")}
+        cd = model.ConceptDescription("http://example.org/cd", is_case_of=refs)
+        store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+        store.add(cd)
+        data = json.loads(object_store_to_json(store, sort_arrays=True))
+        values = [ref["keys"][0]["value"] for ref in data["conceptDescriptions"][0]["isCaseOf"]]
+        self.assertEqual(values, ["http://example.org/a", "http://example.org/b", "http://example.org/c"])
+
+    def test_sort_arrays_independent_of_sort_keys(self) -> None:
+        # sort_keys only orders dict keys; it must not implicitly sort arrays. Passing it must not raise and must
+        # still produce schema-shaped output.
+        ids = ["http://example.org/sm_c", "http://example.org/sm_a"]
+        data = json.loads(object_store_to_json(self._submodel_store(ids), sort_keys=True))
+        self.assertEqual({sm["id"] for sm in data["submodels"]}, set(ids))
+
+    def test_sorting_encoder_classes(self) -> None:
+        # the sorting encoders can also be passed explicitly, in which case sort_arrays is not needed
+        ids = ["http://example.org/sm_c", "http://example.org/sm_a", "http://example.org/sm_b"]
+        for encoder in (SortingAASToJsonEncoder, SortingStrippedAASToJsonEncoder):
+            with self.subTest(encoder=encoder.__name__):
+                data = json.loads(object_store_to_json(self._submodel_store(ids), encoder=encoder))
+                self.assertEqual([sm["id"] for sm in data["submodels"]], sorted(ids))
+
+    def test_references_differing_only_in_referred_semantic_id(self) -> None:
+        # Reference.__hash__ ignores referred_semantic_id while __eq__ considers it, so these references are
+        # distinct set members that share a key chain. The sort key must not tie on them.
+        refs: Set[model.Reference] = {
+            model.ExternalReference(
+                (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/ref"),),
+                referred_semantic_id=model.ExternalReference(
+                    (model.Key(model.KeyTypes.GLOBAL_REFERENCE, v),)),
+            )
+            for v in ("http://example.org/s_c", "http://example.org/s_a", "http://example.org/s_b")}
+        self.assertEqual(len(refs), 3)
+        cd = model.ConceptDescription("http://example.org/cd", is_case_of=refs)
+        store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+        store.add(cd)
+        data = json.loads(object_store_to_json(store, sort_arrays=True))
+        values = [ref["referredSemanticId"]["keys"][0]["value"]
+                  for ref in data["conceptDescriptions"][0]["isCaseOf"]]
+        self.assertEqual(values, ["http://example.org/s_a", "http://example.org/s_b", "http://example.org/s_c"])
+
+    def test_refers_to_sorted(self) -> None:
+        # the refersTo references of an Extension are stored in an unordered set
+        refs = {model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, v),), model.Submodel)
+                for v in ("SM_C", "SM_A", "SM_B")}
+        sm = model.Submodel("http://example.org/sm",
+                            extension=(model.Extension("test", refers_to=refs),))
+        store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+        store.add(sm)
+        data = json.loads(object_store_to_json(store, sort_arrays=True))
+        values = [ref["keys"][0]["value"]
+                  for ref in data["submodels"][0]["extensions"][0]["refersTo"]]
+        self.assertEqual(values, ["SM_A", "SM_B", "SM_C"])
+
+    def test_stripped_and_sort_arrays(self) -> None:
+        ids = ["http://example.org/sm_c", "http://example.org/sm_a", "http://example.org/sm_b"]
+        data = json.loads(object_store_to_json(self._submodel_store(ids), stripped=True, sort_arrays=True))
+        self.assertEqual([sm["id"] for sm in data["submodels"]], sorted(ids))
+
+    def test_sort_arrays_ignored_if_encoder_given(self) -> None:
+        # documented contract: like `stripped`, `sort_arrays` is ignored when an encoder class is specified
+        store = self._submodel_store(["http://example.org/sm_a"])
+        object_store_to_json(store, encoder=AASToJsonEncoder, sort_arrays=True)
+        self.assertFalse(AASToJsonEncoder.sort_arrays)
+
+    def test_write_aas_json_file_sort_arrays(self) -> None:
+        ids = ["http://example.org/sm_c", "http://example.org/sm_a", "http://example.org/sm_b"]
+        file = io.StringIO()
+        write_aas_json_file(file=file, data=self._submodel_store(ids), sort_arrays=True)
+        file.seek(0)
+        data = json.load(file)
+        self.assertEqual([sm["id"] for sm in data["submodels"]], sorted(ids))
