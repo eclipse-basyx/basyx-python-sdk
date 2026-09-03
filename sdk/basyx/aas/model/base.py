@@ -588,6 +588,22 @@ class Namespace(metaclass=abc.ABCMeta):
         super().__init__()
         self.namespace_element_sets: List[NamespaceSet] = []
 
+    def __setattr__(self, key, value) -> None:
+        """
+        Protect attributes holding a :class:`~.NamespaceSet` from being replaced.
+
+        Assigning an iterable to such an attribute (e.g. ``submodel.submodel_element = [...]``) replaces the
+        *contents* of the existing NamespaceSet instead of rebinding the attribute. This keeps
+        ``namespace_element_sets``, the ``parent`` of the contained objects and all uniqueness constraints intact.
+        Without this, a plain assignment would silently shadow the NamespaceSet, leaving the old one registered in
+        ``namespace_element_sets`` and its items unreachable via the attribute.
+        """
+        current = self.__dict__.get(key)
+        if isinstance(current, NamespaceSet) and current is not value:
+            current.assign(value)
+            return
+        super().__setattr__(key, value)
+
     def _get_object(
         self, object_type: Type[_NSO], attribute_name: str, attribute
     ) -> _NSO:
@@ -2338,6 +2354,28 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
                 self._execute_item_del_hook(value)
         for attr_name, (backend, case_sensitive) in self._backend.items():
             backend.clear()
+
+    def assign(self, items: Iterable[_NSO]) -> None:
+        """
+        Replace all objects of this set with the given ones, atomically.
+
+        This is the implementation of assignments to NamespaceSet attributes, see ``Namespace.__setattr__()``.
+        If adding one of the new items fails, the previous content of the set is restored.
+
+        :param items: The objects this set should contain afterwards
+        :raises AASConstraintViolation: If the given items violate a uniqueness constraint of this namespace
+        :raises ValueError: If one of the given items already belongs to another namespace
+        """
+        previous: List[_NSO] = list(self)
+        self.clear()
+        try:
+            for item in items:
+                self.add(item)
+        except Exception:
+            self.clear()
+            for item in previous:
+                self.add(item)
+            raise
 
     def get_object_by_attribute(
         self, attribute_name: str, attribute_value: ATTRIBUTE_TYPES
