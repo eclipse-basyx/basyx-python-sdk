@@ -421,6 +421,9 @@ jobs:
       - name: Run Docker integration tests
         if: matrix.profile == 'repository'
         working-directory: ./server
+        env:
+          # Fail instead of silently skipping if the container isn't actually reachable (see test_helpers.py).
+          REQUIRE_SERVER_INTEGRATION_TESTS: "1"
         run: |
           python -m unittest test.interfaces.test_docker_integration -v
       - name: Stop and remove the container

@@ -12,18 +12,32 @@ from basyx.aas.examples.data.example_aas import (
     create_example_asset_administration_shell,
 )
 
-from test._helper.test_helpers import SERVER_ERROR, SERVER_OKAY, TEST_CONFIG
+from test._helper.test_helpers import REQUIRE_SERVER, SERVER_ERROR, SERVER_OKAY, TEST_CONFIG
 
 SERVER_BASE_URL = TEST_CONFIG["server"]["url"]
 
 
-@unittest.skipUnless(SERVER_OKAY, f"No server reachable at {SERVER_BASE_URL}: {SERVER_ERROR}")
+@unittest.skipUnless(
+    SERVER_OKAY or REQUIRE_SERVER, f"No server reachable at {SERVER_BASE_URL}: {SERVER_ERROR}"
+)
 class ServerDockerIntegrationTest(unittest.TestCase):
     """
     Smoke tests against a real, already-running server instance (e.g. started via
     ``docker run -p 8080:80 basyx-python-server``), analogous to how ``test_couchdb.py`` tests
     against a real CouchDB instance: skipped entirely if no server is reachable at ``SERVER_BASE_URL``.
+
+    Set the ``REQUIRE_SERVER_INTEGRATION_TESTS`` environment variable to make this test class fail instead of
+    being skipped when no server is reachable (see ``test._helper.test_helpers``). CI uses this to ensure a
+    broken Docker container is reported as a failure rather than silently skipping the tests.
     """
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        if not SERVER_OKAY:
+            raise RuntimeError(
+                f"REQUIRE_SERVER_INTEGRATION_TESTS is set, but no server is reachable at "
+                f"{SERVER_BASE_URL}: {SERVER_ERROR}"
+            )
 
     def tearDown(self) -> None:
         self._delete_shell(create_example_asset_administration_shell().id, ignore_missing=True)
