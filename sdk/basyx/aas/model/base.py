@@ -1777,6 +1777,22 @@ class Extension(HasSemantics):
         # Redundant to the line above. However, this way, we make sure that we really update the _name
         self._name = name
 
+    def update_from(self, other: "Extension"):
+        """
+        Internal function to update the object's attributes from a different version of the exact same object.
+
+        This function should not be used directly. It is typically used by backend implementations (database adapters,
+        protocol clients, etc.) to update the object's data, after ``update_nss_from()`` has been called.
+
+        :param other: The object to update from
+        """
+        # Assign value_type first so the incoming value is cast against the new type.
+        self.value_type = other.value_type
+        self.value = other.value
+        self.refers_to = other.refers_to
+        self.semantic_id = other.semantic_id
+        self.supplemental_semantic_id = other.supplemental_semantic_id
+
 
 class HasKind(metaclass=abc.ABCMeta):
     """
@@ -1932,6 +1948,23 @@ class Qualifier(HasSemantics):
                 set_.add(self)
         # Redundant to the line above. However, this way, we make sure that we really update the _type
         self._type = type_
+
+    def update_from(self, other: "Qualifier"):
+        """
+        Internal function to update the object's attributes from a different version of the exact same object.
+
+        This function should not be used directly. It is typically used by backend implementations (database adapters,
+        protocol clients, etc.) to update the object's data, after ``update_nss_from()`` has been called.
+
+        :param other: The object to update from
+        """
+        # Assign value_type first so the incoming value is cast against the new type.
+        self.value_type = other.value_type
+        self.value = other.value
+        self.value_id = other.value_id
+        self.kind = other.kind
+        self.semantic_id = other.semantic_id
+        self.supplemental_semantic_id = other.supplemental_semantic_id
 
 
 @_string_constraints.constrain_value_type_iec61360("value")
@@ -2367,7 +2400,6 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
             attribute_value if case_sensitive else attribute_value.upper(), default
         )
 
-    # Todo: Implement function including tests
     def update_nss_from(self, other: "NamespaceSet"):
         """
         Update a NamespaceSet from a given NamespaceSet.
@@ -2390,20 +2422,20 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
                     referable.update_from(other_object)  # type: ignore
                 elif isinstance(other_object, Qualifier):
                     backend, case_sensitive = self._backend["type"]
-                    qualifier = backend[  # noqa: F841 qualifier currently unused
+                    qualifier = backend[
                         other_object.type
                         if case_sensitive
                         else other_object.type.upper()
                     ]
-                    # qualifier.update_from(other_object) # TODO: What should happend here? Remove noqa when done
+                    qualifier.update_from(other_object)  # type: ignore
                 elif isinstance(other_object, Extension):
                     backend, case_sensitive = self._backend["name"]
-                    extension = backend[  # noqa: F841 extension currently unused
+                    extension = backend[
                         other_object.name
                         if case_sensitive
                         else other_object.name.upper()
                     ]
-                    # extension.update_from(other_object) # TODO: What should happend here? Remove noqa when done
+                    extension.update_from(other_object)  # type: ignore
                 else:
                     raise TypeError("Type not implemented")
             except KeyError:

@@ -312,6 +312,26 @@ class ReferableTest(unittest.TestCase):
         )
         self.assertIs(example_relel.parent, example_submodel)
 
+    def test_update_from_qualifier_and_extension(self):
+        submodel = model.Submodel("https://example.org/Test_Submodel")
+        qualifier = model.Qualifier("q", model.datatypes.String, "old")
+        extension = model.Extension("e", model.datatypes.String, "old")
+        submodel.add_qualifier(qualifier)
+        submodel.add_extension(extension)
+
+        other = model.Submodel("https://example.org/Test_Submodel")
+        other.add_qualifier(model.Qualifier("q", model.datatypes.String, "new"))
+        other.add_extension(model.Extension("e", model.datatypes.String, "new"))
+
+        submodel.update_from(other)
+
+        self.assertIs(submodel.get_qualifier_by_type("q"), qualifier)
+        self.assertEqual("new", qualifier.value)
+        self.assertIs(qualifier.parent, submodel)
+        self.assertIs(submodel.get_extension_by_name("e"), extension)
+        self.assertEqual("new", extension.value)
+        self.assertIs(extension.parent, submodel)
+
     def test_update_commit_qualifier_extension_semantic_id(self):
         submodel = model.Submodel("https://example.org/Test_Submodel")
         qualifier = model.Qualifier("test", model.datatypes.String)
@@ -370,6 +390,12 @@ class ExampleNamespaceQualifier(model.Qualifiable):
     def __init__(self, values=()):
         super().__init__()
         self.set1 = model.NamespaceSet(self, [("type", False)], values)
+
+
+class ExampleNamespaceExtension(model.HasExtension):
+    def __init__(self, values=()):
+        super().__init__()
+        self.set1 = model.NamespaceSet(self, [("name", True)], values)
 
 
 class ModelNamespaceTest(unittest.TestCase):
@@ -842,6 +868,88 @@ class ModelNamespaceTest(unittest.TestCase):
         with self.assertRaises(KeyError):
             namespace1.get_referable("Prop2")
         self.assertIsNone(prop2.parent)
+
+    def test_Namespaceset_update_from_qualifier_and_extension(self) -> None:
+        # ExampleNamespaceReferable also indexes semantic_id, so Qualifier/Extension
+        # objects belong in namespaces that only key on type/name.
+        qualifier_ns1 = self._namespace_class_qualifier()
+        qualifier1 = model.Qualifier(
+            "type1",
+            model.datatypes.Int,
+            1,
+            kind=model.QualifierKind.CONCEPT_QUALIFIER,
+        )
+        qualifier2 = model.Qualifier("type2", model.datatypes.Int, 2)
+        qualifier_ns1.set1.add(qualifier1)
+        qualifier_ns1.set1.add(qualifier2)
+
+        qualifier_ns2 = self._namespace_class_qualifier()
+        qualifier_ns2.set1.add(
+            model.Qualifier(
+                "type1",
+                model.datatypes.String,
+                "updated",
+                kind=model.QualifierKind.VALUE_QUALIFIER,
+                semantic_id=self.propSemanticID,
+            )
+        )
+        qualifier_ns2.set1.add(model.Qualifier("type3", model.datatypes.Int, 3))
+        qualifier_ns1.set1.update_nss_from(qualifier_ns2.set1)
+
+        self.assertIs(
+            qualifier_ns1.set1.get_object_by_attribute("type", "type1"), qualifier1
+        )
+        self.assertEqual("updated", qualifier1.value)
+        self.assertIs(qualifier1.value_type, model.datatypes.String)
+        self.assertEqual(model.QualifierKind.VALUE_QUALIFIER, qualifier1.kind)
+        self.assertEqual(self.propSemanticID, qualifier1.semantic_id)
+        self.assertIs(qualifier1.parent, qualifier_ns1)
+        qualifier3 = qualifier_ns1.set1.get_object_by_attribute("type", "type3")
+        self.assertIs(qualifier3.parent, qualifier_ns1)
+        assert isinstance(qualifier3, model.Qualifier)
+        self.assertEqual(3, qualifier3.value)
+        self.assertFalse(qualifier_ns1.set1.contains_id("type", "type2"))
+        self.assertIsNone(qualifier2.parent)
+
+        extension_ns1 = ExampleNamespaceExtension()
+        extension1 = model.Extension("Ext1", model.datatypes.Int, 1)
+        extension2 = model.Extension("Ext2", model.datatypes.Int, 2)
+        extension_ns1.set1.add(extension1)
+        extension_ns1.set1.add(extension2)
+
+        refers_to = {
+            model.ModelReference(
+                (model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),),
+                model.Submodel,
+            )
+        }
+        extension_ns2 = ExampleNamespaceExtension()
+        extension_ns2.set1.add(
+            model.Extension(
+                "Ext1",
+                model.datatypes.String,
+                "updated",
+                refers_to=refers_to,
+                semantic_id=self.propSemanticID,
+            )
+        )
+        extension_ns2.set1.add(model.Extension("Ext3", model.datatypes.Int, 3))
+        extension_ns1.set1.update_nss_from(extension_ns2.set1)
+
+        self.assertIs(
+            extension_ns1.set1.get_object_by_attribute("name", "Ext1"), extension1
+        )
+        self.assertEqual("updated", extension1.value)
+        self.assertIs(extension1.value_type, model.datatypes.String)
+        self.assertEqual(refers_to, extension1.refers_to)
+        self.assertEqual(self.propSemanticID, extension1.semantic_id)
+        self.assertIs(extension1.parent, extension_ns1)
+        extension3 = extension_ns1.set1.get_object_by_attribute("name", "Ext3")
+        self.assertIs(extension3.parent, extension_ns1)
+        assert isinstance(extension3, model.Extension)
+        self.assertEqual(3, extension3.value)
+        self.assertFalse(extension_ns1.set1.contains_id("name", "Ext2"))
+        self.assertIsNone(extension2.parent)
 
     def test_qualifiable_id_short_namespace(self) -> None:
         prop1 = model.Property("Prop1", model.datatypes.Int, 1)
