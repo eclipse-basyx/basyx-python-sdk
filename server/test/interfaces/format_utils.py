@@ -2,6 +2,7 @@ import abc
 import json
 from typing import Any, Callable, Optional
 
+import app.adapter
 from basyx.aas import adapter
 from basyx.aas.adapter._generic import XML_NS_MAP
 from lxml import etree
@@ -133,7 +134,7 @@ class JsonFormatClient(FormatClient):
     content_type = "application/json"
 
     def serialize(self, obj: object) -> bytes:
-        return json.dumps(obj, cls=adapter.json.AASToJsonEncoder).encode("utf-8")
+        return json.dumps(obj, cls=app.adapter.jsonization.ServerAASToJsonEncoder).encode("utf-8")
 
     def _payload(self, response: TestResponse) -> Any:
         return json.loads(response.get_data(as_text=True))
