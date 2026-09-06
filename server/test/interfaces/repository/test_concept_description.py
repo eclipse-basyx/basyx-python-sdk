@@ -11,7 +11,7 @@ from ..format_utils import (
     with_json_client,
     with_xml_client,
 )
-from .test_base import RepositoryEndpointTestBase
+from .helpers import RepositoryEndpointTestBase
 
 
 @inject_format_clients
