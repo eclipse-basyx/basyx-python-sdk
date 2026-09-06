@@ -81,3 +81,55 @@ class ServerDockerIntegrationTest(unittest.TestCase):
 
         checker = AASDataChecker(raise_immediately=True)
         check_example_asset_administration_shell(checker, retrieved)
+
+    def test_shell_duplicate_post(self):
+        shell = create_example_asset_administration_shell()
+        body = json.dumps(shell, cls=AASToJsonEncoder).encode("utf-8")
+        post_request = urllib.request.Request(
+            SERVER_BASE_URL + "/shells", data=body, headers={"Content-Type": "application/json"}, method="POST"
+        )
+
+        with urllib.request.urlopen(post_request) as response:
+            self.assertEqual(201, response.status)
+
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            urllib.request.urlopen(post_request)
+        self.assertEqual(409, cm.exception.code)
+
+    def test_shell_update(self):
+        shell = create_example_asset_administration_shell()
+        body = json.dumps(shell, cls=AASToJsonEncoder).encode("utf-8")
+        shell_path = f"{SERVER_BASE_URL}/shells/{base64url_encode(shell.id)}"
+
+        post_request = urllib.request.Request(
+            SERVER_BASE_URL + "/shells", data=body, headers={"Content-Type": "application/json"}, method="POST"
+        )
+        with urllib.request.urlopen(post_request) as response:
+            self.assertEqual(201, response.status)
+
+        shell.id_short = "UpdatedIdShort"
+        updated_body = json.dumps(shell, cls=AASToJsonEncoder).encode("utf-8")
+        put_request = urllib.request.Request(
+            shell_path, data=updated_body, headers={"Content-Type": "application/json"}, method="PUT"
+        )
+        with urllib.request.urlopen(put_request) as response:
+            self.assertEqual(204, response.status)
+
+        with urllib.request.urlopen(shell_path) as response:
+            self.assertEqual(200, response.status)
+            retrieved = json.loads(response.read(), cls=AASFromJsonDecoder)
+        self.assertEqual("UpdatedIdShort", retrieved.id_short)
+
+    # ------------------------------------------------------------------ GET/PUT/DELETE on a missing /shells/<aas_id>
+
+    def test_shell_not_found(self):
+        missing_shell_path = f"{SERVER_BASE_URL}/shells/{base64url_encode('https://example.org/unknown-shell')}"
+
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            urllib.request.urlopen(missing_shell_path)
+        self.assertEqual(404, cm.exception.code)
+
+        delete_request = urllib.request.Request(missing_shell_path, method="DELETE")
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            urllib.request.urlopen(delete_request)
+        self.assertEqual(404, cm.exception.code)
