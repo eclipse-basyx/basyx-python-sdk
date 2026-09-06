@@ -355,6 +355,7 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
         self.assertEqual(204, response.status_code)
         retrieved_shell = self.object_store.get(updated_shell.id, None)
         self.assertIsInstance(retrieved_shell, model.AssetAdministrationShell)
+        assert isinstance(retrieved_shell, model.AssetAdministrationShell)  # make mypy happy
         self.assertEqual("UpdatedIdShort", retrieved_shell.id_short)
 
     @with_json_client
@@ -424,6 +425,7 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
         self.assertEqual(204, response.status_code)
         retrieved_shell = self.object_store.get(example_shell.id)
         self.assertIsInstance(retrieved_shell, model.AssetAdministrationShell)
+        assert isinstance(retrieved_shell, model.AssetAdministrationShell)  # make mypy happy
         self.assertEqual(
             "http://example.org/changed_asset",
             retrieved_shell.asset_information.global_asset_id,
@@ -479,6 +481,7 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
         self.assertEqual(201, response.status_code)
         retrieved_shell = self.object_store.get(example_shell.id)
         self.assertIsInstance(retrieved_shell, model.AssetAdministrationShell)
+        assert isinstance(retrieved_shell, model.AssetAdministrationShell)  # make mypy happy
         identifiers = {ref.get_identifier() for ref in retrieved_shell.submodel}
         self.assertIn("https://example.org/NewSubmodel", identifiers)
 
@@ -513,6 +516,7 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
         self.assertEqual(204, response.status_code)
         retrieved_shell = self.object_store.get(example_shell.id)
         self.assertIsInstance(retrieved_shell, model.AssetAdministrationShell)
+        assert isinstance(retrieved_shell, model.AssetAdministrationShell)  # make mypy happy
         self.assertEqual(0, len(list(retrieved_shell.submodel)))
 
     @with_json_client
@@ -547,6 +551,7 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
         self.assertEqual(204, response.status_code)
         retrieved_sm = self.object_store.get(updated_submodel.id)
         self.assertIsInstance(retrieved_sm, model.Submodel)
+        assert isinstance(retrieved_sm, model.Submodel)  # make mypy happy
         self.assertEqual("UpdatedSubmodel", retrieved_sm.id_short)
 
     @with_json_client
@@ -567,6 +572,7 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
         self.assertEqual(204, response.status_code)
         retrieved_shell = self.object_store.get(example_shell.id)
         self.assertIsInstance(retrieved_shell, model.AssetAdministrationShell)
+        assert isinstance(retrieved_shell, model.AssetAdministrationShell)  # make mypy happy
 
         self.assertIn(model.ModelReference.from_referable(updated_submodel), retrieved_shell.submodel)
         self.assertNotIn(model.ModelReference.from_referable(create_example_submodel()), retrieved_shell.submodel)
@@ -589,6 +595,7 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
         self.assertIsNone(self.object_store.get(example_submodel.id, None))
         retrieved_shell = self.object_store.get(example_shell.id)
         self.assertIsInstance(retrieved_shell, model.AssetAdministrationShell)
+        assert isinstance(retrieved_shell, model.AssetAdministrationShell)  # make mypy happy
         self.assertEqual(0, len(list(retrieved_shell.submodel)))
 
     # ------------------------------------------------------------------ /shells/<aas_id>/submodels/<sm_id> redirect

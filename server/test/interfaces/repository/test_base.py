@@ -1,4 +1,5 @@
 import unittest
+from typing import TypeVar
 from unittest import mock
 
 from app.interfaces import repository
@@ -13,6 +14,7 @@ from werkzeug.test import Client, TestResponse
 
 from ..format_utils import FormatClient, inject_format_clients, with_json_client, with_xml_client
 
+T = TypeVar('T')
 
 class RepositoryEndpointTestBase(unittest.TestCase):
     __test__ = False
@@ -66,7 +68,15 @@ class TestServiceDescription(RepositoryEndpointTestBase):
 
 @inject_format_clients
 class TestPagination(RepositoryEndpointTestBase):
-    
+    """
+    Endpoint testing of the shared pagination strategy, shared by multiple endpoints. Ensures
+    that all results are returned and pages do not overlap. As testing endpoints ``/submodels`` is used.
+
+    Bodies are written once against the format-agnostic ``format_client`` helper. For each test two
+    variants are generated where the :class:`~..format_utils.JsonFormatClient` and
+    :class:`~..format_utils.XmlFormatClient` are injected respectively.
+    """
+
     __test__ = True
 
     EXAMPLE_ID = "https://example.org/Test_Submodel_Missing"

@@ -1,6 +1,5 @@
 import io
 import json
-from io import BytesIO
 from unittest import mock
 
 from app.util.converters import base64url_encode

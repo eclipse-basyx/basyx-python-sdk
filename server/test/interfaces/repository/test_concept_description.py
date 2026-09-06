@@ -166,6 +166,7 @@ class ConceptDescriptionsEndpointsTest(RepositoryEndpointTestBase):
         self.assertEqual(204, response.status_code)
         retrieved_cd = self.object_store.get(updated_cd.id, None)
         self.assertIsInstance(retrieved_cd, model.ConceptDescription)
+        assert isinstance(retrieved_cd, model.ConceptDescription)  # make mypy happy
         self.assertEqual("UpdatedIdShort", retrieved_cd.id_short)
 
     @with_json_client
