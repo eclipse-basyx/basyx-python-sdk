@@ -20,6 +20,7 @@ from app.interfaces.discovery import DiscoveryAPI, DiscoveryStore
 from app.util.converters import base64url_encode
 from werkzeug.test import Client, TestResponse
 
+from basyx.aas.model import SpecificAssetId
 from .format_utils import FormatClient, JsonFormatClient, inject_format_clients, with_json_client, with_xml_client
 
 
@@ -54,8 +55,10 @@ class DiscoveryEndpointTestBase(unittest.TestCase):
     # ------------------------------------------------------------------ helpers
 
     def register(self, aas_id: str, asset_ids: List[Tuple[str, str]]) -> None:
-        payload = [{"name": name, "value": value} for name, value in asset_ids]
-        self.assert_ok(self.format_client.post(f"/lookup/shells/{base64url_encode(aas_id)}", obj=payload))
+        assets: list[SpecificAssetId] = [SpecificAssetId(name, value) for name, value in asset_ids]
+        self.store.add_specific_asset_ids_to_aas(aas_id, assets)
+        for asset in assets:
+            self.store._add_aas_id_to_specific_asset_id(asset, aas_id)
 
     def assert_ok(self, response: TestResponse) -> None:
         self.assertEqual(200, response.status_code, msg=response.get_data(as_text=True))
