@@ -456,7 +456,7 @@ jobs:
           # Fail instead of silently skipping if the container isn't actually reachable (see test_helpers.py).
           REQUIRE_SERVER_INTEGRATION_TESTS: "1"
         run: |
-          python -m unittest test.interfaces.test_docker_integration_${{ matrix.profile }} -v
+          python -m unittest test.docker_integration.test_docker_integration_${{ matrix.profile }} -v
       - name: Stop and remove the container
         run: |
           docker stop basyx-python-${{ matrix.profile }} && docker rm basyx-python-${{ matrix.profile }}

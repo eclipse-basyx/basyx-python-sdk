@@ -18,9 +18,9 @@ from typing import List, Tuple
 
 from app.interfaces.discovery import DiscoveryAPI, DiscoveryStore
 from app.util.converters import base64url_encode
+from basyx.aas.model import SpecificAssetId
 from werkzeug.test import Client, TestResponse
 
-from basyx.aas.model import SpecificAssetId
 from .format_utils import FormatClient, JsonFormatClient, inject_format_clients, with_json_client, with_xml_client
 
 

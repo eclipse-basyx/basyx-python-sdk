@@ -208,14 +208,14 @@ class TestXmlResponse(unittest.TestCase):
         ids = [elem.text for elem in parsed_body.findall("aas:submodel/aas:id", namespaces=XML_NS_MAP)]
         self.assertEqual(2, len(ids))
         self.assertEqual(len(ids), len(set(ids)))
-        
+
     def test_example_empty_list(self):
         response = base.XmlResponse([])
 
         self.assertEqual("application/xml", response.content_type)
         self.assertEqual(200, response.status_code)
         parsed_body = etree.fromstring(response.get_data())
-        
+
         self.assertEqual(0, len(list(parsed_body.iterchildren())))
 
     def test_paging_metadata(self):
