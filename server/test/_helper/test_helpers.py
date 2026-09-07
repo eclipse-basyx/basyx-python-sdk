@@ -14,10 +14,10 @@ TEST_CONFIG.read(
 
 
 # By default, the Docker integration tests are skipped whenever no server is reachable, so that a plain local
-# `python -m unittest` run doesn't require a running Docker container. Set this environment variable to any
-# non-empty value (e.g. in CI) to instead make those tests fail loudly if no server is reachable, so a broken
-# Docker container can't silently cause the tests to be skipped without anyone noticing.
-REQUIRE_SERVER = bool(os.environ.get("REQUIRE_SERVER_INTEGRATION_TESTS"))
+# `python -m unittest` run doesn't require a running Docker container. Set this environment variable to "1"/"true"
+# (e.g. in CI) to instead make those tests fail loudly if no server is reachable, so a broken Docker container
+# can't silently cause the tests to be skipped without anyone noticing.
+REQUIRE_SERVER = os.environ.get("REQUIRE_SERVER_INTEGRATION_TESTS", "false").lower() in {"1", "true", "yes"}
 
 # Check if the server is available. Otherwise, skip tests (unless REQUIRE_SERVER is set, see above).
 try:

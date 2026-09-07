@@ -42,6 +42,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+    "coverage",
     "mypy",
     "pycodestyle",
     "ruff==0.16.0",
