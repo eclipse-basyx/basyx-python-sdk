@@ -415,8 +415,7 @@ jobs:
           python -m pip install ../sdk
           python -m pip install .
       - name: Run Docker integration tests
-        # Each profile has its own smoke-test module, matching its subset of the API (e.g. only the repository
-        # profile implements the full /shells CRUD API that test_docker_integration_repository.py exercises).
+        # Each profile has its own test module
         working-directory: ./server
         env:
           # Fail instead of silently skipping if the container isn't actually reachable (see test_helpers.py).
