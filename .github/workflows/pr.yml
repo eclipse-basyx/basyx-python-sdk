@@ -403,29 +403,26 @@ jobs:
         run: |
           curl -f http://localhost:8080/api/${{ env.X_API_VERSION }}/description
       - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
-        # The repository profile is the only one implementing the full /shells CRUD API that
-        # test_docker_integration.py exercises, so only run it for that profile.
-        if: matrix.profile == 'repository'
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
         with:
           python-version: ${{ env.X_PYTHON_MIN_VERSION }}
           cache: "pip"
           cache-dependency-path: "**/pyproject.toml"
       - name: Install Python dependencies
-        if: matrix.profile == 'repository'
         working-directory: ./server
         run: |
           python -m pip install --upgrade pip
           python -m pip install ../sdk
           python -m pip install .
       - name: Run Docker integration tests
-        if: matrix.profile == 'repository'
+        # Each profile has its own smoke-test module, matching its subset of the API (e.g. only the repository
+        # profile implements the full /shells CRUD API that test_docker_integration_repository.py exercises).
         working-directory: ./server
         env:
           # Fail instead of silently skipping if the container isn't actually reachable (see test_helpers.py).
           REQUIRE_SERVER_INTEGRATION_TESTS: "1"
         run: |
-          python -m unittest test.interfaces.test_docker_integration -v
+          python -m unittest test.interfaces.test_docker_integration_${{ matrix.profile }} -v
       - name: Stop and remove the container
         run: |
           docker stop basyx-python-${{ matrix.profile }} && docker rm basyx-python-${{ matrix.profile }}
