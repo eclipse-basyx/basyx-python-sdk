@@ -38,6 +38,11 @@ class DictDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier, _DE
         if self._backend.get(x.id) is x:
             del self._backend[x.id]
 
+    def commit(self, x: _DESCRIPTOR_TYPE) -> None:
+        # This is an in-memory store: mutations to a stored descriptor are already visible without persisting them
+        # anywhere, so there is nothing to do here.
+        pass
+
     def __contains__(self, x: object) -> bool:
         if isinstance(x, model.Identifier):
             return x in self._backend
