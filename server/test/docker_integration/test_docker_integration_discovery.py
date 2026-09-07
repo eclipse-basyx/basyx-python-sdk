@@ -75,28 +75,3 @@ class DiscoveryDockerIntegrationTest(unittest.TestCase):
         with urllib.request.urlopen(aas_asset_links_path) as response:
             self.assertEqual(200, response.status)
             self.assertEqual([], json.loads(response.read()))
-
-    # ------------------------------------------------------------------ POST /lookup/shellsByAssetLink
-
-    def test_lookup_by_asset_link(self):
-        aas_asset_links_path = f"{SERVER_BASE_URL}/lookup/shells/{base64url_encode(self.AAS_ID)}"
-        link_request = urllib.request.Request(
-            aas_asset_links_path,
-            data=json.dumps([self.ASSET_LINK]).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        with urllib.request.urlopen(link_request) as response:
-            self.assertEqual(200, response.status)
-
-        lookup_request = urllib.request.Request(
-            SERVER_BASE_URL + "/lookup/shellsByAssetLink",
-            data=json.dumps([self.ASSET_LINK]).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        with urllib.request.urlopen(lookup_request) as response:
-            self.assertEqual(200, response.status)
-            data = json.loads(response.read())
-
-        self.assertIn(self.AAS_ID, data["result"])

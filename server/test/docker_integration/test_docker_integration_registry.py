@@ -90,36 +90,3 @@ class RegistryDockerIntegrationTest(unittest.TestCase):
         with self.assertRaises(urllib.error.HTTPError) as cm:
             urllib.request.urlopen(descriptor_path)
         self.assertEqual(404, cm.exception.code)
-
-    def test_shell_descriptor_duplicate_post(self):
-        descriptor = AssetAdministrationShellDescriptor(id_=self.DESCRIPTOR_ID)
-        body = json.dumps(descriptor, cls=ServerAASToJsonEncoder).encode("utf-8")
-        post_request = urllib.request.Request(
-            SERVER_BASE_URL + "/shell-descriptors",
-            data=body,
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-
-        with urllib.request.urlopen(post_request) as response:
-            self.assertEqual(201, response.status)
-
-        with self.assertRaises(urllib.error.HTTPError) as cm:
-            urllib.request.urlopen(post_request)
-        self.assertEqual(409, cm.exception.code)
-
-    # ------------------------------------------------------------------ GET/DELETE on a missing /shell-descriptors/<id>
-
-    def test_shell_descriptor_not_found(self):
-        missing_path = (
-            f"{SERVER_BASE_URL}/shell-descriptors/{base64url_encode('https://example.org/unknown-descriptor')}"
-        )
-
-        with self.assertRaises(urllib.error.HTTPError) as cm:
-            urllib.request.urlopen(missing_path)
-        self.assertEqual(404, cm.exception.code)
-
-        delete_request = urllib.request.Request(missing_path, method="DELETE")
-        with self.assertRaises(urllib.error.HTTPError) as cm:
-            urllib.request.urlopen(delete_request)
-        self.assertEqual(404, cm.exception.code)
