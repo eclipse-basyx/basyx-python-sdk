@@ -425,8 +425,10 @@ jobs:
           publish: false
           platform: linux/amd64
       - name: Run container
+        # Enable STORAGE_PERSISTENCY as registry fails with in-memory store (#626)
+        # TODO(#626): revisit when `DictDescriptorStore` throws now exception on `commit()`
         run: |
-           docker run -d --name basyx-python-${{ matrix.profile }} -p 8080:80 --pull=never ${{ steps.build.outputs.image-ref }}
+           docker run -d --name basyx-python-${{ matrix.profile }} -p 8080:80 -eSTORAGE_PERSISTENCY=True --pull=never ${{ steps.build.outputs.image-ref }}
       - name: Wait for container and server initialization
         run: |
           timeout 30s bash -c '
