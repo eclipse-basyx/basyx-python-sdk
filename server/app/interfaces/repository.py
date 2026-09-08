@@ -31,6 +31,7 @@ from app.util.converters import IdentifierToBase64URLConverter, IdShortPathConve
 
 from .base import (
     AASX_CONTENT_TYPE,
+    JSON_CONTENT_TYPE,
     APIResponse,
     HTTPApiDecoder,
     ObjectStoreWSGIApp,
@@ -600,11 +601,12 @@ class WSGIApp(ObjectStoreWSGIApp):
             with aasx.AASXWriter(aasx_data) as writer:
                 writer.write_all_aas_objects("/aasx/data.xml", objects, self.file_store)
             return Response(aasx_data.getvalue(), content_type=content_type)
-        if content_type == "application/json":
+        elif content_type == JSON_CONTENT_TYPE:
             return Response(object_store_to_json(objects), content_type=content_type)
-        environment = io.BytesIO()
-        write_aas_xml_file(environment, objects)
-        return Response(environment.getvalue(), content_type=content_type)
+        else:
+            environment = io.BytesIO()
+            write_aas_xml_file(environment, objects)
+            return Response(environment.getvalue(), content_type=content_type)
 
     # ------ AAS REPO ROUTES -------
     def get_aas_all(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:

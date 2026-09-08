@@ -42,6 +42,7 @@ SchemeType = str
 
 T = TypeVar("T")
 
+JSON_CONTENT_TYPE: str = "application/json"
 AASX_CONTENT_TYPE: str = "application/asset-administration-shell-package+xml"
 
 
@@ -187,7 +188,7 @@ class XmlResponseAlt(XmlResponse):
 
 
 RESPONSE_TYPES: Dict[str, Type[APIResponse]] = {
-    "application/json": JsonResponse,
+    JSON_CONTENT_TYPE: JsonResponse,
     "application/xml": XmlResponse,
     "text/xml": XmlResponseAlt,
 }
@@ -198,7 +199,7 @@ RESPONSE_TYPES: Dict[str, Type[APIResponse]] = {
 CONTENT_TYPES: Tuple[str, ...] = (*RESPONSE_TYPES, AASX_CONTENT_TYPE)
 
 # content type served if the client states no preference
-DEFAULT_CONTENT_TYPE: str = "application/json"
+DEFAULT_CONTENT_TYPE: str = JSON_CONTENT_TYPE
 
 
 class ResultToJsonEncoder(ServerAASToJsonEncoder):
