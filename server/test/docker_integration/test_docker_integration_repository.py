@@ -22,8 +22,7 @@ SERVER_BASE_URL = TEST_CONFIG["server"]["url"]
 )
 class ServerDockerIntegrationTest(unittest.TestCase):
     """
-    Smoke tests against a real, already-running server instance (e.g. started via
-    ``docker run -p 8080:80 basyx-python-server``), analogous to how ``test_couchdb.py`` tests
+    Tests against a real, already-running server instance, analogous to how ``test_couchdb.py`` tests
     against a real CouchDB instance: skipped entirely if no server is reachable at ``SERVER_BASE_URL``.
 
     Set the ``REQUIRE_SERVER_INTEGRATION_TESTS`` environment variable to make this test class fail instead of
@@ -81,3 +80,11 @@ class ServerDockerIntegrationTest(unittest.TestCase):
 
         checker = AASDataChecker(raise_immediately=True)
         check_example_asset_administration_shell(checker, retrieved)
+
+        delete_request = urllib.request.Request(shell_path, method="DELETE")
+        with urllib.request.urlopen(delete_request) as response:
+            self.assertEqual(204, response.status)
+
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            urllib.request.urlopen(shell_path)
+        self.assertEqual(404, cm.exception.code)

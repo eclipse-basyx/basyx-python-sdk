@@ -16,8 +16,7 @@ SERVER_BASE_URL = TEST_CONFIG["server"]["url"]
 )
 class DiscoveryDockerIntegrationTest(unittest.TestCase):
     """
-    Smoke tests against a real, already-running discovery server instance (e.g. started via
-    ``docker run -p 8080:80 basyx-python-discovery``), analogous to ``test_docker_integration_repository.py`` for the
+    Testing tests against a real, already-running discovery server instance, analogous to ``test_docker_integration_repository.py`` for the
     repository profile: skipped entirely if no server is reachable at ``SERVER_BASE_URL``.
 
     Set the ``REQUIRE_SERVER_INTEGRATION_TESTS`` environment variable to make this test class fail instead of
