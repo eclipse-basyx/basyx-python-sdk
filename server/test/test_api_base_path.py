@@ -23,6 +23,7 @@ FILES_TO_CHECK = [
     SERVER_ROOT / "docker" / "repository" / "Dockerfile",
     # Tests
     SERVER_ROOT / "test" / "interfaces" / "test_shells_asset_ids.py",
+    SERVER_ROOT / "test" / "interfaces" / "test_serialization.py",
 ]
 
 

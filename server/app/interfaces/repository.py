@@ -17,6 +17,9 @@ import werkzeug.routing
 import werkzeug.utils
 from basyx.aas import model
 from basyx.aas.adapter import aasx
+from basyx.aas.adapter.json import object_store_to_json
+from basyx.aas.adapter.xml import write_aas_xml_file
+from basyx.aas.util import traversal
 from werkzeug import Request, Response
 from werkzeug.datastructures import FileStorage
 from werkzeug.exceptions import BadRequest, Conflict, NotFound
@@ -26,7 +29,17 @@ from app.interfaces.base import PagingMetadata
 from app.model import ServiceDescription, ServiceSpecificationProfileEnum
 from app.util.converters import IdentifierToBase64URLConverter, IdShortPathConverter, base64url_decode
 
-from .base import APIResponse, HTTPApiDecoder, ObjectStoreWSGIApp, T, is_stripped_request
+from .base import (
+    AASX_CONTENT_TYPE,
+    JSON_CONTENT_TYPE,
+    APIResponse,
+    HTTPApiDecoder,
+    ObjectStoreWSGIApp,
+    T,
+    get_bool_arg,
+    get_content_type,
+    is_stripped_request,
+)
 
 SUPPORTED_PROFILES: ServiceDescription = ServiceDescription(
     [
@@ -52,7 +65,7 @@ class WSGIApp(ObjectStoreWSGIApp):
                 Submount(
                     base_path,
                     [
-                        Rule("/serialization", methods=["GET"], endpoint=self.not_implemented),
+                        Rule("/serialization", methods=["GET"], endpoint=self.get_serialization),
                         Rule("/description", methods=["GET"], endpoint=self.get_description),
                         Rule("/shells", methods=["GET"], endpoint=self.get_aas_all),
                         Rule("/shells", methods=["POST"], endpoint=self.post_aas),
@@ -519,12 +532,81 @@ class WSGIApp(ObjectStoreWSGIApp):
     def _get_concept_description(self, url_args):
         return self._get_obj_ts(url_args["concept_id"], model.ConceptDescription)
 
+    def _get_referenced_concept_descriptions(
+        self, objects: Iterable[model.Identifiable]
+    ) -> model.DictIdentifiableStore[model.ConceptDescription]:
+        """
+        Resolve the :class:`ConceptDescriptions <basyx.aas.model.concept.ConceptDescription>` referenced by the
+        semanticIds of the given objects. semanticIds that cannot be resolved are skipped, just as
+        :meth:`basyx.aas.adapter.aasx.AASXWriter.write_aas` does, since a single defect reference must not render the
+        whole repository unserializable.
+        """
+        concept_descriptions: model.DictIdentifiableStore[model.ConceptDescription] = model.DictIdentifiableStore()
+        for identifiable in objects:
+            for semantic_id in traversal.walk_semantic_ids_recursive(identifiable):
+                if (
+                    not isinstance(semantic_id, model.ModelReference)
+                    or semantic_id.type is not model.ConceptDescription
+                    or semantic_id.get_identifier() in concept_descriptions
+                ):
+                    continue
+                try:
+                    concept_descriptions.add(semantic_id.resolve(self.object_store))
+                except (IndexError, KeyError, TypeError, ValueError, model.UnexpectedTypeError):
+                    continue
+        return concept_descriptions
+
+    def _get_serialization_objects(self, request: Request) -> model.DictIdentifiableStore[model.Identifiable]:
+        aas_ids: List[str] = request.args.getlist("aasIds")
+        submodel_ids: List[str] = request.args.getlist("submodelIds")
+        include_concept_descriptions: bool = get_bool_arg(request, "includeConceptDescriptions", True)
+        objects: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+        if not aas_ids and not submodel_ids:
+            # both id lists are optional filters, thus the whole repository is serialized if neither is given
+            types: Tuple[Type[model.Identifiable], ...] = (model.AssetAdministrationShell, model.Submodel)
+            if include_concept_descriptions:
+                types += (model.ConceptDescription,)
+            for obj in self.object_store:
+                if isinstance(obj, types):
+                    objects.add(obj)
+            return objects
+        for aas_id in aas_ids:
+            objects.add(self._get_obj_ts(base64url_decode(aas_id), model.AssetAdministrationShell))
+        for submodel_id in submodel_ids:
+            objects.add(self._get_obj_ts(base64url_decode(submodel_id), model.Submodel))
+        if include_concept_descriptions:
+            # only the ConceptDescriptions belonging to the requested objects are added, as unrelated ones would
+            # bloat a filtered Environment
+            objects.update(self._get_referenced_concept_descriptions(list(objects)))
+        return objects
+
     # ------ all not implemented ROUTES -------
     def not_implemented(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         raise werkzeug.exceptions.NotImplemented("This route is not implemented!")
 
     def get_description(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         return response_t(SUPPORTED_PROFILES.to_dict())
+
+    def get_serialization(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        """
+        The serialized Environment is returned as-is, i.e. it is not wrapped by any of the
+        :class:`APIResponses <app.interfaces.base.APIResponse>`, which is why the response is built here. For the same
+        reason the adapters of the SDK are used unaltered: an Environment must conform to the metamodel schema, thus
+        it must not contain anything the ``ServerAASToJsonEncoder`` of the other routes adds.
+        """
+        objects = self._get_serialization_objects(request)
+        content_type = get_content_type(request)
+        if content_type == AASX_CONTENT_TYPE:
+            aasx_data = io.BytesIO()
+            with aasx.AASXWriter(aasx_data) as writer:
+                writer.write_all_aas_objects("/aasx/data.xml", objects, self.file_store)
+            return Response(aasx_data.getvalue(), content_type=content_type)
+        elif content_type == JSON_CONTENT_TYPE:
+            return Response(object_store_to_json(objects), content_type=content_type)
+        else:
+            environment = io.BytesIO()
+            write_aas_xml_file(environment, objects)
+            return Response(environment.getvalue(), content_type=content_type)
 
     # ------ AAS REPO ROUTES -------
     def get_aas_all(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:

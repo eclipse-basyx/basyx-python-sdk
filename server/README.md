@@ -116,15 +116,10 @@ Several features and routes are currently not supported:
 
 3. Route `/shells/{aasIdentifier}/asset-information/thumbnail`: Not implemented because the specification lacks clarity.
 
-4. Serialization and Description Routes:
-   - `/serialization`
-   - `/description`
-   These routes are not implemented at this time.
-
-5. Value, Path, and PATCH Routes:
+4. Value, Path, and PATCH Routes:
    - All `/…/value$`, `/…/path$`, and `PATCH` routes are currently not implemented.
 
-6. Operation Invocation Routes: The following routes are not implemented because operation invocation
+5. Operation Invocation Routes: The following routes are not implemented because operation invocation
    is not yet supported by the `basyx-python-sdk`:
    - `POST /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke`
    - `POST /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke/$value`
