@@ -347,6 +347,41 @@ jobs:
       run: |
         python -m build
 
+  server-test:
+    # This job runs the unittests on the python versions specified down at the matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
+    defaults:
+      run:
+        working-directory: ./server
+
+    steps:
+    - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: "pip"
+        cache-dependency-path: "**/pyproject.toml"
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install ../sdk
+        python -m pip install .[dev]
+    - name: Test with coverage + unittest
+      env:
+        # No server/container is started in this job, so the Docker integration tests should just skip here,
+        # not be required to pass (see test_helpers.py).
+        REQUIRE_SERVER_INTEGRATION_TESTS: "0"
+      run: |
+        python -m coverage run --source=app -m unittest
+    - name: Report test coverage
+      if: ${{ always() }}
+      run: |
+        python -m coverage report -m
+
   server-static-analysis:
     # This job runs static code analysis, namely ruff and mypy
     runs-on: ubuntu-latest
@@ -394,8 +429,10 @@ jobs:
           publish: false
           platform: linux/amd64
       - name: Run container
+        # Enable STORAGE_PERSISTENCY as registry fails with in-memory store (#626)
+        # TODO(#626): revisit when `DictDescriptorStore` throws now exception on `commit()`
         run: |
-           docker run -d --name basyx-python-${{ matrix.profile }} -p 9080:80 --pull=never ${{ steps.build.outputs.image-ref }}
+           docker run -d --name basyx-python-${{ matrix.profile }} -p 8080:80 -eSTORAGE_PERSISTENCY=True --pull=never ${{ steps.build.outputs.image-ref }}
       - name: Wait for container and server initialization
         run: |
           timeout 30s bash -c '
@@ -405,7 +442,27 @@ jobs:
           '
       - name: Check if service is alive
         run: |
-          curl -f http://localhost:9080/api/${{ env.X_API_VERSION }}/description
+          curl -f http://localhost:8080/api/${{ env.X_API_VERSION }}/description
+      - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
+        with:
+          python-version: ${{ env.X_PYTHON_MIN_VERSION }}
+          cache: "pip"
+          cache-dependency-path: "**/pyproject.toml"
+      - name: Install Python dependencies
+        working-directory: ./server
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ../sdk
+          python -m pip install .
+      - name: Run Docker integration tests
+        # Each profile has its own test module
+        working-directory: ./server
+        env:
+          # Fail instead of silently skipping if the container isn't actually reachable (see test_helpers.py).
+          REQUIRE_SERVER_INTEGRATION_TESTS: "1"
+        run: |
+          python -m unittest test.docker_integration.test_docker_integration_${{ matrix.profile }} -v
       - name: Stop and remove the container
         run: |
           docker stop basyx-python-${{ matrix.profile }} && docker rm basyx-python-${{ matrix.profile }}

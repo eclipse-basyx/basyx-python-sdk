@@ -21,8 +21,6 @@ FILES_TO_CHECK = [
     SERVER_ROOT / "docker" / "discovery" / "Dockerfile",
     SERVER_ROOT / "docker" / "registry" / "Dockerfile",
     SERVER_ROOT / "docker" / "repository" / "Dockerfile",
-    # Tests
-    SERVER_ROOT / "test" / "interfaces" / "test_shells_asset_ids.py",
 ]
 
 
