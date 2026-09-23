@@ -228,12 +228,15 @@ class DiscoveryAPI(BaseWSGIApp):
         for asset_id in specific_asset_ids:
             self.persistent_store._add_aas_id_to_specific_asset_id(asset_id, aas_identifier)
         updated = {aas_identifier: self.persistent_store.get_all_specific_asset_ids_by_aas_id(aas_identifier)}
-        return response_t(updated)
+        return response_t(updated, status=201)
+
 
     def delete_all_asset_links_by_id(
         self, request: Request, url_args: dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
         aas_identifier = str(url_args["aas_id"])
+        if aas_identifier not in self.persistent_store.aas_id_to_asset_ids:
+            raise werkzeug.exceptions.NotFound(f"No AssetAdministrationShell with {aas_identifier} found!")
         self.persistent_store.delete_specific_asset_ids_by_aas_id(aas_identifier)
         for key in list(self.persistent_store.asset_id_to_aas_ids.keys()):
             self.persistent_store.asset_id_to_aas_ids[key].discard(aas_identifier)
