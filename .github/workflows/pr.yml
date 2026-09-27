@@ -402,7 +402,7 @@ jobs:
 
   server-docker:
     # This job tests for all three server profiles, if the docker image is built successfully, a container
-    # can be started and the server sends a `200 OK` response on the mandatory /description endpoint
+    # can be started and the integration tests run successfully
     runs-on: ubuntu-latest
     strategy:
       matrix:
