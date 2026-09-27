@@ -28,18 +28,23 @@ from typing import List, Tuple
 from app.interfaces.discovery import DiscoveryAPI, DiscoveryStore
 from app.util.converters import base64url_encode
 from basyx.aas.model import SpecificAssetId
-from werkzeug.test import Client, TestResponse
+from werkzeug.test import Client
 
-from .format_utils import FormatClient, JsonFormatClient, inject_format_clients, with_json_client, with_xml_client
+from .format_utils import (
+    AssertResponseMixin,
+    FormatClient,
+    JsonFormatClient,
+    inject_format_clients,
+    with_json_client,
+    with_xml_client,
+)
 
 
 def _b64url_json(payload: object) -> str:
     return base64url_encode(json.dumps(payload))
 
 
-class DiscoveryEndpointTestBase(unittest.TestCase):
-    __test__ = False
-
+class DiscoveryEndpointTestBase(AssertResponseMixin):
     AAS_ID = "https://example.org/aas/1"
     AAS_ID_2 = "https://example.org/aas/2"
     UNKNOWN_ID = "https://example.org/unknown"
@@ -69,19 +74,11 @@ class DiscoveryEndpointTestBase(unittest.TestCase):
         for asset in assets:
             self.store._add_aas_id_to_specific_asset_id(asset, aas_id)
 
-    def assert_ok(self, response: TestResponse) -> None:
-        self.assertEqual(200, response.status_code, msg=response.get_data(as_text=True))
-
-    def assert_error(self, response: TestResponse, status_code: int) -> None:
-        self.assertEqual(status_code, response.status_code, msg=response.get_data(as_text=True))
-        self.assertIn("success", response.get_data(as_text=True), msg=response.get_data(as_text=True))
-
 
 # ====================================================================== /description
 
 
 class DiscoveryServiceDescriptionTest(DiscoveryEndpointTestBase):
-    __test__ = True
 
     def test_description_ok(self) -> None:
         response = self.format_client.get("/description")
@@ -96,7 +93,6 @@ class DiscoveryServiceDescriptionTest(DiscoveryEndpointTestBase):
 
 
 class SearchShellsByAssetLinkEndpointTest(DiscoveryEndpointTestBase):
-    __test__ = True
 
     def test_search_match(self) -> None:
         self.register(self.AAS_ID, [("serial", "123")])
@@ -163,8 +159,6 @@ class SearchShellsByAssetLinkEndpointTest(DiscoveryEndpointTestBase):
 class GetShellsByAssetLinkQueryEndpointTest(DiscoveryEndpointTestBase):
     """The deprecated ``GET /lookup/shells?assetIds=...`` route (kept for BaSyx UI interoperability)."""
 
-    __test__ = True
-
     def test_query_match(self) -> None:
         self.register(self.AAS_ID, [("serial", "123")])
 
@@ -205,8 +199,6 @@ class GetShellsByAssetLinkQueryEndpointTest(DiscoveryEndpointTestBase):
 @inject_format_clients
 class AssetLinksByIdEndpointTest(DiscoveryEndpointTestBase):
     """Tests for GET/POST/DELETE on ``/lookup/shells/{aasIdentifier}``."""
-
-    __test__ = True
 
     # ------------------------------------------------------------------ GET (returns SpecificAssetId objects)
 

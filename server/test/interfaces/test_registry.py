@@ -18,7 +18,6 @@ Requests and responses go through the shared :class:`~..format_utils.JsonFormatC
 ``ServerAASToJsonEncoder`` so :class:`~app.model.descriptor.Descriptor` objects can be sent.
 """
 
-import unittest
 from typing import Any
 
 from app.interfaces.registry import RegistryAPI
@@ -29,7 +28,7 @@ from basyx.aas import model
 from werkzeug.test import Client, TestResponse
 
 from ..adapter.descriptor_utils import example_aas_descriptor, example_submodel_descriptor
-from .format_utils import JsonFormatClient
+from .format_utils import AssertResponseMixin, JsonFormatClient
 
 
 class _InMemoryDescriptorStore(DictDescriptorStore):
@@ -48,9 +47,7 @@ class _InMemoryDescriptorStore(DictDescriptorStore):
         self._backend.clear()
 
 
-class RegistryEndpointTestBase(unittest.TestCase):
-    __test__ = False
-
+class RegistryEndpointTestBase(AssertResponseMixin):
     AAS_ID = "https://example.org/shell-descriptors/1"
     AAS_ID_2 = "https://example.org/shell-descriptors/2"
     SM_ID = "https://example.org/submodel-descriptors/1"
@@ -73,14 +70,7 @@ class RegistryEndpointTestBase(unittest.TestCase):
     def setUp(self) -> None:
         self.store.clear()
 
-    # ------------------------------------------------------------------ assertion helpers
-
-    def assert_ok(self, response: TestResponse) -> None:
-        self.assertEqual(200, response.status_code, msg=response.get_data(as_text=True))
-
-    def assert_error(self, response: TestResponse, status_code: int) -> None:
-        self.assertEqual(status_code, response.status_code, msg=response.get_data(as_text=True))
-        self.assertIn("success", response.get_data(as_text=True), msg=response.get_data(as_text=True))
+    # ------------------------------------------------------------------ helpers
 
     def ids(self, response: TestResponse) -> list:
         return [self.format_client.identifier(node) for node in self.format_client.parse_collection(response)]
@@ -90,7 +80,6 @@ class RegistryEndpointTestBase(unittest.TestCase):
 
 
 class RegistryServiceDescriptionTest(RegistryEndpointTestBase):
-    __test__ = True
 
     def test_description_ok(self) -> None:
         response = self.format_client.get("/description")
@@ -112,8 +101,6 @@ class RegistryServiceDescriptionTest(RegistryEndpointTestBase):
 
 class ShellDescriptorsEndpointTest(RegistryEndpointTestBase):
     """Tests for the ``/shell-descriptors`` and ``/shell-descriptors/{aasIdentifier}`` routes."""
-
-    __test__ = True
 
     # ------------------------------------------------------------------ GET /shell-descriptors
 
@@ -298,8 +285,6 @@ class ShellDescriptorsEndpointTest(RegistryEndpointTestBase):
 class SubmodelDescriptorsThroughSuperpathEndpointTest(RegistryEndpointTestBase):
     """Tests for the ``/shell-descriptors/{aasIdentifier}/submodel-descriptors`` routes."""
 
-    __test__ = True
-
     def setUp(self) -> None:
         super().setUp()
         self.store.add(example_aas_descriptor(self.AAS_ID))
@@ -426,8 +411,6 @@ class SubmodelDescriptorsThroughSuperpathEndpointTest(RegistryEndpointTestBase):
 
 class SubmodelDescriptorsEndpointTest(RegistryEndpointTestBase):
     """Tests for the standalone ``/submodel-descriptors`` and ``/submodel-descriptors/{submodelIdentifier}`` routes."""
-
-    __test__ = True
 
     # ------------------------------------------------------------------ GET /submodel-descriptors
 

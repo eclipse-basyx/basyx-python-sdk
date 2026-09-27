@@ -7,6 +7,7 @@
 
 import abc
 import json
+import unittest
 from typing import Any, Callable, Optional
 
 import app.adapter
@@ -218,6 +219,19 @@ class XmlFormatClient(FormatClient):
         # missing next page shows up as the literal string "None" rather than an absent attribute.
         cursor = self._root(response).get("cursor")
         return cursor if cursor not in (None, "None") else None
+
+
+class AssertResponseMixin(unittest.TestCase):
+    """
+    Shared response assertions for the repository, registry and discovery endpoint test bases.
+    """
+
+    def assert_ok(self, response: TestResponse) -> None:
+        self.assertEqual(200, response.status_code, msg=response.get_data(as_text=True))
+
+    def assert_error(self, response: TestResponse, status_code: int) -> None:
+        self.assertEqual(status_code, response.status_code, msg=response.get_data(as_text=True))
+        self.assertIn("success", response.get_data(as_text=True), msg=response.get_data(as_text=True))
 
 
 def with_json_client(func):

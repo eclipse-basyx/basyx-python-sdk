@@ -32,8 +32,6 @@ class ConceptDescriptionsEndpointsTest(RepositoryEndpointTestBase):
     :class:`~..format_utils.XmlFormatClient` are injected respectively.
     """
 
-    __test__ = True
-
     EXAMPLE_ID = "https://example.org/Test_ConceptDescription_Missing"
     SECOND_ID = "https://example.org/Test_ConceptDescription_Second"
 

@@ -49,8 +49,6 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
     :class:`~..format_utils.XmlFormatClient` are injected respectively.
     """
 
-    __test__ = True
-
     # ------------------------------------------------------------------ GET /shells
 
     @with_json_client

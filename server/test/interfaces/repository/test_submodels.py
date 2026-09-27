@@ -44,8 +44,6 @@ class SubmodelsEndpointsTest(RepositoryEndpointTestBase):
     :class:`~..format_utils.XmlFormatClient` are injected respectively.
     """
 
-    __test__ = True
-
     SECOND_ID = "https://example.org/Test_Submodel_Second"
 
     def two_submodels_store(self) -> model.DictIdentifiableStore:
@@ -403,8 +401,6 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
     For each test two variants are generated where the :class:`~..format_utils.JsonFormatClient` and
     :class:`~..format_utils.XmlFormatClient` are injected respectively.
     """
-
-    __test__ = True
 
     #: Number of top-level submodel elements in ``create_example_submodel()``.
     TOP_LEVEL_COUNT = 6

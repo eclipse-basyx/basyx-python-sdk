@@ -24,8 +24,6 @@ class TestPagination(unittest.TestCase):
     Testing of the shared pagination strategy, shared by multiple endpoints.
     """
 
-    __test__ = True
-
     @staticmethod
     def _build_request(limit: Optional[str] = None, cursor: Optional[str] = None):
         request = mock.Mock()
@@ -85,8 +83,6 @@ class TestPagination(unittest.TestCase):
 
 
 class TestJsonResponse(unittest.TestCase):
-
-    __test__ = True
 
     def test_empty_response(self):
         response = base.JsonResponse(None)
@@ -183,7 +179,6 @@ class TestJsonResponse(unittest.TestCase):
         self.assertIsNotNone(isodatetime.match(message["timestamp"]))
 
 class TestXmlResponse(unittest.TestCase):
-    __test__ = True
 
     def test_empty_response(self):
         response = base.XmlResponse(None)
