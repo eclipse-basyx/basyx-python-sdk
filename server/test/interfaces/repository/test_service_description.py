@@ -5,10 +5,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-"""
-Endpoint test for the ``/description`` route of :class:`~app.interfaces.repository.WSGIApp`.
-"""
-
 from .helpers import RepositoryEndpointTestBase
 
 
