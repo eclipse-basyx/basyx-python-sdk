@@ -19,7 +19,7 @@ from basyx.aas.examples.data.example_aas import (
     create_example_asset_administration_shell,
 )
 
-from test._helper.test_helpers import REQUIRE_SERVER, SERVER_ERROR, SERVER_OKAY, TEST_CONFIG
+from .._helper.test_helpers import REQUIRE_SERVER, SERVER_ERROR, SERVER_OKAY, TEST_CONFIG
 
 SERVER_BASE_URL = TEST_CONFIG["server"]["url"]
 

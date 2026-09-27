@@ -13,7 +13,7 @@ import urllib.request
 from app.interfaces.discovery import SUPPORTED_PROFILES
 from app.util.converters import base64url_encode
 
-from test._helper.test_helpers import REQUIRE_SERVER, SERVER_ERROR, SERVER_OKAY, TEST_CONFIG
+from .._helper.test_helpers import REQUIRE_SERVER, SERVER_ERROR, SERVER_OKAY, TEST_CONFIG
 
 SERVER_BASE_URL = TEST_CONFIG["server"]["url"]
 
