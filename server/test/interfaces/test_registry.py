@@ -31,20 +31,11 @@ from ..adapter.descriptor_utils import example_aas_descriptor, example_submodel_
 from .format_utils import AssertResponseMixin, JsonFormatClient
 
 
+# TODO(#626): Replace usages with original `DictDescriptorStore`, once `commit()` does not throw NotImplementedError
 class _InMemoryDescriptorStore(DictDescriptorStore):
-    """
-    In-memory descriptor store with a no-op ``commit`` and a ``clear``.
-
-    :class:`~app.model.provider.DictDescriptorStore` inherits ``commit`` from the SDK's
-    ``AbstractObjectStore``, where it raises ``NotImplementedError``; the registry calls it after every
-    write. This mirrors what ``SetIdentifiableStore`` provides for the repository tests.
-    """
 
     def commit(self, x: Any) -> None:
         pass
-
-    def clear(self) -> None:
-        self._backend.clear()
 
 
 class RegistryEndpointTestBase(AssertResponseMixin):
