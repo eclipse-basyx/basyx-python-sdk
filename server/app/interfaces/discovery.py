@@ -1,3 +1,10 @@
+# Copyright (c) 2026 the Eclipse BaSyx Authors
+#
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
+#
+# SPDX-License-Identifier: MIT
+
 """
 This module implements the Discovery interface defined in the
 'Specification of the Asset Administration Shell Part 2
@@ -14,15 +21,18 @@ from werkzeug.routing import Rule, Submount
 from werkzeug.wrappers import Request, Response
 
 from app import model as server_model
+from app._config import API_BASE_PATH
 from app.adapter import jsonization
-from app.interfaces.base import BaseWSGIApp, HTTPApiDecoder, APIResponse
+from app.interfaces.base import APIResponse, BaseWSGIApp, HTTPApiDecoder
+from app.model import ServiceDescription, ServiceSpecificationProfileEnum
 from app.util.converters import IdentifierToBase64URLConverter, base64url_decode
-from app.model import ServiceSpecificationProfileEnum, ServiceDescription
 
-SUPPORTED_PROFILES: ServiceDescription = ServiceDescription([
-    ServiceSpecificationProfileEnum.DISCOVERY_FULL,
-    ServiceSpecificationProfileEnum.DISCOVERY_READ,
-])
+SUPPORTED_PROFILES: ServiceDescription = ServiceDescription(
+    [
+        ServiceSpecificationProfileEnum.DISCOVERY_FULL,
+        ServiceSpecificationProfileEnum.DISCOVERY_READ,
+    ]
+)
 
 
 class DiscoveryStore:
@@ -106,10 +116,7 @@ class DiscoveryStore:
         corrupting the existing store if serialization fails.
         """
         data = {
-            "aas_id_to_asset_ids": {
-                aas_id: list(asset_ids)
-                for aas_id, asset_ids in self.aas_id_to_asset_ids.items()
-            }
+            "aas_id_to_asset_ids": {aas_id: list(asset_ids) for aas_id, asset_ids in self.aas_id_to_asset_ids.items()}
         }
 
         temp_filename = f"{filename}.tmp"
@@ -120,7 +127,7 @@ class DiscoveryStore:
 
 
 class DiscoveryAPI(BaseWSGIApp):
-    def __init__(self, persistent_store: DiscoveryStore, base_path: str = "/api/v3.1"):
+    def __init__(self, persistent_store: DiscoveryStore, base_path: str = API_BASE_PATH):
         self.persistent_store: DiscoveryStore = persistent_store
         self.url_map = werkzeug.routing.Map(
             [
@@ -164,7 +171,7 @@ class DiscoveryAPI(BaseWSGIApp):
         return response_t(SUPPORTED_PROFILES.to_dict())
 
     def get_all_aas_ids_by_asset_link(
-            self, request: Request, url_args: dict, response_t: Type[APIResponse], **_kwargs
+        self, request: Request, url_args: dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
         asset_ids_param = request.args.get("assetIds", "")
         if not asset_ids_param:

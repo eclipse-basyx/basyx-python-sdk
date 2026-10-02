@@ -1,3 +1,10 @@
+# Copyright (c) 2026 the Eclipse BaSyx Authors
+#
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
+#
+# SPDX-License-Identifier: MIT
+
 from __future__ import absolute_import
 
 import re
@@ -38,7 +45,6 @@ class SecurityAttributeObject:
 
 
 class ProtocolInformation:
-
     def __init__(
         self,
         href: str,
@@ -76,7 +82,7 @@ class Endpoint:
     }
     VERSION_PATTERN = re.compile(r"^\d+(\.\d+)*$")
 
-    def __init__(self, interface: base.NameType, protocol_information: ProtocolInformation):  # noqa: E501
+    def __init__(self, interface: base.NameType, protocol_information: ProtocolInformation):
 
         self.interface = interface
         self.protocol_information = protocol_information
@@ -112,6 +118,6 @@ class Endpoint:
     @protocol_information.setter
     def protocol_information(self, protocol_information: ProtocolInformation):
         if protocol_information is None:
-            raise ValueError("Invalid value for `protocol_information`, must not be `None`")  # noqa: E501
+            raise ValueError("Invalid value for `protocol_information`, must not be `None`")
 
         self._protocol_information = protocol_information

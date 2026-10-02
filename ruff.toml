@@ -1,0 +1,47 @@
+line-length = 120        # matches the current pycodestyle --max-line-length 120
+target-version = "py311"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+
+[lint]
+select = [
+    "E",       # pycodestyle errors
+    "W",       # pycodestyle warnings
+    "RUF100",  # unused noqa
+    "F5",      # pyflakes: format strings
+    "COM818",  # enforce trailing comma
+    "F7",      # pyflakes: control flow (return/break/continue outside loop/func)
+    "D204", "D211", "D201", "D300",  # basic docstring formatting
+    "I",       # isort
+    "F8",      # pyflakes: undefined/unused names
+    "F4",      # pyflakes: imports/__future__
+    "PIE",     # small readability improvements
+    "CPY001",  # flake8-copyright: missing copyright header
+]
+
+# TODO: Revisit these
+ignore = [
+    "F403",  # star imports - high existing usage
+    "F405",  # may-be-undefined from star imports
+    "N818",  # Exception name should be named with Error suffix
+    "N",       # pep8-naming
+    "B",       # flake8-bugbear
+    "T20",     # prevent native print() statements
+    "A",       # prevent shadowing of python builtins
+    "FIX",     # prevent the creation of T0DO / F1XME comments
+    "PYI",     # typing best practices
+    # Evaluate if we want to use:
+    "S",        # security related precautions
+    "BLE",      # prevent unspecified excepts
+]
+
+[lint.per-file-ignores]
+"**/__init__.py" = ["CPY001"]
+
+[lint.flake8-copyright]
+notice-rgx = "(?i)Copyright \\(c\\) \\d{4} the Eclipse BaSyx Authors"
+min-file-size = 1  # bytes; skip only truly empty files

@@ -1,5 +1,12 @@
-from typing import List
+# Copyright (c) 2026 the Eclipse BaSyx Authors
+#
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
+#
+# SPDX-License-Identifier: MIT
+
 import enum
+from typing import List
 
 
 class ServiceSpecificationProfileEnum(str, enum.Enum):
@@ -25,16 +32,21 @@ class ServiceSpecificationProfileEnum(str, enum.Enum):
     AASX_FILESERVER_FULL = "https://admin-shell.io/aas/API/3/1/AasxFileServerServiceSpecification/SSP-001"
 
     # --- AAS Registry ---
-    AAS_REGISTRY_FULL = \
+    AAS_REGISTRY_FULL = (
         "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-001"
-    AAS_REGISTRY_READ = \
+    )
+    AAS_REGISTRY_READ = (
         "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-002"
-    AAS_REGISTRY_BULK = \
+    )
+    AAS_REGISTRY_BULK = (
         "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-003"
-    AAS_REGISTRY_QUERY = \
+    )
+    AAS_REGISTRY_QUERY = (
         "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-004"
-    AAS_REGISTRY_MINIMAL_READ = \
+    )
+    AAS_REGISTRY_MINIMAL_READ = (
         "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-005"
+    )
 
     # --- Submodel Registry ---
     SUBMODEL_REGISTRY_FULL = "https://admin-shell.io/aas/API/3/1/SubmodelRegistryServiceSpecification/SSP-001"
@@ -43,28 +55,32 @@ class ServiceSpecificationProfileEnum(str, enum.Enum):
     SUBMODEL_REGISTRY_QUERY = "https://admin-shell.io/aas/API/3/1/SubmodelRegistryServiceSpecification/SSP-004"
 
     # --- AAS Repository ---
-    AAS_REPOSITORY_FULL = \
+    AAS_REPOSITORY_FULL = (
         "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRepositoryServiceSpecification/SSP-001"
-    AAS_REPOSITORY_READ = \
+    )
+    AAS_REPOSITORY_READ = (
         "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRepositoryServiceSpecification/SSP-002"
-    AAS_REPOSITORY_QUERY = \
+    )
+    AAS_REPOSITORY_QUERY = (
         "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRepositoryServiceSpecification/SSP-003"
+    )
 
     # --- Submodel Repository ---
     SUBMODEL_REPOSITORY_FULL = "https://admin-shell.io/aas/API/3/1/SubmodelRepositoryServiceSpecification/SSP-001"
     SUBMODEL_REPOSITORY_READ = "https://admin-shell.io/aas/API/3/1/SubmodelRepositoryServiceSpecification/SSP-002"
-    SUBMODEL_REPOSITORY_TEMPLATE = \
-        "https://admin-shell.io/aas/API/3/1/SubmodelRepositoryServiceSpecification/SSP-003"
-    SUBMODEL_REPOSITORY_TEMPLATE_READ = \
+    SUBMODEL_REPOSITORY_TEMPLATE = "https://admin-shell.io/aas/API/3/1/SubmodelRepositoryServiceSpecification/SSP-003"
+    SUBMODEL_REPOSITORY_TEMPLATE_READ = (
         "https://admin-shell.io/aas/API/3/1/SubmodelRepositoryServiceSpecification/SSP-004"
-    SUBMODEL_REPOSITORY_QUERY = \
-        "https://admin-shell.io/aas/API/3/1/SubmodelRepositoryServiceSpecification/SSP-005"
+    )
+    SUBMODEL_REPOSITORY_QUERY = "https://admin-shell.io/aas/API/3/1/SubmodelRepositoryServiceSpecification/SSP-005"
 
     # --- Concept Description Repository ---
-    CONCEPT_DESCRIPTION_REPOSITORY_FULL = \
+    CONCEPT_DESCRIPTION_REPOSITORY_FULL = (
         "https://admin-shell.io/aas/API/3/1/ConceptDescriptionRepositoryServiceSpecification/SSP-001"
-    CONCEPT_DESCRIPTION_REPOSITORY_QUERY = \
+    )
+    CONCEPT_DESCRIPTION_REPOSITORY_QUERY = (
         "https://admin-shell.io/aas/API/3/1/ConceptDescriptionRepositoryServiceSpecification/SSP-002"
+    )
 
     # --- Discovery ---
     DISCOVERY_FULL = "https://admin-shell.io/aas/API/3/1/DiscoveryServiceSpecification/SSP-001"

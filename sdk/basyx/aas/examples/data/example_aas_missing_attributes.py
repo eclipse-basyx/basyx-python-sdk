@@ -8,6 +8,7 @@
 Module for the creation of an :class:`IdentifiableStore <basyx.aas.model.provider.DictIdentifiableStore>` with missing
 object attribute combinations for testing the serialization.
 """
+
 import datetime
 import logging
 
@@ -25,7 +26,9 @@ def create_full_example() -> model.DictIdentifiableStore:
 
     :return: :class:`basyx.aas.model.provider.DictIdentifiableStore`
     """
-    identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+    identifiable_store: model.DictIdentifiableStore[model.Identifiable] = (
+        model.DictIdentifiableStore()
+    )
     identifiable_store.add(create_example_submodel())
     identifiable_store.add(create_example_concept_description())
     identifiable_store.add(create_example_asset_administration_shell())
@@ -40,301 +43,510 @@ def create_example_submodel() -> model.Submodel:
     :return: example submodel
     """
     qualifier = model.Qualifier(
-        type_='http://example.org/Qualifier/ExampleQualifier',
-        value_type=model.datatypes.String)
+        type_="http://example.org/Qualifier/ExampleQualifier",
+        value_type=model.datatypes.String,
+    )
 
     submodel_element_property = model.Property(
-        id_short='ExampleProperty',
+        id_short="ExampleProperty",
         value_type=model.datatypes.String,
-        value='exampleValue',
+        value="exampleValue",
         value_id=None,  # TODO
-        category='CONSTANT',
-        description=model.MultiLanguageTextType({'en-US': 'Example Property object',
-                                                 'de': 'Beispiel Property Element'}),
+        category="CONSTANT",
+        description=model.MultiLanguageTextType(
+            {"en-US": "Example Property object", "de": "Beispiel Property Element"}
+        ),
         parent=None,
-        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://example.org/Properties/ExampleProperty'),)),
-        qualifier={qualifier})
+        semantic_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/Properties/ExampleProperty",
+                ),
+            )
+        ),
+        qualifier={qualifier},
+    )
 
     submodel_element_multi_language_property = model.MultiLanguageProperty(
-        id_short='ExampleMultiLanguageProperty',
-        value=model.MultiLanguageTextType({'en-US': 'Example value of a MultiLanguageProperty element',
-                                           'de': 'Beispielwert für ein MultiLanguageProperty-Element'}),
+        id_short="ExampleMultiLanguageProperty",
+        value=model.MultiLanguageTextType(
+            {
+                "en-US": "Example value of a MultiLanguageProperty element",
+                "de": "Beispielwert für ein MultiLanguageProperty-Element",
+            }
+        ),
         value_id=None,  # TODO
-        category='CONSTANT',
-        description=model.MultiLanguageTextType({'en-US': 'Example MultiLanguageProperty object',
-                                                 'de': 'Beispiel MultiLanguageProperty Element'}),
+        category="CONSTANT",
+        description=model.MultiLanguageTextType(
+            {
+                "en-US": "Example MultiLanguageProperty object",
+                "de": "Beispiel MultiLanguageProperty Element",
+            }
+        ),
         parent=None,
-        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://example.org/MultiLanguageProperties/'
-                                                             'ExampleMultiLanguageProperty'),)),
-        qualifier=())
+        semantic_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/MultiLanguageProperties/"
+                    "ExampleMultiLanguageProperty",
+                ),
+            )
+        ),
+        qualifier=(),
+    )
 
     submodel_element_range = model.Range(
-        id_short='ExampleRange',
+        id_short="ExampleRange",
         value_type=model.datatypes.Int,
         min=0,
         max=100,
-        category='PARAMETER',
-        description=model.MultiLanguageTextType({'en-US': 'Example Range object',
-                                                 'de': 'Beispiel Range Element'}),
+        category="PARAMETER",
+        description=model.MultiLanguageTextType(
+            {"en-US": "Example Range object", "de": "Beispiel Range Element"}
+        ),
         parent=None,
-        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://example.org/Ranges/ExampleRange'),)),
-        qualifier=())
+        semantic_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/Ranges/ExampleRange",
+                ),
+            )
+        ),
+        qualifier=(),
+    )
 
     submodel_element_blob = model.Blob(
-        id_short='ExampleBlob',
-        content_type='application/pdf',
-        value=bytearray(b'\x01\x02\x03\x04\x05'),
-        category='PARAMETER',
-        description=model.MultiLanguageTextType({'en-US': 'Example Blob object',
-                                                 'de': 'Beispiel Blob Element'}),
+        id_short="ExampleBlob",
+        content_type="application/pdf",
+        value=bytearray(b"\x01\x02\x03\x04\x05"),
+        category="PARAMETER",
+        description=model.MultiLanguageTextType(
+            {"en-US": "Example Blob object", "de": "Beispiel Blob Element"}
+        ),
         parent=None,
-        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://example.org/Blobs/ExampleBlob'),)),
-        qualifier=())
+        semantic_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/Blobs/ExampleBlob",
+                ),
+            )
+        ),
+        qualifier=(),
+    )
 
     submodel_element_file = model.File(
-        id_short='ExampleFile',
-        content_type='application/pdf',
-        value='/TestFile.pdf',
-        category='PARAMETER',
-        description=model.MultiLanguageTextType({'en-US': 'Example File object',
-                                                 'de': 'Beispiel File Element'}),
+        id_short="ExampleFile",
+        content_type="application/pdf",
+        value="/TestFile.pdf",
+        category="PARAMETER",
+        description=model.MultiLanguageTextType(
+            {"en-US": "Example File object", "de": "Beispiel File Element"}
+        ),
         parent=None,
-        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://example.org/Files/ExampleFile'),)),
-        qualifier=())
+        semantic_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/Files/ExampleFile",
+                ),
+            )
+        ),
+        qualifier=(),
+    )
 
     submodel_element_reference_element = model.ReferenceElement(
-        id_short='ExampleReferenceElement',
-        value=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
-                                              value='http://example.org/Test_Submodel'),
-                                    model.Key(type_=model.KeyTypes.PROPERTY,
-                                              value='ExampleProperty'),), model.Submodel),
-        category='PARAMETER',
-        description=model.MultiLanguageTextType({'en-US': 'Example Reference Element object',
-                                                 'de': 'Beispiel Reference Element Element'}),
+        id_short="ExampleReferenceElement",
+        value=model.ModelReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.SUBMODEL,
+                    value="http://example.org/Test_Submodel",
+                ),
+                model.Key(type_=model.KeyTypes.PROPERTY, value="ExampleProperty"),
+            ),
+            model.Submodel,
+        ),
+        category="PARAMETER",
+        description=model.MultiLanguageTextType(
+            {
+                "en-US": "Example Reference Element object",
+                "de": "Beispiel Reference Element Element",
+            }
+        ),
         parent=None,
-        semantic_id=model.ExternalReference((model.Key(
-            type_=model.KeyTypes.GLOBAL_REFERENCE,
-            value='http://example.org/ReferenceElements/ExampleReferenceElement'
-        ),)),
-        qualifier=())
+        semantic_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/ReferenceElements/ExampleReferenceElement",
+                ),
+            )
+        ),
+        qualifier=(),
+    )
 
     submodel_element_relationship_element = model.RelationshipElement(
-        id_short='ExampleRelationshipElement',
-        first=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
-                                              value='http://example.org/Test_Submodel'),
-                                    model.Key(type_=model.KeyTypes.PROPERTY,
-                                              value='ExampleProperty'),),
-                                   model.Property),
-        second=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
-                                               value='http://example.org/Test_Submodel'),
-                                     model.Key(type_=model.KeyTypes.PROPERTY,
-                                               value='ExampleProperty'),),
-                                    model.Property),
-        category='PARAMETER',
-        description=model.MultiLanguageTextType({'en-US': 'Example RelationshipElement object',
-                                                 'de': 'Beispiel RelationshipElement Element'}),
+        id_short="ExampleRelationshipElement",
+        first=model.ModelReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.SUBMODEL,
+                    value="http://example.org/Test_Submodel",
+                ),
+                model.Key(type_=model.KeyTypes.PROPERTY, value="ExampleProperty"),
+            ),
+            model.Property,
+        ),
+        second=model.ModelReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.SUBMODEL,
+                    value="http://example.org/Test_Submodel",
+                ),
+                model.Key(type_=model.KeyTypes.PROPERTY, value="ExampleProperty"),
+            ),
+            model.Property,
+        ),
+        category="PARAMETER",
+        description=model.MultiLanguageTextType(
+            {
+                "en-US": "Example RelationshipElement object",
+                "de": "Beispiel RelationshipElement Element",
+            }
+        ),
         parent=None,
-        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://example.org/RelationshipElements/'
-                                                             'ExampleRelationshipElement'),)),
-        qualifier=())
+        semantic_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/RelationshipElements/"
+                    "ExampleRelationshipElement",
+                ),
+            )
+        ),
+        qualifier=(),
+    )
 
-    submodel_element_annotated_relationship_element = model.AnnotatedRelationshipElement(
-        id_short='ExampleAnnotatedRelationshipElement',
-        first=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
-                                              value='http://example.org/Test_Submodel'),
-                                    model.Key(type_=model.KeyTypes.PROPERTY,
-                                              value='ExampleProperty'),),
-                                   model.Property),
-        second=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
-                                               value='http://example.org/Test_Submodel'),
-                                     model.Key(type_=model.KeyTypes.PROPERTY,
-                                               value='ExampleProperty'),),
-                                    model.Property),
-        annotation={model.Property(id_short="ExampleAnnotatedProperty",
-                                   value_type=model.datatypes.String,
-                                   value='exampleValue',
-                                   category="PARAMETER",
-                                   parent=None),
-                    model.Range(id_short="ExampleAnnotatedRange",
-                                value_type=model.datatypes.Integer,
-                                min=1,
-                                max=5,
-                                category="PARAMETER",
-                                parent=None)
-                    },
-        category='PARAMETER',
-        description=model.MultiLanguageTextType({'en-US': 'Example AnnotatedRelationshipElement object',
-                                                 'de': 'Beispiel AnnotatedRelationshipElement Element'}),
-        parent=None,
-        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://example.org/RelationshipElements/'
-                                                             'ExampleAnnotatedRelationshipElement'),)),
-        qualifier=())
+    submodel_element_annotated_relationship_element = (
+        model.AnnotatedRelationshipElement(
+            id_short="ExampleAnnotatedRelationshipElement",
+            first=model.ModelReference(
+                (
+                    model.Key(
+                        type_=model.KeyTypes.SUBMODEL,
+                        value="http://example.org/Test_Submodel",
+                    ),
+                    model.Key(type_=model.KeyTypes.PROPERTY, value="ExampleProperty"),
+                ),
+                model.Property,
+            ),
+            second=model.ModelReference(
+                (
+                    model.Key(
+                        type_=model.KeyTypes.SUBMODEL,
+                        value="http://example.org/Test_Submodel",
+                    ),
+                    model.Key(type_=model.KeyTypes.PROPERTY, value="ExampleProperty"),
+                ),
+                model.Property,
+            ),
+            annotation={
+                model.Property(
+                    id_short="ExampleAnnotatedProperty",
+                    value_type=model.datatypes.String,
+                    value="exampleValue",
+                    category="PARAMETER",
+                    parent=None,
+                ),
+                model.Range(
+                    id_short="ExampleAnnotatedRange",
+                    value_type=model.datatypes.Integer,
+                    min=1,
+                    max=5,
+                    category="PARAMETER",
+                    parent=None,
+                ),
+            },
+            category="PARAMETER",
+            description=model.MultiLanguageTextType(
+                {
+                    "en-US": "Example AnnotatedRelationshipElement object",
+                    "de": "Beispiel AnnotatedRelationshipElement Element",
+                }
+            ),
+            parent=None,
+            semantic_id=model.ExternalReference(
+                (
+                    model.Key(
+                        type_=model.KeyTypes.GLOBAL_REFERENCE,
+                        value="http://example.org/RelationshipElements/"
+                        "ExampleAnnotatedRelationshipElement",
+                    ),
+                )
+            ),
+            qualifier=(),
+        )
+    )
 
-    operation_variable_property = model.Property(
-        id_short='ExampleProperty',
-        value_type=model.datatypes.String,
-        value='exampleValue',
-        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                    value='http://example.org/ValueId/ExampleValueId'),)),
-        display_name=model.MultiLanguageNameType({'en-US': 'ExampleProperty',
-                                                  'de': 'BeispielProperty'}),
-        category='CONSTANT',
-        description=model.MultiLanguageTextType({'en-US': 'Example Property object',
-                                                 'de': 'Beispiel Property Element'}),
-        parent=None,
-        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://example.org/Properties/ExampleProperty'),)),
-        qualifier=())
 
     input_variable_property = model.Property(
-        id_short='ExamplePropertyInput',
+        id_short="ExamplePropertyInput",
         value_type=model.datatypes.String,
-        value='exampleValue',
-        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                    value='http://example.org/ValueId/ExampleValueId'),)),
-        display_name=model.MultiLanguageNameType({'en-US': 'ExampleProperty',
-                                                  'de': 'BeispielProperty'}),
-        category='CONSTANT',
-        description=model.MultiLanguageTextType({'en-US': 'Example Property object',
-                                                 'de': 'Beispiel Property Element'}),
+        value="exampleValue",
+        value_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/ValueId/ExampleValueId",
+                ),
+            )
+        ),
+        display_name=model.MultiLanguageNameType(
+            {"en-US": "ExampleProperty", "de": "BeispielProperty"}
+        ),
+        category="CONSTANT",
+        description=model.MultiLanguageTextType(
+            {"en-US": "Example Property object", "de": "Beispiel Property Element"}
+        ),
         parent=None,
-        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://example.org/Properties/ExamplePropertyInput'),)),
-        qualifier=())
+        semantic_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/Properties/ExamplePropertyInput",
+                ),
+            )
+        ),
+        qualifier=(),
+    )
 
     output_variable_property = model.Property(
-        id_short='ExamplePropertyOutput',
+        id_short="ExamplePropertyOutput",
         value_type=model.datatypes.String,
-        value='exampleValue',
-        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                    value='http://example.org/ValueId/ExampleValueId'),)),
-        display_name=model.MultiLanguageNameType({'en-US': 'ExampleProperty',
-                                                  'de': 'BeispielProperty'}),
-        category='CONSTANT',
-        description=model.MultiLanguageTextType({'en-US': 'Example Property object',
-                                                 'de': 'Beispiel Property Element'}),
+        value="exampleValue",
+        value_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/ValueId/ExampleValueId",
+                ),
+            )
+        ),
+        display_name=model.MultiLanguageNameType(
+            {"en-US": "ExampleProperty", "de": "BeispielProperty"}
+        ),
+        category="CONSTANT",
+        description=model.MultiLanguageTextType(
+            {"en-US": "Example Property object", "de": "Beispiel Property Element"}
+        ),
         parent=None,
-        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://example.org/Properties/ExamplePropertyOutput'),)),
+        semantic_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/Properties/ExamplePropertyOutput",
+                ),
+            )
+        ),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
-        embedded_data_specifications=())
+        embedded_data_specifications=(),
+    )
 
     in_output_variable_property = model.Property(
-        id_short='ExamplePropertyInOutput',
+        id_short="ExamplePropertyInOutput",
         value_type=model.datatypes.String,
-        value='exampleValue',
-        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                    value='http://example.org/ValueId/ExampleValueId'),)),
-        display_name=model.MultiLanguageNameType({'en-US': 'ExampleProperty',
-                                                  'de': 'BeispielProperty'}),
-        category='CONSTANT',
-        description=model.MultiLanguageTextType({'en-US': 'Example Property object',
-                                                 'de': 'Beispiel Property Element'}),
+        value="exampleValue",
+        value_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/ValueId/ExampleValueId",
+                ),
+            )
+        ),
+        display_name=model.MultiLanguageNameType(
+            {"en-US": "ExampleProperty", "de": "BeispielProperty"}
+        ),
+        category="CONSTANT",
+        description=model.MultiLanguageTextType(
+            {"en-US": "Example Property object", "de": "Beispiel Property Element"}
+        ),
         parent=None,
-        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://example.org/Properties/'
-                                                             'ExamplePropertyInOutput'),)),
+        semantic_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/Properties/ExamplePropertyInOutput",
+                ),
+            )
+        ),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
-        embedded_data_specifications=())
+        embedded_data_specifications=(),
+    )
 
     submodel_element_operation = model.Operation(
-        id_short='ExampleOperation',
+        id_short="ExampleOperation",
         input_variable=[input_variable_property],
         output_variable=[output_variable_property],
         in_output_variable=[in_output_variable_property],
-        category='PARAMETER',
-        description=model.MultiLanguageTextType({'en-US': 'Example Operation object',
-                                                 'de': 'Beispiel Operation Element'}),
+        category="PARAMETER",
+        description=model.MultiLanguageTextType(
+            {"en-US": "Example Operation object", "de": "Beispiel Operation Element"}
+        ),
         parent=None,
-        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://example.org/Operations/'
-                                                             'ExampleOperation'),)),
-        qualifier=())
+        semantic_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/Operations/ExampleOperation",
+                ),
+            )
+        ),
+        qualifier=(),
+    )
 
     submodel_element_capability = model.Capability(
-        id_short='ExampleCapability',
-        category='PARAMETER',
-        description=model.MultiLanguageTextType({'en-US': 'Example Capability object',
-                                                 'de': 'Beispiel Capability Element'}),
+        id_short="ExampleCapability",
+        category="PARAMETER",
+        description=model.MultiLanguageTextType(
+            {"en-US": "Example Capability object", "de": "Beispiel Capability Element"}
+        ),
         parent=None,
-        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://example.org/Capabilities/'
-                                                             'ExampleCapability'),)),
-        qualifier=())
+        semantic_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/Capabilities/ExampleCapability",
+                ),
+            )
+        ),
+        qualifier=(),
+    )
 
     submodel_element_basic_event_element = model.BasicEventElement(
-        id_short='ExampleBasicEventElement',
-        observed=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
-                                                 value='http://example.org/Test_Submodel'),
-                                       model.Key(type_=model.KeyTypes.PROPERTY,
-                                                 value='ExampleProperty'),),
-                                      model.Property),
+        id_short="ExampleBasicEventElement",
+        observed=model.ModelReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.SUBMODEL,
+                    value="http://example.org/Test_Submodel",
+                ),
+                model.Key(type_=model.KeyTypes.PROPERTY, value="ExampleProperty"),
+            ),
+            model.Property,
+        ),
         direction=model.Direction.OUTPUT,
         state=model.StateOfEvent.ON,
-        message_topic='ExampleTopic',
-        message_broker=model.ModelReference((model.Key(model.KeyTypes.SUBMODEL,
-                                                       "http://example.org/ExampleMessageBroker"),),
-                                            model.Submodel),
-        last_update=model.datatypes.DateTime(2022, 11, 12, 23, 50, 23, 123456, datetime.timezone.utc),
+        message_topic="ExampleTopic",
+        message_broker=model.ModelReference(
+            (
+                model.Key(
+                    model.KeyTypes.SUBMODEL, "http://example.org/ExampleMessageBroker"
+                ),
+            ),
+            model.Submodel,
+        ),
+        last_update=model.datatypes.DateTime(
+            2022, 11, 12, 23, 50, 23, 123456, datetime.timezone.utc
+        ),
         min_interval=model.datatypes.Duration(microseconds=1),
-        max_interval=model.datatypes.Duration(years=1, months=2, days=3, hours=4, minutes=5, seconds=6,
-                                              microseconds=123456),
-        category='PARAMETER',
-        description=model.MultiLanguageTextType({'en-US': 'Example BasicEventElement object',
-                                                 'de': 'Beispiel BasicEventElement Element'}),
+        max_interval=model.datatypes.Duration(
+            years=1,
+            months=2,
+            days=3,
+            hours=4,
+            minutes=5,
+            seconds=6,
+            microseconds=123456,
+        ),
+        category="PARAMETER",
+        description=model.MultiLanguageTextType(
+            {
+                "en-US": "Example BasicEventElement object",
+                "de": "Beispiel BasicEventElement Element",
+            }
+        ),
         parent=None,
-        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://example.org/Events/ExampleBasicEventElement'),)),
-        qualifier=())
+        semantic_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/Events/ExampleBasicEventElement",
+                ),
+            )
+        ),
+        qualifier=(),
+    )
 
     submodel_element_submodel_element_collection = model.SubmodelElementCollection(
-        id_short='ExampleSubmodelCollection',
-        value=(submodel_element_blob,
-               submodel_element_file,
-               submodel_element_multi_language_property,
-               submodel_element_property,
-               submodel_element_range,
-               submodel_element_reference_element),
-        category='PARAMETER',
-        description=model.MultiLanguageTextType({'en-US': 'Example SubmodelElementCollection object',
-                                                 'de': 'Beispiel SubmodelElementCollection Element'}),
+        id_short="ExampleSubmodelCollection",
+        value=(
+            submodel_element_blob,
+            submodel_element_file,
+            submodel_element_multi_language_property,
+            submodel_element_property,
+            submodel_element_range,
+            submodel_element_reference_element,
+        ),
+        category="PARAMETER",
+        description=model.MultiLanguageTextType(
+            {
+                "en-US": "Example SubmodelElementCollection object",
+                "de": "Beispiel SubmodelElementCollection Element",
+            }
+        ),
         parent=None,
-        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://example.org/SubmodelElementCollections/'
-                                                             'ExampleSubmodelElementCollection'),)),
-        qualifier=())
+        semantic_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/SubmodelElementCollections/"
+                    "ExampleSubmodelElementCollection",
+                ),
+            )
+        ),
+        qualifier=(),
+    )
 
     submodel = model.Submodel(
-        id_='https://example.org/Test_Submodel_Missing',
-        submodel_element=(submodel_element_relationship_element,
-                          submodel_element_annotated_relationship_element,
-                          submodel_element_operation,
-                          submodel_element_capability,
-                          submodel_element_basic_event_element,
-                          submodel_element_submodel_element_collection),
-        id_short='TestSubmodel',
+        id_="https://example.org/Test_Submodel_Missing",
+        submodel_element=(
+            submodel_element_relationship_element,
+            submodel_element_annotated_relationship_element,
+            submodel_element_operation,
+            submodel_element_capability,
+            submodel_element_basic_event_element,
+            submodel_element_submodel_element_collection,
+        ),
+        id_short="TestSubmodel",
         category=None,
-        description=model.MultiLanguageTextType({'en-US': 'An example submodel for the test application',
-                                                 'de': 'Ein Beispiel-Teilmodell für eine Test-Anwendung'}),
+        description=model.MultiLanguageTextType(
+            {
+                "en-US": "An example submodel for the test application",
+                "de": "Ein Beispiel-Teilmodell für eine Test-Anwendung",
+            }
+        ),
         parent=None,
-        administration=model.AdministrativeInformation(version='9',
-                                                       revision='0'),
-        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://example.org/SubmodelTemplates/'
-                                                             'ExampleSubmodel'),)),
+        administration=model.AdministrativeInformation(version="9", revision="0"),
+        semantic_id=model.ExternalReference(
+            (
+                model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value="http://example.org/SubmodelTemplates/ExampleSubmodel",
+                ),
+            )
+        ),
         qualifier=(),
-        kind=model.ModellingKind.INSTANCE)
+        kind=model.ModellingKind.INSTANCE,
+    )
     return submodel
 
 
@@ -345,15 +557,19 @@ def create_example_concept_description() -> model.ConceptDescription:
     :return: example concept description
     """
     concept_description = model.ConceptDescription(
-        id_='https://example.org/Test_ConceptDescription_Missing',
+        id_="https://example.org/Test_ConceptDescription_Missing",
         is_case_of=None,
-        id_short='TestConceptDescription',
+        id_short="TestConceptDescription",
         category=None,
-        description=model.MultiLanguageTextType({'en-US': 'An example concept description for the test application',
-                                                 'de': 'Ein Beispiel-ConceptDescription für eine Test-Anwendung'}),
+        description=model.MultiLanguageTextType(
+            {
+                "en-US": "An example concept description for the test application",
+                "de": "Ein Beispiel-ConceptDescription für eine Test-Anwendung",
+            }
+        ),
         parent=None,
-        administration=model.AdministrativeInformation(version='9',
-                                                       revision='0'))
+        administration=model.AdministrativeInformation(version="9", revision="0"),
+    )
     return concept_description
 
 
@@ -366,46 +582,74 @@ def create_example_asset_administration_shell() -> model.AssetAdministrationShel
     """
 
     resource = model.Resource(
-        content_type='application/pdf',
-        path='file:///TestFile.pdf')
+        content_type="application/pdf", path="file:///TestFile.pdf"
+    )
 
     asset_information = model.AssetInformation(
         asset_kind=model.AssetKind.INSTANCE,
-        global_asset_id='http://example.org/Test_Asset_Missing/',
-        specific_asset_id={model.SpecificAssetId(name="TestKey", value="TestValue",
-                                                 external_subject_id=model.ExternalReference(
-                                                            (model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                                       value='http://example.org/'
-                                                                             'SpecificAssetId/'),)))},
-        default_thumbnail=resource)
+        global_asset_id="http://example.org/Test_Asset_Missing/",
+        specific_asset_id={
+            model.SpecificAssetId(
+                name="TestKey",
+                value="TestValue",
+                external_subject_id=model.ExternalReference(
+                    (
+                        model.Key(
+                            type_=model.KeyTypes.GLOBAL_REFERENCE,
+                            value="http://example.org/SpecificAssetId/",
+                        ),
+                    )
+                ),
+            )
+        },
+        default_thumbnail=resource,
+    )
 
     asset_administration_shell = model.AssetAdministrationShell(
         asset_information=asset_information,
-        id_='https://example.org/Test_AssetAdministrationShell_Missing',
-        id_short='TestAssetAdministrationShell',
+        id_="https://example.org/Test_AssetAdministrationShell_Missing",
+        id_short="TestAssetAdministrationShell",
         category=None,
-        description=model.MultiLanguageTextType({'en-US': 'An Example Asset Administration Shell for the test '
-                                                          'application',
-                                                 'de': 'Ein Beispiel-Verwaltungsschale für eine Test-Anwendung'}),
+        description=model.MultiLanguageTextType(
+            {
+                "en-US": "An Example Asset Administration Shell for the test "
+                "application",
+                "de": "Ein Beispiel-Verwaltungsschale für eine Test-Anwendung",
+            }
+        ),
         parent=None,
-        administration=model.AdministrativeInformation(version='9',
-                                                       revision='0'),
-        submodel={model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
-                                                  value='https://example.org/Test_Submodel_Missing'),),
-                                       model.Submodel)},
-        derived_from=None)
+        administration=model.AdministrativeInformation(version="9", revision="0"),
+        submodel={
+            model.ModelReference(
+                (
+                    model.Key(
+                        type_=model.KeyTypes.SUBMODEL,
+                        value="https://example.org/Test_Submodel_Missing",
+                    ),
+                ),
+                model.Submodel,
+            )
+        },
+        derived_from=None,
+    )
     return asset_administration_shell
 
 
 ##############################################################################
 # check functions for checking if a given object is the same as the example #
 ##############################################################################
-def check_example_concept_description(checker: AASDataChecker, concept_description: model.ConceptDescription) -> None:
+def check_example_concept_description(
+    checker: AASDataChecker, concept_description: model.ConceptDescription
+) -> None:
     expected_concept_description = create_example_concept_description()
-    checker.check_concept_description_equal(concept_description, expected_concept_description)
+    checker.check_concept_description_equal(
+        concept_description, expected_concept_description
+    )
 
 
-def check_example_asset_administration_shell(checker: AASDataChecker, shell: model.AssetAdministrationShell) -> None:
+def check_example_asset_administration_shell(
+    checker: AASDataChecker, shell: model.AssetAdministrationShell
+) -> None:
     expected_shell = create_example_asset_administration_shell()
     checker.check_asset_administration_shell_equal(shell, expected_shell)
 
@@ -415,6 +659,8 @@ def check_example_submodel(checker: AASDataChecker, submodel: model.Submodel) ->
     checker.check_submodel_equal(submodel, expected_submodel)
 
 
-def check_full_example(checker: AASDataChecker, identifiable_store: model.DictIdentifiableStore) -> None:
+def check_full_example(
+    checker: AASDataChecker, identifiable_store: model.DictIdentifiableStore
+) -> None:
     expected_data = create_full_example()
     checker.check_identifiable_store(identifiable_store, expected_data)

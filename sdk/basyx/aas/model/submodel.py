@@ -10,15 +10,30 @@ This module contains everything needed to model Submodels and define Events acco
 
 import abc
 import uuid
-from typing import Optional, Set, Iterable, TYPE_CHECKING, List, Type, TypeVar, Generic, Union
+from typing import (
+    TYPE_CHECKING,
+    Generic,
+    Iterable,
+    List,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+)
 
-from . import base, datatypes, _string_constraints
+from . import _string_constraints, base, datatypes
+
 if TYPE_CHECKING:
     from . import aas
 
 
-class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics,
-                      base.HasDataSpecification, metaclass=abc.ABCMeta):
+class SubmodelElement(
+    base.Referable,
+    base.Qualifiable,
+    base.HasSemantics,
+    base.HasDataSpecification,
+    metaclass=abc.ABCMeta,
+):
     """
     A submodel element is an element suitable for the description and differentiation of assets.
 
@@ -51,18 +66,21 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics,
                                     :class:`~basyx.aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
     @abc.abstractmethod
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
         """
         TODO: Add instruction what to do after construction
         """
@@ -77,11 +95,19 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics,
         self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
         self.supplemental_semantic_id = base.ConstrainedList(supplemental_semantic_id)
-        self.embedded_data_specifications: List[base.EmbeddedDataSpecification] = list(embedded_data_specifications)
+        self.embedded_data_specifications: List[base.EmbeddedDataSpecification] = list(
+            embedded_data_specifications
+        )
 
 
-class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifiable,
-               base.UniqueIdShortNamespace, base.HasDataSpecification):
+class Submodel(
+    base.Identifiable,
+    base.HasSemantics,
+    base.HasKind,
+    base.Qualifiable,
+    base.UniqueIdShortNamespace,
+    base.HasDataSpecification,
+):
     """
     A Submodel defines a specific aspect of the asset represented by the AAS.
 
@@ -118,24 +144,28 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
 
-    def __init__(self,
-                 id_: base.Identifier,
-                 submodel_element: Iterable[SubmodelElement] = (),
-                 id_short: Optional[base.NameType] = None,
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 administration: Optional[base.AdministrativeInformation] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModellingKind = base.ModellingKind.INSTANCE,
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
+    def __init__(
+        self,
+        id_: base.Identifier,
+        submodel_element: Iterable[SubmodelElement] = (),
+        id_short: Optional[base.NameType] = None,
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        administration: Optional[base.AdministrativeInformation] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        kind: base.ModellingKind = base.ModellingKind.INSTANCE,
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
         super().__init__()
         self.id: base.Identifier = id_
-        self.submodel_element = base.NamespaceSet(self, [("id_short", True)], submodel_element)
+        self.submodel_element = base.NamespaceSet(
+            self, [("id_short", True)], submodel_element
+        )
         self.id_short = id_short
         self.display_name: Optional[base.MultiLanguageNameType] = display_name
         self.category = category
@@ -147,7 +177,9 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         self._kind: base.ModellingKind = kind
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
         self.supplemental_semantic_id = base.ConstrainedList(supplemental_semantic_id)
-        self.embedded_data_specifications: List[base.EmbeddedDataSpecification] = list(embedded_data_specifications)
+        self.embedded_data_specifications: List[base.EmbeddedDataSpecification] = list(
+            embedded_data_specifications
+        )
 
 
 class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
@@ -181,20 +213,33 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                                     :class:`~basyx.aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
     @abc.abstractmethod
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
-                         supplemental_semantic_id, embedded_data_specifications)
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
+        super().__init__(
+            id_short,
+            display_name,
+            category,
+            description,
+            parent,
+            semantic_id,
+            qualifier,
+            extension,
+            supplemental_semantic_id,
+            embedded_data_specifications,
+        )
 
 
 class Property(DataElement):
@@ -230,29 +275,42 @@ class Property(DataElement):
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
 
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 value_type: base.DataTypeDefXsd,
-                 value: Optional[base.ValueDataType] = None,
-                 value_id: Optional[base.Reference] = None,
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        value_type: base.DataTypeDefXsd,
+        value: Optional[base.ValueDataType] = None,
+        value_id: Optional[base.Reference] = None,
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
         """
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
-                         supplemental_semantic_id, embedded_data_specifications)
+        super().__init__(
+            id_short,
+            display_name,
+            category,
+            description,
+            parent,
+            semantic_id,
+            qualifier,
+            extension,
+            supplemental_semantic_id,
+            embedded_data_specifications,
+        )
         self.value_type: base.DataTypeDefXsd = value_type
-        self._value: Optional[base.ValueDataType] = (datatypes.trivial_cast(value, value_type)
-                                                     if value is not None else None)
+        self._value: Optional[base.ValueDataType] = (
+            datatypes.trivial_cast(value, value_type) if value is not None else None
+        )
         self.value_id: Optional[base.Reference] = value_id
 
     @property
@@ -300,25 +358,37 @@ class MultiLanguageProperty(DataElement):
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
 
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 value: Optional[base.MultiLanguageTextType] = None,
-                 value_id: Optional[base.Reference] = None,
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        value: Optional[base.MultiLanguageTextType] = None,
+        value_id: Optional[base.Reference] = None,
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
         """
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
-                         supplemental_semantic_id, embedded_data_specifications)
+        super().__init__(
+            id_short,
+            display_name,
+            category,
+            description,
+            parent,
+            semantic_id,
+            qualifier,
+            extension,
+            supplemental_semantic_id,
+            embedded_data_specifications,
+        )
         self.value: Optional[base.MultiLanguageTextType] = value
         self.value_id: Optional[base.Reference] = value_id
 
@@ -367,29 +437,45 @@ class Range(DataElement):
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
 
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 value_type: base.DataTypeDefXsd,
-                 min: Optional[base.ValueDataType] = None,
-                 max: Optional[base.ValueDataType] = None,
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        value_type: base.DataTypeDefXsd,
+        min: Optional[base.ValueDataType] = None,
+        max: Optional[base.ValueDataType] = None,
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
         """
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
-                         supplemental_semantic_id, embedded_data_specifications)
+        super().__init__(
+            id_short,
+            display_name,
+            category,
+            description,
+            parent,
+            semantic_id,
+            qualifier,
+            extension,
+            supplemental_semantic_id,
+            embedded_data_specifications,
+        )
         self.value_type: base.DataTypeDefXsd = value_type
-        self._min: Optional[base.ValueDataType] = datatypes.trivial_cast(min, value_type) if min is not None else None
-        self._max: Optional[base.ValueDataType] = datatypes.trivial_cast(max, value_type) if max is not None else None
+        self._min: Optional[base.ValueDataType] = (
+            datatypes.trivial_cast(min, value_type) if min is not None else None
+        )
+        self._max: Optional[base.ValueDataType] = (
+            datatypes.trivial_cast(max, value_type) if max is not None else None
+        )
 
     @property
     def min(self):
@@ -450,25 +536,37 @@ class Blob(DataElement):
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
 
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 content_type: Optional[base.ContentType] = None,
-                 value: Optional[base.BlobType] = None,
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        content_type: Optional[base.ContentType] = None,
+        value: Optional[base.BlobType] = None,
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
         """
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
-                         supplemental_semantic_id, embedded_data_specifications)
+        super().__init__(
+            id_short,
+            display_name,
+            category,
+            description,
+            parent,
+            semantic_id,
+            qualifier,
+            extension,
+            supplemental_semantic_id,
+            embedded_data_specifications,
+        )
         self.value: Optional[base.BlobType] = value
         self.content_type: Optional[base.ContentType] = content_type
 
@@ -504,25 +602,37 @@ class File(DataElement):
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
 
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 content_type: Optional[base.ContentType] = None,
-                 value: Optional[base.PathType] = None,
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        content_type: Optional[base.ContentType] = None,
+        value: Optional[base.PathType] = None,
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
         """
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
-                         supplemental_semantic_id, embedded_data_specifications)
+        super().__init__(
+            id_short,
+            display_name,
+            category,
+            description,
+            parent,
+            semantic_id,
+            qualifier,
+            extension,
+            supplemental_semantic_id,
+            embedded_data_specifications,
+        )
         self.value: Optional[base.PathType] = value
         self.content_type: Optional[base.ContentType] = content_type
 
@@ -559,24 +669,36 @@ class ReferenceElement(DataElement):
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
 
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 value: Optional[base.Reference] = None,
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        value: Optional[base.Reference] = None,
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
         """
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
-                         supplemental_semantic_id, embedded_data_specifications)
+        super().__init__(
+            id_short,
+            display_name,
+            category,
+            description,
+            parent,
+            semantic_id,
+            qualifier,
+            extension,
+            supplemental_semantic_id,
+            embedded_data_specifications,
+        )
         self.value: Optional[base.Reference] = value
 
 
@@ -607,22 +729,37 @@ class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace):
                                     :class:`~basyx.aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 value: Iterable[SubmodelElement] = (),
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
-                         supplemental_semantic_id, embedded_data_specifications)
-        self.value: base.NamespaceSet[SubmodelElement] = base.NamespaceSet(self, [("id_short", True)], value)
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        value: Iterable[SubmodelElement] = (),
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
+
+        super().__init__(
+            id_short,
+            display_name,
+            category,
+            description,
+            parent,
+            semantic_id,
+            qualifier,
+            extension,
+            supplemental_semantic_id,
+            embedded_data_specifications,
+        )
+        self.value: base.NamespaceSet[SubmodelElement] = base.NamespaceSet(
+            self, [("id_short", True)], value
+        )
 
 
 _SE = TypeVar("_SE", bound=SubmodelElement)
@@ -678,43 +815,70 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
                                     :class:`~basyx.aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 type_value_list_element: Type[_SE],
-                 value: Iterable[_SE] = (),
-                 semantic_id_list_element: Optional[base.Reference] = None,
-                 value_type_list_element: Optional[base.DataTypeDefXsd] = None,
-                 order_relevant: bool = True,
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
-                         supplemental_semantic_id, embedded_data_specifications)
+
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        type_value_list_element: Type[_SE],
+        value: Iterable[_SE] = (),
+        semantic_id_list_element: Optional[base.Reference] = None,
+        value_type_list_element: Optional[base.DataTypeDefXsd] = None,
+        order_relevant: bool = True,
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
+        super().__init__(
+            id_short,
+            display_name,
+            category,
+            description,
+            parent,
+            semantic_id,
+            qualifier,
+            extension,
+            supplemental_semantic_id,
+            embedded_data_specifications,
+        )
         # Counter to generate a unique idShort whenever a SubmodelElement is added
         self._uuid_seq: int = 0
 
         # It doesn't really make sense to change any of these properties. thus they are immutable here.
         self._type_value_list_element: Type[_SE] = type_value_list_element
         self._order_relevant: bool = order_relevant
-        self._semantic_id_list_element: Optional[base.Reference] = semantic_id_list_element
-        self._value_type_list_element: Optional[base.DataTypeDefXsd] = value_type_list_element
+        self._semantic_id_list_element: Optional[base.Reference] = (
+            semantic_id_list_element
+        )
+        self._value_type_list_element: Optional[base.DataTypeDefXsd] = (
+            value_type_list_element
+        )
 
-        if self.type_value_list_element in (Property, Range) and self.value_type_list_element is None:
-            raise base.AASConstraintViolation(109, f"type_value_list_element={self.type_value_list_element.__name__}, "
-                                                   "but value_type_list_element is not set!")
+        if (
+            self.type_value_list_element in (Property, Range)
+            and self.value_type_list_element is None
+        ):
+            raise base.AASConstraintViolation(
+                109,
+                f"type_value_list_element={self.type_value_list_element.__name__}, "
+                "but value_type_list_element is not set!",
+            )
 
         # Items must be added after the above constraint has been checked. Otherwise, it can lead to errors, since the
         # constraints in _check_constraints() assume that this constraint has been checked.
-        self._value: base.OrderedNamespaceSet[_SE] = base.OrderedNamespaceSet(self, [("id_short", True)], (),
-                                                                              item_add_hook=self._check_constraints,
-                                                                              item_id_set_hook=self._generate_id_short,
-                                                                              item_id_del_hook=self._unset_id_short)
+        self._value: base.OrderedNamespaceSet[_SE] = base.OrderedNamespaceSet(
+            self,
+            [("id_short", True)],
+            (),
+            item_add_hook=self._check_constraints,
+            item_id_set_hook=self._generate_id_short,
+            item_id_del_hook=self._unset_id_short,
+        )
         # SubmodelElements need to be added after the assignment of the ordered NamespaceSet, otherwise, if a constraint
         # check fails, Referable.__repr__ may be called for an already-contained item during the AASd-114 check, which
         # in turn tries to access the SubmodelElementLists value / _value attribute, which wouldn't be set yet if all
@@ -732,11 +896,16 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
         # have an id_short. The alternative would be making SubmodelElementList a special kind of base.Namespace without
         # a unique attribute for child-elements (which contradicts the definition of a Namespace).
         if new.id_short is None:
-            new.id_short = "generated_submodel_list_hack_" + uuid.uuid1(clock_seq=self._uuid_seq).hex
+            new.id_short = (
+                "generated_submodel_list_hack_"
+                + uuid.uuid1(clock_seq=self._uuid_seq).hex
+            )
             self._uuid_seq += 1
 
     def _unset_id_short(self, old: _SE) -> None:
-        if old.id_short is not None and old.id_short.startswith("generated_submodel_list_hack_"):
+        if old.id_short is not None and old.id_short.startswith(
+            "generated_submodel_list_hack_"
+        ):
             old.id_short = None
 
     def _check_constraints(self, new: _SE, existing: Iterable[_SE]) -> None:
@@ -749,40 +918,57 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
         # self.type_value_list_element wouldn't raise a ConstraintViolation, when it should.
         # Example: AnnotatedRelationshipElement is a subclass of RelationshipElement
         if type(new) is not self.type_value_list_element:
-            raise base.AASConstraintViolation(108, "All first level elements must be of the type specified in "
-                                                   f"type_value_list_element={self.type_value_list_element.__name__}, "
-                                                   f"got {new!r}")
+            raise base.AASConstraintViolation(
+                108,
+                "All first level elements must be of the type specified in "
+                f"type_value_list_element={self.type_value_list_element.__name__}, "
+                f"got {new!r}",
+            )
 
-        if self.semantic_id_list_element is not None and new.semantic_id is not None \
-                and new.semantic_id != self.semantic_id_list_element:
+        if (
+            self.semantic_id_list_element is not None
+            and new.semantic_id is not None
+            and new.semantic_id != self.semantic_id_list_element
+        ):
             # Constraint AASd-115 specifies that if the semantic_id of an item is not specified
             # but semantic_id_list_element is, the semantic_id of the new is assumed to be identical.
             # Not really a constraint...
             # TODO: maybe set the semantic_id of new to semantic_id_list_element if it is None
-            raise base.AASConstraintViolation(107, f"If semantic_id_list_element={self.semantic_id_list_element!r} "
-                                                   "is specified all first level children must have the same "
-                                                   f"semantic_id, got {new!r} with semantic_id={new.semantic_id!r}")
+            raise base.AASConstraintViolation(
+                107,
+                f"If semantic_id_list_element={self.semantic_id_list_element!r} "
+                "is specified all first level children must have the same "
+                f"semantic_id, got {new!r} with semantic_id={new.semantic_id!r}",
+            )
 
         # If we got here we know that `new` is an instance of type_value_list_element and that type_value_list_element
         # is either Property or Range. Thus, `new` must have the value_type property.
         # Furthermore, value_type_list_element cannot be None, as this is already checked in __init__().
         # Ignore the types here because the typechecker doesn't get it.
-        if self.type_value_list_element in (Property, Range) \
-                and new.value_type is not self.value_type_list_element:  # type: ignore
-            raise base.AASConstraintViolation(109, "All first level elements must have the value_type "  # type: ignore
-                                                   "specified by value_type_list_element="
-                                                   f"{self.value_type_list_element.__name__}, got "  # type: ignore
-                                                   f"{new!r} with value_type={new.value_type.__name__}")  # type: ignore
+        if (
+            self.type_value_list_element in (Property, Range)
+            and new.value_type is not self.value_type_list_element  # type: ignore
+        ):
+            raise base.AASConstraintViolation(
+                109,
+                "All first level elements must have the value_type "  # type: ignore
+                "specified by value_type_list_element="
+                f"{self.value_type_list_element.__name__}, got "  # type: ignore
+                f"{new!r} with value_type={new.value_type.__name__}",  # type: ignore
+            )
 
         # If semantic_id_list_element is not None that would already enforce the semantic_id for all first level
         # elements. Thus, we only need to perform this check if semantic_id_list_element is None.
         if new.semantic_id is not None and self.semantic_id_list_element is None:
             for item in existing:
                 if item.semantic_id is not None and new.semantic_id != item.semantic_id:
-                    raise base.AASConstraintViolation(114, f"Element to be added {new!r} has semantic_id "
-                                                           f"{new.semantic_id!r}, while already contained element "
-                                                           f"{item!r} has semantic_id {item.semantic_id!r}, which "
-                                                           "aren't equal.")
+                    raise base.AASConstraintViolation(
+                        114,
+                        f"Element to be added {new!r} has semantic_id "
+                        f"{new.semantic_id!r}, while already contained element "
+                        f"{item!r} has semantic_id {item.semantic_id!r}, which "
+                        "aren't equal.",
+                    )
 
         # Re-assign id_short
         new.id_short = saved_id_short
@@ -845,25 +1031,37 @@ class RelationshipElement(SubmodelElement):
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
 
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 first: Optional[base.Reference] = None,
-                 second: Optional[base.Reference] = None,
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        first: Optional[base.Reference] = None,
+        second: Optional[base.Reference] = None,
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
         """
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
-                         supplemental_semantic_id, embedded_data_specifications)
+        super().__init__(
+            id_short,
+            display_name,
+            category,
+            description,
+            parent,
+            semantic_id,
+            qualifier,
+            extension,
+            supplemental_semantic_id,
+            embedded_data_specifications,
+        )
         self.first: Optional[base.Reference] = first
         self.second: Optional[base.Reference] = second
 
@@ -902,26 +1100,40 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
 
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 first: Optional[base.Reference] = None,
-                 second: Optional[base.Reference] = None,
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 annotation: Iterable[DataElement] = (),
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        first: Optional[base.Reference] = None,
+        second: Optional[base.Reference] = None,
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        annotation: Iterable[DataElement] = (),
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
         """
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, first, second, display_name, category, description, parent, semantic_id, qualifier,
-                         extension, supplemental_semantic_id, embedded_data_specifications)
+        super().__init__(
+            id_short,
+            first,
+            second,
+            display_name,
+            category,
+            description,
+            parent,
+            semantic_id,
+            qualifier,
+            extension,
+            supplemental_semantic_id,
+            embedded_data_specifications,
+        )
         self.annotation = base.NamespaceSet(self, [("id_short", True)], annotation)
 
 
@@ -964,29 +1176,48 @@ class Operation(SubmodelElement, base.UniqueIdShortNamespace):
                                     :class:`~basyx.aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 input_variable: Iterable[SubmodelElement] = (),
-                 output_variable: Iterable[SubmodelElement] = (),
-                 in_output_variable: Iterable[SubmodelElement] = (),
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
+
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        input_variable: Iterable[SubmodelElement] = (),
+        output_variable: Iterable[SubmodelElement] = (),
+        in_output_variable: Iterable[SubmodelElement] = (),
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
         """
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
-                         supplemental_semantic_id, embedded_data_specifications)
-        self.input_variable = base.NamespaceSet(self, [("id_short", True)], input_variable)
-        self.output_variable = base.NamespaceSet(self, [("id_short", True)], output_variable)
-        self.in_output_variable = base.NamespaceSet(self, [("id_short", True)], in_output_variable)
+        super().__init__(
+            id_short,
+            display_name,
+            category,
+            description,
+            parent,
+            semantic_id,
+            qualifier,
+            extension,
+            supplemental_semantic_id,
+            embedded_data_specifications,
+        )
+        self.input_variable = base.NamespaceSet(
+            self, [("id_short", True)], input_variable
+        )
+        self.output_variable = base.NamespaceSet(
+            self, [("id_short", True)], output_variable
+        )
+        self.in_output_variable = base.NamespaceSet(
+            self, [("id_short", True)], in_output_variable
+        )
 
 
 class Capability(SubmodelElement):
@@ -1017,23 +1248,35 @@ class Capability(SubmodelElement):
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
 
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
         """
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
-                         supplemental_semantic_id, embedded_data_specifications)
+        super().__init__(
+            id_short,
+            display_name,
+            category,
+            description,
+            parent,
+            semantic_id,
+            qualifier,
+            extension,
+            supplemental_semantic_id,
+            embedded_data_specifications,
+        )
 
 
 class Entity(SubmodelElement, base.UniqueIdShortNamespace):
@@ -1073,35 +1316,49 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
 
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 entity_type: Optional[base.EntityType],
-                 statement: Iterable[SubmodelElement] = (),
-                 global_asset_id: Optional[base.Identifier] = None,
-                 specific_asset_id: Iterable[base.SpecificAssetId] = (),
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        entity_type: Optional[base.EntityType],
+        statement: Iterable[SubmodelElement] = (),
+        global_asset_id: Optional[base.Identifier] = None,
+        specific_asset_id: Iterable[base.SpecificAssetId] = (),
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
         """
         TODO: Add instruction what to do after construction
         """
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
-                         supplemental_semantic_id, embedded_data_specifications)
+        super().__init__(
+            id_short,
+            display_name,
+            category,
+            description,
+            parent,
+            semantic_id,
+            qualifier,
+            extension,
+            supplemental_semantic_id,
+            embedded_data_specifications,
+        )
         self.statement = base.NamespaceSet(self, [("id_short", True)], statement)
         # assign private attributes, bypassing setters, as constraints will be checked below
         self._entity_type: Optional[base.EntityType] = entity_type
         self._global_asset_id: Optional[base.Identifier] = global_asset_id
-        self._specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = base.ConstrainedList(
-            specific_asset_id,
-            item_add_hook=self._check_constraint_add_spec_asset_id,
-            item_set_hook=self._check_constraint_set_spec_asset_id,
-            item_del_hook=self._check_constraint_del_spec_asset_id
+        self._specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = (
+            base.ConstrainedList(
+                specific_asset_id,
+                item_add_hook=self._check_constraint_add_spec_asset_id,
+                item_set_hook=self._check_constraint_set_spec_asset_id,
+                item_del_hook=self._check_constraint_del_spec_asset_id,
+            )
         )
         self._validate_global_asset_id(global_asset_id)
         self._validate_aasd_014(entity_type, global_asset_id, bool(specific_asset_id))
@@ -1112,7 +1369,9 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
 
     @entity_type.setter
     def entity_type(self, entity_type: Optional[base.EntityType]) -> None:
-        self._validate_aasd_014(entity_type, self.global_asset_id, bool(self.specific_asset_id))
+        self._validate_aasd_014(
+            entity_type, self.global_asset_id, bool(self.specific_asset_id)
+        )
         self._entity_type = entity_type
 
     @property
@@ -1122,7 +1381,9 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     @global_asset_id.setter
     def global_asset_id(self, global_asset_id: Optional[base.Identifier]) -> None:
         self._validate_global_asset_id(global_asset_id)
-        self._validate_aasd_014(self.entity_type, global_asset_id, bool(self.specific_asset_id))
+        self._validate_aasd_014(
+            self.entity_type, global_asset_id, bool(self.specific_asset_id)
+        )
         self._global_asset_id = global_asset_id
 
     @property
@@ -1130,23 +1391,35 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
         return self._specific_asset_id
 
     @specific_asset_id.setter
-    def specific_asset_id(self, specific_asset_id: Iterable[base.SpecificAssetId]) -> None:
+    def specific_asset_id(
+        self, specific_asset_id: Iterable[base.SpecificAssetId]
+    ) -> None:
         # constraints are checked via _check_constraint_set_spec_asset_id() in this case
         self._specific_asset_id[:] = specific_asset_id
 
-    def _check_constraint_add_spec_asset_id(self, _new_item: base.SpecificAssetId,
-                                            _old_list: List[base.SpecificAssetId]) -> None:
+    def _check_constraint_add_spec_asset_id(
+        self, _new_item: base.SpecificAssetId, _old_list: List[base.SpecificAssetId]
+    ) -> None:
         self._validate_aasd_014(self.entity_type, self.global_asset_id, True)
 
-    def _check_constraint_set_spec_asset_id(self, items_to_replace: List[base.SpecificAssetId],
-                                            new_items: List[base.SpecificAssetId],
-                                            old_list: List[base.SpecificAssetId]) -> None:
-        self._validate_aasd_014(self.entity_type, self.global_asset_id,
-                                len(old_list) - len(items_to_replace) + len(new_items) > 0)
+    def _check_constraint_set_spec_asset_id(
+        self,
+        items_to_replace: List[base.SpecificAssetId],
+        new_items: List[base.SpecificAssetId],
+        old_list: List[base.SpecificAssetId],
+    ) -> None:
+        self._validate_aasd_014(
+            self.entity_type,
+            self.global_asset_id,
+            len(old_list) - len(items_to_replace) + len(new_items) > 0,
+        )
 
-    def _check_constraint_del_spec_asset_id(self, _item_to_del: base.SpecificAssetId,
-                                            old_list: List[base.SpecificAssetId]) -> None:
-        self._validate_aasd_014(self.entity_type, self.global_asset_id, len(old_list) > 1)
+    def _check_constraint_del_spec_asset_id(
+        self, _item_to_del: base.SpecificAssetId, old_list: List[base.SpecificAssetId]
+    ) -> None:
+        self._validate_aasd_014(
+            self.entity_type, self.global_asset_id, len(old_list) > 1
+        )
 
     @staticmethod
     def _validate_global_asset_id(global_asset_id: Optional[base.Identifier]) -> None:
@@ -1154,19 +1427,29 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
             _string_constraints.check_identifier(global_asset_id)
 
     @staticmethod
-    def _validate_aasd_014(entity_type: Optional[base.EntityType],
-                           global_asset_id: Optional[base.Identifier],
-                           specific_asset_id_nonempty: bool) -> None:
+    def _validate_aasd_014(
+        entity_type: Optional[base.EntityType],
+        global_asset_id: Optional[base.Identifier],
+        specific_asset_id_nonempty: bool,
+    ) -> None:
         if entity_type is None:
             return
-        if entity_type == base.EntityType.SELF_MANAGED_ENTITY and global_asset_id is None \
-                and not specific_asset_id_nonempty:
+        if (
+            entity_type == base.EntityType.SELF_MANAGED_ENTITY
+            and global_asset_id is None
+            and not specific_asset_id_nonempty
+        ):
             raise base.AASConstraintViolation(
-                14, "A self-managed entity has to have a globalAssetId or a specificAssetId")
-        elif entity_type == base.EntityType.CO_MANAGED_ENTITY and (global_asset_id is not None
-                                                                   or specific_asset_id_nonempty):
+                14,
+                "A self-managed entity has to have a globalAssetId or a specificAssetId",
+            )
+        elif entity_type == base.EntityType.CO_MANAGED_ENTITY and (
+            global_asset_id is not None or specific_asset_id_nonempty
+        ):
             raise base.AASConstraintViolation(
-                14, "A co-managed entity has to have neither a globalAssetId nor a specificAssetId")
+                14,
+                "A co-managed entity has to have neither a globalAssetId nor a specificAssetId",
+            )
 
 
 class EventElement(SubmodelElement, metaclass=abc.ABCMeta):
@@ -1196,20 +1479,33 @@ class EventElement(SubmodelElement, metaclass=abc.ABCMeta):
                                     :class:`~basyx.aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
     @abc.abstractmethod
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
-                         supplemental_semantic_id, embedded_data_specifications)
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
+        super().__init__(
+            id_short,
+            display_name,
+            category,
+            description,
+            parent,
+            semantic_id,
+            qualifier,
+            extension,
+            supplemental_semantic_id,
+            embedded_data_specifications,
+        )
 
 
 @_string_constraints.constrain_message_topic_type("message_topic")
@@ -1265,40 +1561,62 @@ class BasicEventElement(EventElement):
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
 
-    def __init__(self,
-                 id_short: Optional[base.NameType],
-                 observed: base.ModelReference[Union["aas.AssetAdministrationShell", Submodel, SubmodelElement]],
-                 direction: base.Direction,
-                 state: base.StateOfEvent,
-                 message_topic: Optional[base.MessageTopicType] = None,
-                 message_broker: Optional[base.ModelReference[Union[Submodel, SubmodelElementList,
-                                                                    SubmodelElementCollection, Entity]]] = None,
-                 last_update: Optional[datatypes.DateTime] = None,
-                 min_interval: Optional[datatypes.Duration] = None,
-                 max_interval: Optional[datatypes.Duration] = None,
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 extension: Iterable[base.Extension] = (),
-                 supplemental_semantic_id: Iterable[base.Reference] = (),
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
+    def __init__(
+        self,
+        id_short: Optional[base.NameType],
+        observed: base.ModelReference[
+            Union["aas.AssetAdministrationShell", Submodel, SubmodelElement]
+        ],
+        direction: base.Direction,
+        state: base.StateOfEvent,
+        message_topic: Optional[base.MessageTopicType] = None,
+        message_broker: Optional[
+            base.ModelReference[
+                Union[Submodel, SubmodelElementList, SubmodelElementCollection, Entity]
+            ]
+        ] = None,
+        last_update: Optional[datatypes.DateTime] = None,
+        min_interval: Optional[datatypes.Duration] = None,
+        max_interval: Optional[datatypes.Duration] = None,
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        semantic_id: Optional[base.Reference] = None,
+        qualifier: Iterable[base.Qualifier] = (),
+        extension: Iterable[base.Extension] = (),
+        supplemental_semantic_id: Iterable[base.Reference] = (),
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+    ):
         """
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
-                         supplemental_semantic_id, embedded_data_specifications)
-        self.observed: base.ModelReference[Union["aas.AssetAdministrationShell", Submodel, SubmodelElement]] = observed
+        super().__init__(
+            id_short,
+            display_name,
+            category,
+            description,
+            parent,
+            semantic_id,
+            qualifier,
+            extension,
+            supplemental_semantic_id,
+            embedded_data_specifications,
+        )
+        self.observed: base.ModelReference[
+            Union["aas.AssetAdministrationShell", Submodel, SubmodelElement]
+        ] = observed
         # max_interval must be set here because the direction setter attempts to read it
         self.max_interval: Optional[datatypes.Duration] = None
         self.direction: base.Direction = direction
         self.state: base.StateOfEvent = state
         self.message_topic: Optional[base.MessageTopicType] = message_topic
-        self.message_broker: Optional[base.ModelReference[Union[Submodel, SubmodelElementList,
-                                                                SubmodelElementCollection, Entity]]] = message_broker
+        self.message_broker: Optional[
+            base.ModelReference[
+                Union[Submodel, SubmodelElementList, SubmodelElementCollection, Entity]
+            ]
+        ] = message_broker
         self.last_update: Optional[datatypes.DateTime] = last_update
         self.min_interval: Optional[datatypes.Duration] = min_interval
         self.max_interval: Optional[datatypes.Duration] = max_interval

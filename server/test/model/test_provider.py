@@ -1,3 +1,10 @@
+# Copyright (c) 2026 the Eclipse BaSyx Authors
+#
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
+#
+# SPDX-License-Identifier: MIT
+
 import unittest
 
 from app import model
@@ -35,7 +42,7 @@ class DictDescriptorStoreTest(unittest.TestCase):
         with self.assertRaises(KeyError) as cm:
             descriptor_store.add(aasd3)
         self.assertEqual(
-            "'Descriptor object with same id https://example.org/AASDescriptor/1 is already " "stored in this store'",
+            "'Descriptor object with same id https://example.org/AASDescriptor/1 is already stored in this store'",
             str(cm.exception),
         )
         self.assertEqual(2, len(descriptor_store))

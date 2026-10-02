@@ -1,0 +1,9 @@
+# This file features commits that should be taken out of the git blame chain as they would clutter it with formatting
+# changes otherwise.
+
+# To ignore the commits, you can configure your git to automatically use this file with any git blame command:
+# git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# Commit 2026-07-23: Introduce ruff as linter and formatter
+# This commit had no effect on the functionality but touched and reformatted 10k lines
+112290a101f681030b7f895ded63a544764c073a

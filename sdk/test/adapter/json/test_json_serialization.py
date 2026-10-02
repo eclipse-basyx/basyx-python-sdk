@@ -4,28 +4,43 @@
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
-import os
 import io
-import unittest
 import json
-
-from basyx.aas import model
-from basyx.aas.adapter.json import AASToJsonEncoder, StrippedAASToJsonEncoder, write_aas_json_file
-from jsonschema import validate  # type: ignore
+import os
+import unittest
 from typing import Set, Union
 
-from basyx.aas.examples.data import example_aas_missing_attributes, example_aas, \
-    example_aas_mandatory_attributes, example_submodel_template, create_example
+from basyx.aas import model
+from basyx.aas.adapter.json import (
+    AASToJsonEncoder,
+    StrippedAASToJsonEncoder,
+    write_aas_json_file,
+)
+from basyx.aas.examples.data import (
+    create_example,
+    example_aas,
+    example_aas_mandatory_attributes,
+    example_aas_missing_attributes,
+    example_submodel_template,
+)
+from jsonschema import validate  # type: ignore
 
-
-JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), '../schemas/aasJSONSchema.json')
+JSON_SCHEMA_FILE = os.path.join(
+    os.path.dirname(__file__), "../schemas/aasJSONSchema.json"
+)
 
 
 class JsonSerializationTest(unittest.TestCase):
     def test_serialize_object(self) -> None:
-        test_object = model.Property("test_id_short", model.datatypes.String, category="PARAMETER",
-                                     description=model.MultiLanguageTextType({"en-US": "Germany", "de": "Deutschland"}))
-        json_data = json.dumps(test_object, cls=AASToJsonEncoder)
+        test_object = model.Property(
+            "test_id_short",
+            model.datatypes.String,
+            category="PARAMETER",
+            description=model.MultiLanguageTextType(
+                {"en-US": "Germany", "de": "Deutschland"}
+            ),
+        )
+        json.dumps(test_object, cls=AASToJsonEncoder)
 
     def test_random_object_serialization(self) -> None:
         aas_identifier = "AAS1"
@@ -34,24 +49,32 @@ class JsonSerializationTest(unittest.TestCase):
         assert submodel_identifier is not None
         submodel_reference = model.ModelReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier)
-        test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id="test"),
-                                                  aas_identifier, submodel={submodel_reference})
+        test_aas = model.AssetAdministrationShell(
+            model.AssetInformation(global_asset_id="test"),
+            aas_identifier,
+            submodel={submodel_reference},
+        )
 
         # serialize object to json
-        json_data = json.dumps({
-                'assetAdministrationShells': [test_aas],
-                'submodels': [submodel],
-                'assets': [],
-                'conceptDescriptions': [],
-            }, cls=AASToJsonEncoder)
-        json_data_new = json.loads(json_data)
+        json_data = json.dumps(
+            {
+                "assetAdministrationShells": [test_aas],
+                "submodels": [submodel],
+                "assets": [],
+                "conceptDescriptions": [],
+            },
+            cls=AASToJsonEncoder,
+        )
+        json.loads(json_data)
 
 
 class JsonSerializationSchemaTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         if not os.path.exists(JSON_SCHEMA_FILE):
-            raise unittest.SkipTest(f"JSON Schema does not exist at {JSON_SCHEMA_FILE}, skipping test")
+            raise unittest.SkipTest(
+                f"JSON Schema does not exist at {JSON_SCHEMA_FILE}, skipping test"
+            )
 
     def test_random_object_serialization(self) -> None:
         aas_identifier = "AAS1"
@@ -61,21 +84,32 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         submodel_reference = model.ModelReference(submodel_key, model.Submodel)
         # The JSONSchema expects every object with HasSemnatics (like Submodels) to have a `semanticId` Reference, which
         # must be a Reference. (This seems to be a bug in the JSONSchema.)
-        submodel = model.Submodel(submodel_identifier,
-                                  semantic_id=model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE,
-                                                                       "http://example.org/TestSemanticId"),)))
-        test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id="test"),
-                                                  aas_identifier, submodel={submodel_reference})
+        submodel = model.Submodel(
+            submodel_identifier,
+            semantic_id=model.ExternalReference(
+                (
+                    model.Key(
+                        model.KeyTypes.GLOBAL_REFERENCE,
+                        "http://example.org/TestSemanticId",
+                    ),
+                )
+            ),
+        )
+        test_aas = model.AssetAdministrationShell(
+            model.AssetInformation(global_asset_id="test"),
+            aas_identifier,
+            submodel={submodel_reference},
+        )
 
         # serialize object to json
-        json_data = json.dumps({
-                'assetAdministrationShells': [test_aas],
-                'submodels': [submodel]
-            }, cls=AASToJsonEncoder)
+        json_data = json.dumps(
+            {"assetAdministrationShells": [test_aas], "submodels": [submodel]},
+            cls=AASToJsonEncoder,
+        )
         json_data_new = json.loads(json_data)
 
         # load schema
-        with open(JSON_SCHEMA_FILE, 'r') as json_file:
+        with open(JSON_SCHEMA_FILE, "r") as json_file:
             aas_schema = json.load(json_file)
 
         # validate serialization against schema
@@ -86,7 +120,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         file = io.StringIO()
         write_aas_json_file(file=file, data=data)
 
-        with open(JSON_SCHEMA_FILE, 'r') as json_file:
+        with open(JSON_SCHEMA_FILE, "r") as json_file:
             aas_json_schema = json.load(json_file)
 
         file.seek(0)
@@ -96,12 +130,14 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         validate(instance=json_data, schema=aas_json_schema)
 
     def test_submodel_template_serialization(self) -> None:
-        data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+        data: model.DictIdentifiableStore[model.Identifiable] = (
+            model.DictIdentifiableStore()
+        )
         data.add(example_submodel_template.create_example_submodel_template())
         file = io.StringIO()
         write_aas_json_file(file=file, data=data)
 
-        with open(JSON_SCHEMA_FILE, 'r') as json_file:
+        with open(JSON_SCHEMA_FILE, "r") as json_file:
             aas_json_schema = json.load(json_file)
 
         file.seek(0)
@@ -115,7 +151,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         file = io.StringIO()
         write_aas_json_file(file=file, data=data)
 
-        with open(JSON_SCHEMA_FILE, 'r') as json_file:
+        with open(JSON_SCHEMA_FILE, "r") as json_file:
             aas_json_schema = json.load(json_file)
 
         file.seek(0)
@@ -129,7 +165,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         file = io.StringIO()
         write_aas_json_file(file=file, data=data)
 
-        with open(JSON_SCHEMA_FILE, 'r') as json_file:
+        with open(JSON_SCHEMA_FILE, "r") as json_file:
             aas_json_schema = json.load(json_file)
 
         file.seek(0)
@@ -139,12 +175,14 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         validate(instance=json_data, schema=aas_json_schema)
 
     def test_concept_description_serialization(self) -> None:
-        data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+        data: model.DictIdentifiableStore[model.Identifiable] = (
+            model.DictIdentifiableStore()
+        )
         data.add(example_aas.create_example_concept_description())
         file = io.StringIO()
         write_aas_json_file(file=file, data=data)
 
-        with open(JSON_SCHEMA_FILE, 'r') as json_file:
+        with open(JSON_SCHEMA_FILE, "r") as json_file:
             aas_json_schema = json.load(json_file)
 
         file.seek(0)
@@ -158,7 +196,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         file = io.StringIO()
         write_aas_json_file(file=file, data=data)
 
-        with open(JSON_SCHEMA_FILE, 'r') as json_file:
+        with open(JSON_SCHEMA_FILE, "r") as json_file:
             aas_json_schema = json.load(json_file)
 
         file.seek(0)
@@ -169,13 +207,18 @@ class JsonSerializationSchemaTest(unittest.TestCase):
 
 
 class JsonSerializationStrippedObjectsTest(unittest.TestCase):
-    def _checkNormalAndStripped(self, attributes: Union[Set[str], str], obj: object) -> None:
+    def _checkNormalAndStripped(
+        self, attributes: Union[Set[str], str], obj: object
+    ) -> None:
         if isinstance(attributes, str):
             attributes = {attributes}
 
         # attributes should be present when using the normal encoder,
         # but must not be present when using the stripped encoder
-        for cls, assert_fn in ((AASToJsonEncoder, self.assertIn), (StrippedAASToJsonEncoder, self.assertNotIn)):
+        for cls, assert_fn in (
+            (AASToJsonEncoder, self.assertIn),
+            (StrippedAASToJsonEncoder, self.assertNotIn),
+        ):
             data = json.loads(json.dumps(obj, cls=cls))
             for attr in attributes:
                 assert_fn(attr, data)
@@ -187,23 +230,22 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
         submodel = model.Submodel(
             "http://example.org/test_submodel",
             submodel_element=[operation],
-            qualifier={qualifier2}
+            qualifier={qualifier2},
         )
 
         self._checkNormalAndStripped({"submodelElements", "qualifiers"}, submodel)
         self._checkNormalAndStripped("qualifiers", operation)
 
     def test_stripped_annotated_relationship_element(self) -> None:
-        mlp = model.MultiLanguageProperty("test_multi_language_property", category="PARAMETER")
+        mlp = model.MultiLanguageProperty(
+            "test_multi_language_property", category="PARAMETER"
+        )
         ref = model.ModelReference(
             (model.Key(model.KeyTypes.SUBMODEL, "http://example.org/test_ref"),),
-            model.Submodel
+            model.Submodel,
         )
         are = model.AnnotatedRelationshipElement(
-            "test_annotated_relationship_element",
-            ref,
-            ref,
-            annotation=[mlp]
+            "test_annotated_relationship_element", ref, ref, annotation=[mlp]
         )
 
         self._checkNormalAndStripped("annotations", are)
@@ -215,26 +257,34 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
         self.assertNotIn("second", data)
 
     def test_stripped_entity(self) -> None:
-        mlp = model.MultiLanguageProperty("test_multi_language_property", category="PARAMETER")
-        entity = model.Entity("test_entity", model.EntityType.CO_MANAGED_ENTITY, statement=[mlp])
+        mlp = model.MultiLanguageProperty(
+            "test_multi_language_property", category="PARAMETER"
+        )
+        entity = model.Entity(
+            "test_entity", model.EntityType.CO_MANAGED_ENTITY, statement=[mlp]
+        )
 
         self._checkNormalAndStripped("statements", entity)
 
     def test_stripped_submodel_element_collection(self) -> None:
-        mlp = model.MultiLanguageProperty("test_multi_language_property", category="PARAMETER")
-        sec = model.SubmodelElementCollection("test_submodel_element_collection", value=[mlp])
+        mlp = model.MultiLanguageProperty(
+            "test_multi_language_property", category="PARAMETER"
+        )
+        sec = model.SubmodelElementCollection(
+            "test_submodel_element_collection", value=[mlp]
+        )
 
         self._checkNormalAndStripped("value", sec)
 
     def test_stripped_asset_administration_shell(self) -> None:
         submodel_ref = model.ModelReference(
             (model.Key(model.KeyTypes.SUBMODEL, "http://example.org/test_ref"),),
-            model.Submodel
+            model.Submodel,
         )
         aas = model.AssetAdministrationShell(
             model.AssetInformation(global_asset_id="http://example.org/test_ref"),
             "http://example.org/test_aas",
-            submodel={submodel_ref}
+            submodel={submodel_ref},
         )
 
         self._checkNormalAndStripped({"submodels"}, aas)

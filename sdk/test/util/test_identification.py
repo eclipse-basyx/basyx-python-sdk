@@ -7,16 +7,18 @@
 
 import unittest
 
-from basyx.aas.util.identification import *
 from basyx.aas import model
+from basyx.aas.util.identification import *
 
 
 class IdentifierGeneratorTest(unittest.TestCase):
     def test_generate_uuid_identifier(self):
         generator = UUIDGenerator()
         identification = generator.generate_id()
-        self.assertRegex(identification,
-                         r"urn:uuid:[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}")
+        self.assertRegex(
+            identification,
+            r"urn:uuid:[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}",
+        )
         ids = set()
         for i in range(100):
             identification = generator.generate_id()
@@ -29,10 +31,14 @@ class IdentifierGeneratorTest(unittest.TestCase):
         # Check expected Errors when Namespaces are not valid
         with self.assertRaises(ValueError) as cm:
             generator = NamespaceIRIGenerator("", provider)
-        self.assertEqual('Namespace must be a valid IRI, ending with #, / or =', str(cm.exception))
+        self.assertEqual(
+            "Namespace must be a valid IRI, ending with #, / or =", str(cm.exception)
+        )
         with self.assertRaises(ValueError) as cm:
             generator = NamespaceIRIGenerator("http", provider)
-        self.assertEqual('Namespace must be a valid IRI, ending with #, / or =', str(cm.exception))
+        self.assertEqual(
+            "Namespace must be a valid IRI, ending with #, / or =", str(cm.exception)
+        )
 
         generator = NamespaceIRIGenerator("http://example.org/AAS/", provider)
         self.assertEqual("http://example.org/AAS/", generator.namespace)

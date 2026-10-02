@@ -8,14 +8,19 @@
 import io
 import logging
 import unittest
+from typing import Iterable, Type, Union
 
 from basyx.aas import model
-from basyx.aas.adapter.xml import StrictAASFromXmlDecoder, XMLConstructables, read_aas_xml_file, \
-    read_aas_xml_file_into, read_aas_xml_element
-from basyx.aas.adapter.xml.xml_deserialization import _tag_replace_namespace
 from basyx.aas.adapter._generic import XML_NS_MAP
+from basyx.aas.adapter.xml import (
+    StrictAASFromXmlDecoder,
+    XMLConstructables,
+    read_aas_xml_element,
+    read_aas_xml_file,
+    read_aas_xml_file_into,
+)
+from basyx.aas.adapter.xml.xml_deserialization import _tag_replace_namespace
 from lxml import etree
-from typing import Iterable, Type, Union
 
 
 def _xml_wrap(xml: str) -> str:
@@ -29,8 +34,13 @@ def _root_cause(exception: BaseException) -> BaseException:
 
 
 class XmlDeserializationTest(unittest.TestCase):
-    def _assertInExceptionAndLog(self, xml: str, strings: Union[Iterable[str], str], error_type: Type[BaseException],
-                                 log_level: int) -> None:
+    def _assertInExceptionAndLog(
+        self,
+        xml: str,
+        strings: Union[Iterable[str], str],
+        error_type: Type[BaseException],
+        log_level: int,
+    ) -> None:
         """
         Runs read_xml_aas_file in failsafe mode and checks if each string is contained in the first message logged.
         Then runs it in non-failsafe mode and checks if each string is contained in the first error raised.
@@ -56,14 +66,16 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = (
             "invalid xml",
             _xml_wrap("<<>>><<<<<"),
-            _xml_wrap("<aas:submodels><aas:submodel/>")
+            _xml_wrap("<aas:submodels><aas:submodel/>"),
         )
         for s in xml:
             self._assertInExceptionAndLog(s, [], etree.XMLSyntaxError, logging.ERROR)
 
     def test_invalid_list_name(self) -> None:
         xml = _xml_wrap("<aas:invalidList></aas:invalidList>")
-        self._assertInExceptionAndLog(xml, "aas:invalidList", TypeError, logging.WARNING)
+        self._assertInExceptionAndLog(
+            xml, "aas:invalidList", TypeError, logging.WARNING
+        )
 
     def test_invalid_element_in_list(self) -> None:
         xml = _xml_wrap("""
@@ -71,7 +83,9 @@ class XmlDeserializationTest(unittest.TestCase):
             <aas:invalidElement/>
         </aas:submodels>
         """)
-        self._assertInExceptionAndLog(xml, ["aas:invalidElement", "aas:submodels"], KeyError, logging.WARNING)
+        self._assertInExceptionAndLog(
+            xml, ["aas:invalidElement", "aas:submodels"], KeyError, logging.WARNING
+        )
 
     def test_missing_asset_kind(self) -> None:
         xml = _xml_wrap("""
@@ -112,7 +126,9 @@ class XmlDeserializationTest(unittest.TestCase):
             </aas:assetAdministrationShell>
         </aas:assetAdministrationShells>
         """)
-        self._assertInExceptionAndLog(xml, ["aas:assetKind", "invalidKind"], ValueError, logging.ERROR)
+        self._assertInExceptionAndLog(
+            xml, ["aas:assetKind", "invalidKind"], ValueError, logging.ERROR
+        )
 
     def test_invalid_boolean(self) -> None:
         xml = _xml_wrap("""
@@ -170,7 +186,11 @@ class XmlDeserializationTest(unittest.TestCase):
         """)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as context:
             read_aas_xml_file(io.StringIO(xml), failsafe=False)
-        for s in ("SUBMODEL", "http://example.org/test_ref", "AssetAdministrationShell"):
+        for s in (
+            "SUBMODEL",
+            "http://example.org/test_ref",
+            "AssetAdministrationShell",
+        ):
             self.assertIn(s, context.output[0])
 
     def test_invalid_submodel_element(self) -> None:
@@ -184,7 +204,9 @@ class XmlDeserializationTest(unittest.TestCase):
             </aas:submodel>
         </aas:submodels>
         """)
-        self._assertInExceptionAndLog(xml, "aas:invalidSubmodelElement", KeyError, logging.ERROR)
+        self._assertInExceptionAndLog(
+            xml, "aas:invalidSubmodelElement", KeyError, logging.ERROR
+        )
 
     def test_empty_qualifier(self) -> None:
         xml = _xml_wrap("""
@@ -197,7 +219,9 @@ class XmlDeserializationTest(unittest.TestCase):
             </aas:submodel>
         </aas:submodels>
         """)
-        self._assertInExceptionAndLog(xml, ["aas:qualifier", "has no child aas:type"], KeyError, logging.ERROR)
+        self._assertInExceptionAndLog(
+            xml, ["aas:qualifier", "has no child aas:type"], KeyError, logging.ERROR
+        )
 
     def test_operation_variable_no_submodel_element(self) -> None:
         xml = _xml_wrap("""
@@ -217,7 +241,9 @@ class XmlDeserializationTest(unittest.TestCase):
             </aas:submodel>
         </aas:submodels>
         """)
-        self._assertInExceptionAndLog(xml, ["aas:value", "has no submodel element"], KeyError, logging.ERROR)
+        self._assertInExceptionAndLog(
+            xml, ["aas:value", "has no submodel element"], KeyError, logging.ERROR
+        )
 
     def test_operation_variable_too_many_submodel_elements(self) -> None:
         xml = _xml_wrap("""
@@ -269,13 +295,17 @@ class XmlDeserializationTest(unittest.TestCase):
             </aas:submodel>
         </aas:submodels>
         """)
-        self._assertInExceptionAndLog(xml, "duplicate identifier", KeyError, logging.ERROR)
+        self._assertInExceptionAndLog(
+            xml, "duplicate identifier", KeyError, logging.ERROR
+        )
 
     def test_duplicate_identifier_identifiable_store(self) -> None:
         sm_id = "http://example.org/test_submodel"
 
         def get_clean_store() -> model.DictIdentifiableStore:
-            store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+            store: model.DictIdentifiableStore[model.Identifiable] = (
+                model.DictIdentifiableStore()
+            )
             submodel_ = model.Submodel(sm_id, id_short="test123")
             store.add(submodel_)
             return store
@@ -302,7 +332,10 @@ class XmlDeserializationTest(unittest.TestCase):
         identifiable_store = get_clean_store()
         with self.assertLogs(logging.getLogger(), level=logging.INFO) as log_ctx:
             identifiers = read_aas_xml_file_into(
-                identifiable_store, string_io, replace_existing=False, ignore_existing=True
+                identifiable_store,
+                string_io,
+                replace_existing=False,
+                ignore_existing=True,
             )
         self.assertEqual(len(identifiers), 0)
         self.assertIn("already exists in the object store", log_ctx.output[0])
@@ -313,7 +346,10 @@ class XmlDeserializationTest(unittest.TestCase):
         identifiable_store = get_clean_store()
         with self.assertRaises(KeyError) as err_ctx:
             identifiers = read_aas_xml_file_into(
-                identifiable_store, string_io, replace_existing=False, ignore_existing=False
+                identifiable_store,
+                string_io,
+                replace_existing=False,
+                ignore_existing=False,
             )
         self.assertEqual(len(identifiers), 0)
         cause = _root_cause(err_ctx.exception)
@@ -345,8 +381,12 @@ class XmlDeserializationTest(unittest.TestCase):
             </environment>
             """
 
-        self._assertInExceptionAndLog(xml(""), f'{{{XML_NS_MAP["aas"]}}}id on line 5 has no text', KeyError,
-                                      logging.ERROR)
+        self._assertInExceptionAndLog(
+            xml(""),
+            f"{{{XML_NS_MAP['aas']}}}id on line 5 has no text",
+            KeyError,
+            logging.ERROR,
+        )
         read_aas_xml_file(io.StringIO(xml("urn:x-test:test-submodel")))
 
 
@@ -377,7 +417,9 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
         string_io = io.StringIO(xml)
 
         # check if XML with qualifiers can be parsed successfully
-        submodel = read_aas_xml_element(string_io, XMLConstructables.SUBMODEL, failsafe=False)
+        submodel = read_aas_xml_element(
+            string_io, XMLConstructables.SUBMODEL, failsafe=False
+        )
         self.assertIsInstance(submodel, model.Submodel)
         assert isinstance(submodel, model.Submodel)
         self.assertEqual(len(submodel.qualifier), 1)
@@ -385,7 +427,9 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
         self.assertEqual(len(operation.qualifier), 1)
 
         # check if qualifiers are ignored in stripped mode
-        submodel = read_aas_xml_element(string_io, XMLConstructables.SUBMODEL, failsafe=False, stripped=True)
+        submodel = read_aas_xml_element(
+            string_io, XMLConstructables.SUBMODEL, failsafe=False, stripped=True
+        )
         self.assertIsInstance(submodel, model.Submodel)
         assert isinstance(submodel, model.Submodel)
         self.assertEqual(len(submodel.qualifier), 0)
@@ -415,14 +459,20 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
         string_io = io.StringIO(xml)
 
         # check if XML with submodels can be parsed successfully
-        aas = read_aas_xml_element(string_io, XMLConstructables.ASSET_ADMINISTRATION_SHELL, failsafe=False)
+        aas = read_aas_xml_element(
+            string_io, XMLConstructables.ASSET_ADMINISTRATION_SHELL, failsafe=False
+        )
         self.assertIsInstance(aas, model.AssetAdministrationShell)
         assert isinstance(aas, model.AssetAdministrationShell)
         self.assertEqual(len(aas.submodel), 1)
 
         # check if submodels are ignored in stripped mode
-        aas = read_aas_xml_element(string_io, XMLConstructables.ASSET_ADMINISTRATION_SHELL, failsafe=False,
-                                   stripped=True)
+        aas = read_aas_xml_element(
+            string_io,
+            XMLConstructables.ASSET_ADMINISTRATION_SHELL,
+            failsafe=False,
+            stripped=True,
+        )
         self.assertIsInstance(aas, model.AssetAdministrationShell)
         assert isinstance(aas, model.AssetAdministrationShell)
         self.assertEqual(len(aas.submodel), 0)
@@ -430,7 +480,7 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
 
 class XmlDeserializationDataSpecTest(unittest.TestCase):
     def test_data_spec_iec61360_value_without_value_format(self) -> None:
-        xml = _xml_wrap(f"""
+        xml = _xml_wrap("""
         <aas:conceptDescriptions>
             <aas:conceptDescription>
                 <aas:id>http://example.org/test_cd</aas:id>
@@ -516,9 +566,12 @@ class XmlDeserializationDerivingTest(unittest.TestCase):
 
         class EnhancedAASDecoder(StrictAASFromXmlDecoder):
             @classmethod
-            def construct_submodel(cls, element: etree._Element, object_class=EnhancedSubmodel, **kwargs) \
-                    -> model.Submodel:
-                return super().construct_submodel(element, object_class=object_class, **kwargs)
+            def construct_submodel(
+                cls, element: etree._Element, object_class=EnhancedSubmodel, **kwargs
+            ) -> model.Submodel:
+                return super().construct_submodel(
+                    element, object_class=object_class, **kwargs
+                )
 
         xml = f"""
         <aas:submodel xmlns:aas="{XML_NS_MAP["aas"]}">
@@ -527,7 +580,9 @@ class XmlDeserializationDerivingTest(unittest.TestCase):
         """
         string_io = io.StringIO(xml)
 
-        submodel = read_aas_xml_element(string_io, XMLConstructables.SUBMODEL, decoder=EnhancedAASDecoder)
+        submodel = read_aas_xml_element(
+            string_io, XMLConstructables.SUBMODEL, decoder=EnhancedAASDecoder
+        )
         self.assertIsInstance(submodel, EnhancedSubmodel)
         assert isinstance(submodel, EnhancedSubmodel)
         self.assertEqual(submodel.enhanced_attribute, "fancy!")
@@ -535,25 +590,25 @@ class XmlDeserializationDerivingTest(unittest.TestCase):
 
 class TestTagReplaceNamespace(unittest.TestCase):
     def test_known_namespace(self):
-        tag = '{https://admin-shell.io/aas/3/1}tag'
-        expected = 'aas:tag'
+        tag = "{https://admin-shell.io/aas/3/1}tag"
+        expected = "aas:tag"
         self.assertEqual(_tag_replace_namespace(tag, XML_NS_MAP), expected)
 
     def test_empty_prefix(self):
         # Empty prefix should not be replaced as otherwise it would apply everywhere
-        tag = '{https://admin-shell.io/aas/3/1}tag'
+        tag = "{https://admin-shell.io/aas/3/1}tag"
         nsmap = {"": "https://admin-shell.io/aas/3/1"}
-        expected = '{https://admin-shell.io/aas/3/1}tag'
+        expected = "{https://admin-shell.io/aas/3/1}tag"
         self.assertEqual(_tag_replace_namespace(tag, nsmap), expected)
 
     def test_empty_namespace(self):
         # Empty namespaces should also have no effect
-        tag = '{https://admin-shell.io/aas/3/1}tag'
+        tag = "{https://admin-shell.io/aas/3/1}tag"
         nsmap = {"aas": ""}
-        expected = '{https://admin-shell.io/aas/3/1}tag'
+        expected = "{https://admin-shell.io/aas/3/1}tag"
         self.assertEqual(_tag_replace_namespace(tag, nsmap), expected)
 
     def test_unknown_namespace(self):
-        tag = '{http://unknownnamespace.com}unknown'
-        expected = '{http://unknownnamespace.com}unknown'  # Unknown namespace should remain unchanged
+        tag = "{http://unknownnamespace.com}unknown"
+        expected = "{http://unknownnamespace.com}unknown"  # Unknown namespace should remain unchanged
         self.assertEqual(_tag_replace_namespace(tag, XML_NS_MAP), expected)

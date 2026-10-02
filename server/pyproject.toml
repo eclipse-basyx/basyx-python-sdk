@@ -27,23 +27,25 @@ authors = [
     { name = "The Eclipse BaSyx Authors", email = "admins@iat.rwth-aachen.de" }
 ]
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Development Status :: 5 - Production/Stable"
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "urllib3>=1.26,<3",
     "Werkzeug>=3.0.3,<4",
+    "basyx-python-sdk>=1.0.0" # TODO: declare proper cross-package dependencies (see issue #592)
 ]
 
 [project.optional-dependencies]
 dev = [
-    "mypy",
+    "mypy==1.15.0",
     "pycodestyle",
+    "ruff==0.16.0",
     "codeblocks",
     "schemathesis~=3.7",
     "jsonschema~=4.7",
@@ -58,7 +60,7 @@ dev = [
 packages = { find = { include = ["app*"], exclude = ["test*"] } }
 
 [tool.setuptools.package-data]
-app = ["py.typed"]
+app = ["py.typed", "config.toml"]
 
 [tool.mypy]
 exclude = "build/"

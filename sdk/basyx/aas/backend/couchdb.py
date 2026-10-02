@@ -11,20 +11,22 @@ in a CouchDB.
 The :class:`~CouchDBIdentifiableStore` handles adding, deleting and otherwise managing the AAS objects in a specific
 CouchDB.
 """
+
+import json
+import logging
 import threading
-import warnings
-import weakref
-from typing import Dict, Any, Optional, Iterator, Iterable, Tuple, MutableMapping
+import urllib.error
 import urllib.parse
 import urllib.request
-import urllib.error
-import logging
-import json
+import warnings
+import weakref
+from typing import Any, Dict, Iterable, Iterator, MutableMapping, Optional, Tuple
+
 import urllib3  # type: ignore
 
-from ..adapter.json import json_serialization, json_deserialization
 from basyx.aas import model
 
+from ..adapter.json import json_deserialization, json_serialization
 
 logger = logging.getLogger(__name__)
 _http_pool_manager = urllib3.PoolManager()
@@ -89,7 +91,9 @@ def delete_couchdb_revision(url: str):
         del _revision_store[url]
 
 
-class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model.Identifiable]):
+class CouchDBIdentifiableStore(
+    model.AbstractObjectStore[model.Identifier, model.Identifiable]
+):
     """
     An ObjectStore implementation for :class:`~basyx.aas.model.base.Identifiable` BaSyx Python SDK objects backed
     by a CouchDB database server.
@@ -99,6 +103,7 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
     objects are thread-safe, as long as no CouchDB credentials are added (via ``register_credentials()``) during
     transactions.
     """
+
     def __init__(self, url: str, database: str):
         """
         Initializer of class CouchDBIdentifiableStore
@@ -114,8 +119,9 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
         # local replication of each object is kept in the application and retrieving an object from the store always
         # returns the **same** (not only equal) object. Still, objects are forgotten, when they are not referenced
         # anywhere else to save memory.
-        self._object_cache: weakref.WeakValueDictionary[model.Identifier, model.Identifiable]\
-            = weakref.WeakValueDictionary()
+        self._object_cache: weakref.WeakValueDictionary[
+            model.Identifier, model.Identifiable
+        ] = weakref.WeakValueDictionary()
         self._object_cache_lock = threading.Lock()
 
     def check_database(self, create=False):
@@ -128,7 +134,7 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
         """
 
         try:
-            self._do_request("{}/{}".format(self.url, self.database_name), 'HEAD')
+            self._do_request("{}/{}".format(self.url, self.database_name), "HEAD")
         except CouchDBServerError as e:
             # If an HTTPError is raised, re-raise it, unless it is a 404 error and we are requested to create the
             # database
@@ -140,7 +146,7 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
 
         # Create database
         logger.info("Creating CouchDB database %s/%s ...", self.url, self.database_name)
-        self._do_request("{}/{}".format(self.url, self.database_name), 'PUT')
+        self._do_request("{}/{}".format(self.url, self.database_name), "PUT")
 
     def get_identifiable_by_couchdb_id(self, couchdb_id: str) -> model.Identifiable:
         """
@@ -154,18 +160,34 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
 
         try:
             data = self._do_request(
-                "{}/{}/{}".format(self.url, self.database_name, urllib.parse.quote(couchdb_id, safe='')))
+                "{}/{}/{}".format(
+                    self.url,
+                    self.database_name,
+                    urllib.parse.quote(couchdb_id, safe=""),
+                )
+            )
         except CouchDBServerError as e:
             if e.code == 404:
-                raise KeyError("No Identifiable with couchdb-id {} found in CouchDB database".format(couchdb_id)) from e
+                raise KeyError(
+                    "No Identifiable with couchdb-id {} found in CouchDB database".format(
+                        couchdb_id
+                    )
+                ) from e
             raise
 
-        obj = data['data']
+        obj = data["data"]
         if not isinstance(obj, model.Identifiable):
-            raise CouchDBResponseError("The CouchDB document with id {} does not contain an identifiable AAS object."
-                                       .format(couchdb_id))
-        set_couchdb_revision("{}/{}/{}".format(self.url, self.database_name, urllib.parse.quote(couchdb_id, safe='')),
-                             data["_rev"])
+            raise CouchDBResponseError(
+                "The CouchDB document with id {} does not contain an identifiable AAS object.".format(
+                    couchdb_id
+                )
+            )
+        set_couchdb_revision(
+            "{}/{}/{}".format(
+                self.url, self.database_name, urllib.parse.quote(couchdb_id, safe="")
+            ),
+            data["_rev"],
+        )
 
         with self._object_cache_lock:
             if obj.id in self._object_cache:
@@ -185,9 +207,15 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
             if identifier in self._object_cache:
                 return self._object_cache[identifier]
         try:
-            return self.get_identifiable_by_couchdb_id(self._transform_id(identifier, False))
+            return self.get_identifiable_by_couchdb_id(
+                self._transform_id(identifier, False)
+            )
         except KeyError as e:
-            raise KeyError("No Identifiable with id {} found in CouchDB database".format(identifier)) from e
+            raise KeyError(
+                "No Identifiable with id {} found in CouchDB database".format(
+                    identifier
+                )
+            ) from e
 
     def add(self, x: model.Identifiable) -> None:
         """
@@ -199,21 +227,32 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
         """
         logger.debug("Adding object %s to CouchDB database ...", repr(x))
         # Serialize data
-        data = json.dumps({'data': x}, cls=json_serialization.AASToJsonEncoder)
+        data = json.dumps({"data": x}, cls=json_serialization.AASToJsonEncoder)
 
         # Create and issue HTTP request (raises HTTPError on status != 200)
 
         try:
             response = self._do_request(
-                "{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.id)),
-                'PUT',
-                {'Content-type': 'application/json'},
-                data.encode('utf-8'))
-            set_couchdb_revision("{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.id)),
-                                 response["rev"])
+                "{}/{}/{}".format(
+                    self.url, self.database_name, self._transform_id(x.id)
+                ),
+                "PUT",
+                {"Content-type": "application/json"},
+                data.encode("utf-8"),
+            )
+            set_couchdb_revision(
+                "{}/{}/{}".format(
+                    self.url, self.database_name, self._transform_id(x.id)
+                ),
+                response["rev"],
+            )
         except CouchDBServerError as e:
             if e.code == 409:
-                raise KeyError("Identifiable with id {} already exists in CouchDB database".format(x.id)) from e
+                raise KeyError(
+                    "Identifiable with id {} already exists in CouchDB database".format(
+                        x.id
+                    )
+                ) from e
             raise
         with self._object_cache_lock:
             self._object_cache[x.id] = x
@@ -228,25 +267,36 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
         :raises CouchDBError: If error occur during the request to the CouchDB server
                               (see ``_do_request()`` for details)
         """
-        doc_url = "{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.id))
+        doc_url = "{}/{}/{}".format(
+            self.url, self.database_name, self._transform_id(x.id)
+        )
         rev = get_couchdb_revision(doc_url)
         if rev is None:
-            raise KeyError("No revision found for object with id {} — not fetched from this store".format(x.id))
-        data = json.dumps({'data': x}, cls=json_serialization.AASToJsonEncoder)
+            raise KeyError(
+                "No revision found for object with id {} — not fetched from this store".format(
+                    x.id
+                )
+            )
+        data = json.dumps({"data": x}, cls=json_serialization.AASToJsonEncoder)
         try:
             response = self._do_request(
                 "{}?rev={}".format(doc_url, rev),
-                'PUT',
-                {'Content-type': 'application/json'},
-                data.encode('utf-8'))
+                "PUT",
+                {"Content-type": "application/json"},
+                data.encode("utf-8"),
+            )
             set_couchdb_revision(doc_url, response["rev"])
         except CouchDBServerError as e:
             if e.code == 404:
-                raise KeyError("No AAS object with id {} exists in CouchDB database".format(x.id)) from e
+                raise KeyError(
+                    "No AAS object with id {} exists in CouchDB database".format(x.id)
+                ) from e
             elif e.code == 409:
                 raise CouchDBConflictError(
-                    "Object with id {} has been modified in the database since it was last fetched."
-                    .format(x.id)) from e
+                    "Object with id {} has been modified in the database since it was last fetched.".format(
+                        x.id
+                    )
+                ) from e
             raise
 
     def discard(self, x: model.Identifiable, safe_delete=False) -> None:
@@ -264,12 +314,14 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
                               (see ``_do_request()`` for details)
         """
         logger.debug("Deleting object %s from CouchDB database ...", repr(x))
-        rev = get_couchdb_revision("{}/{}/{}".format(self.url,
-                                                     self.database_name,
-                                                     self._transform_id(x.id)))
+        rev = get_couchdb_revision(
+            "{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.id))
+        )
 
         if rev is not None and safe_delete:
-            logger.debug("using the object's stored revision token %s for deletion." % rev)
+            logger.debug(
+                "using the object's stored revision token %s for deletion." % rev
+            )
         elif safe_delete:
             raise CouchDBConflictError("No CouchDBRevision found for the object")
         else:
@@ -278,34 +330,52 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
             try:
                 logger.debug("fetching the current object revision for deletion ...")
                 headers = self._do_request(
-                    "{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.id)), 'HEAD')
-                rev = headers['ETag'][1:-1]
+                    "{}/{}/{}".format(
+                        self.url, self.database_name, self._transform_id(x.id)
+                    ),
+                    "HEAD",
+                )
+                rev = headers["ETag"][1:-1]
             except CouchDBServerError as e:
                 if e.code == 404:
-                    raise KeyError("No AAS object with id {} exists in CouchDB database".format(x.id))\
-                        from e
+                    raise KeyError(
+                        "No AAS object with id {} exists in CouchDB database".format(
+                            x.id
+                        )
+                    ) from e
                 raise
         try:
             self._do_request(
-                "{}/{}/{}?rev={}".format(self.url, self.database_name, self._transform_id(x.id), rev),
-                'DELETE')
+                "{}/{}/{}?rev={}".format(
+                    self.url, self.database_name, self._transform_id(x.id), rev
+                ),
+                "DELETE",
+            )
         except CouchDBServerError as e:
             if e.code == 404:
-                raise KeyError("No AAS object with id {} exists in CouchDB database".format(x.id)) from e
+                raise KeyError(
+                    "No AAS object with id {} exists in CouchDB database".format(x.id)
+                ) from e
             elif e.code == 409:
                 raise CouchDBConflictError(
                     "Object with id {} has been modified in the database since "
-                    "the version requested to be deleted.".format(x.id)) from e
+                    "the version requested to be deleted.".format(x.id)
+                ) from e
             raise
-        delete_couchdb_revision("{}/{}/{}".format(self.url,
-                                                  self.database_name,
-                                                  self._transform_id(x.id)))
+        delete_couchdb_revision(
+            "{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.id))
+        )
         with self._object_cache_lock:
             del self._object_cache[x.id]
 
     @classmethod
-    def _do_request(cls, url: str, method: str = "GET", additional_headers: Dict[str, str] = {},
-                    body: Optional[bytes] = None) -> MutableMapping[str, Any]:
+    def _do_request(
+        cls,
+        url: str,
+        method: str = "GET",
+        additional_headers: Dict[str, str] = {},
+        body: Optional[bytes] = None,
+    ) -> MutableMapping[str, Any]:
         """
         Perform an HTTP(S) request to the CouchDBServer, parse the result and handle errors
 
@@ -320,46 +390,80 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
         url_parts = urllib.parse.urlparse(url)
         host = url_parts.scheme + url_parts.netloc
         auth = _credentials_store.get(host)
-        headers = urllib3.make_headers(keep_alive=True, accept_encoding=True,
-                                       basic_auth="{}:{}".format(*auth) if auth else None)
-        headers['Accept'] = 'application/json'
+        headers = urllib3.make_headers(
+            keep_alive=True,
+            accept_encoding=True,
+            basic_auth="{}:{}".format(*auth) if auth else None,
+        )
+        headers["Accept"] = "application/json"
         headers.update(additional_headers)
         try:
-            response = _http_pool_manager.request(method, url, headers=headers, body=body)
-        except (urllib3.exceptions.TimeoutError, urllib3.exceptions.SSLError, urllib3.exceptions.ProtocolError) as e:
-            raise CouchDBConnectionError("Error while connecting to the CouchDB server: {}".format(e)) from e
+            response = _http_pool_manager.request(
+                method, url, headers=headers, body=body
+            )
+        except (
+            urllib3.exceptions.TimeoutError,
+            urllib3.exceptions.SSLError,
+            urllib3.exceptions.ProtocolError,
+        ) as e:
+            raise CouchDBConnectionError(
+                "Error while connecting to the CouchDB server: {}".format(e)
+            ) from e
         except urllib3.exceptions.HTTPError as e:
-            raise CouchDBResponseError("Error while connecting to the CouchDB server: {}".format(e)) from e
+            raise CouchDBResponseError(
+                "Error while connecting to the CouchDB server: {}".format(e)
+            ) from e
 
         if not (200 <= response.status < 300):
-            logger.debug("Request %s %s finished with HTTP status code %s.",
-                         method, url, response.status)
-            if response.headers.get('Content-type', None) != 'application/json':
-                raise CouchDBResponseError("Unexpected Content-type header {} of response from CouchDB server"
-                                           .format(response.headers.get('Content-type', None)))
+            logger.debug(
+                "Request %s %s finished with HTTP status code %s.",
+                method,
+                url,
+                response.status,
+            )
+            if response.headers.get("Content-type", None) != "application/json":
+                raise CouchDBResponseError(
+                    "Unexpected Content-type header {} of response from CouchDB server".format(
+                        response.headers.get("Content-type", None)
+                    )
+                )
 
-            if method == 'HEAD':
-                raise CouchDBServerError(response.status, "", "", "HTTP {}".format(response.status))
+            if method == "HEAD":
+                raise CouchDBServerError(
+                    response.status, "", "", "HTTP {}".format(response.status)
+                )
 
             try:
-                data = json.loads(response.data.decode('utf-8'))
+                data = json.loads(response.data.decode("utf-8"))
             except json.JSONDecodeError:
-                raise CouchDBResponseError("Could not parse error message of HTTP {}"
-                                           .format(response.status))
-            raise CouchDBServerError(response.status, data['error'], data['reason'],
-                                     "HTTP {}: {} (reason: {})".format(response.status, data['error'], data['reason']))
+                raise CouchDBResponseError(
+                    "Could not parse error message of HTTP {}".format(response.status)
+                )
+            raise CouchDBServerError(
+                response.status,
+                data["error"],
+                data["reason"],
+                "HTTP {}: {} (reason: {})".format(
+                    response.status, data["error"], data["reason"]
+                ),
+            )
 
         # Check response & parse data
         logger.debug("Request %s %s finished successfully.", method, url)
-        if method == 'HEAD':
+        if method == "HEAD":
             return response.headers
 
-        if response.headers.get('Content-type') != 'application/json':
+        if response.headers.get("Content-type") != "application/json":
             raise CouchDBResponseError("Unexpected Content-type header")
         try:
-            data = json.loads(response.data.decode('utf-8'), cls=json_deserialization.AASFromJsonDecoder)
+            data = json.loads(
+                response.data.decode("utf-8"),
+                cls=json_deserialization.AASFromJsonDecoder,
+            )
         except json.JSONDecodeError as e:
-            raise CouchDBResponseError("Could not parse CouchDB server response as JSON data.") from e
+            raise CouchDBResponseError(
+                "Could not parse CouchDB server response as JSON data."
+            ) from e
         return data
 
     def __contains__(self, x: object) -> bool:
@@ -383,7 +487,11 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
 
         try:
             self._do_request(
-                "{}/{}/{}".format(self.url, self.database_name, self._transform_id(identifier)), 'HEAD')
+                "{}/{}/{}".format(
+                    self.url, self.database_name, self._transform_id(identifier)
+                ),
+                "HEAD",
+            )
         except CouchDBServerError as e:
             if e.code == 404:
                 return False
@@ -400,7 +508,7 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
         """
         logger.debug("Fetching number of documents from database ...")
         data = self._do_request("{}/{}".format(self.url, self.database_name))
-        return data['doc_count']
+        return data["doc_count"]
 
     def __iter__(self) -> Iterator[model.Identifiable]:
         """
@@ -412,6 +520,7 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
         :raises CouchDBError: If error occur during fetching the list of objects from the CouchDB server (see
                               ``_do_request()`` for details)
         """
+
         # Iterator class storing the list of ids and fetching Identifiable objects on the fly
         class CouchDBIdentifiableIterator(Iterator[model.Identifiable]):
             def __init__(self, store: CouchDBIdentifiableStore, ids: Iterable[str]):
@@ -425,7 +534,7 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
         # Fetch a list of all ids and construct Iterator object
         logger.debug("Creating iterator over objects in database ...")
         data = self._do_request("{}/{}/_all_docs".format(self.url, self.database_name))
-        return CouchDBIdentifiableIterator(self, (row['id'] for row in data['rows']))
+        return CouchDBIdentifiableIterator(self, (row["id"] for row in data["rows"]))
 
     @staticmethod
     def _transform_id(identifier: model.Identifier, url_quote=True) -> str:
@@ -435,7 +544,7 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
         :param url_quote: If True, the result id string is url-encoded to be used in an HTTP request URL
         """
         if url_quote:
-            identifier = urllib.parse.quote(identifier, safe='')
+            identifier = urllib.parse.quote(identifier, safe="")
         return identifier
 
 
@@ -444,6 +553,7 @@ class CouchDBObjectStore(CouchDBIdentifiableStore):
     `CouchDBObjectStore` has been renamed to :class:`~.CouchDBIdentifiableStore` and will be removed in a
     future release. Please migrate to :class:`~.CouchDBIdentifiableStore`.
     """
+
     def __init__(self, url: str, database: str):
         warnings.warn(
             "`CouchDBObjectStore` is deprecated and will be removed in a future release. Use "
@@ -465,23 +575,25 @@ class CouchDBObjectStore(CouchDBIdentifiableStore):
 # #################################################################################################
 # Custom Exception classes for reporting errors during interaction with the CouchDB server
 
+
 class CouchDBError(Exception):
     pass
 
 
 class CouchDBConnectionError(CouchDBError):
     """Exception raised when the CouchDB server could not be reached"""
-    pass
+
 
 
 class CouchDBResponseError(CouchDBError):
     """Exception raised by when an HTTP of the CouchDB server could not be handled (e.g.
     no JSON body)"""
-    pass
+
 
 
 class CouchDBServerError(CouchDBError):
     """Exception raised when the CouchDB server returns an unexpected error code"""
+
     def __init__(self, code: int, error: str, reason: str, *args):
         super().__init__(*args)
         self.code = code
@@ -491,4 +603,4 @@ class CouchDBServerError(CouchDBError):
 
 class CouchDBConflictError(CouchDBError):
     """Exception raised when an object could not be committed due to a concurrent modification in the database"""
-    pass
+

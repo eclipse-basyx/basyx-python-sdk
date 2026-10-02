@@ -1,11 +1,17 @@
-import io
-from typing import Literal, Type, Optional
+# Copyright (c) 2026 the Eclipse BaSyx Authors
+#
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
+#
+# SPDX-License-Identifier: MIT
+
 import datetime
+import io
 import logging
+from typing import Literal, Optional, Type
 
 import pyecma376_2
-
-from basyx.aas.examples.data import create_example_aas_binding, TEST_PDF_FILE
+from basyx.aas.examples.data import TEST_PDF_FILE, create_example_aas_binding
 
 
 def create_example_aas_core_properties() -> pyecma376_2.OPCCoreProperties:

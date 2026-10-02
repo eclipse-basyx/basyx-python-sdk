@@ -1,5 +1,8 @@
 # Contributing Guide
 
+> [!NOTE] 
+> To contribute code, you must sign the [Eclipse Contributor Agreement (ECA)](#eclipse-contributor-agreement-eca).
+
 Thank you for investing your time in contributing to the Eclipse-BaSyx-Python SDK!
 
 In this guide you will get an overview of the contribution workflow from opening an
@@ -43,9 +46,7 @@ Please include a short paragraph on each of
 Additionally, if you have ideas on how to address the issue, please include them here!
 
 ## Contribute Changes
-
-Here's the standard workflow to contribute changes to Eclipse-BaSyx-Python.
-
+### Eclipse Contributor Agreement (ECA)
 Before contributing, please make sure, you fill out
 the [Eclipse Contributor Agreement (ECA)](https://www.eclipse.org/legal/ECA.php). This
 is done by creating an Eclipse account for your git e-mail address and then submitting
@@ -53,6 +54,8 @@ the following
 form: [https://accounts.eclipse.org/user/eca](https://accounts.eclipse.org/user/eca).
 The E-Mail address used to sign the ECA is the same one that needs to be used for
 committing.
+
+### Workflow
 
 After this, the workflow to submit contributions to Eclipse-BaSyx-Python is pretty
 standard, as the picture (based
@@ -143,6 +146,8 @@ before new code can be added:
 - We run the developed unittests and aim for a code coverage of at least 80%.
 - We perform static code analysis for type-checking and codestyle, not just in the code itself, but also in codeblocks 
   that are inside docstrings and the `README.md`.
+- We apply a set of [ruff](https://docs.astral.sh/ruff/) linter rules (see [ruff.toml](ruff.toml)) to ensure a certain 
+  codestyle and prevent issues / bad practices to arise.
 - We check that the automatically generated developer documentation compiles.
 - We check that the Python Versions we support match between the different subprojects in the monorepository and are 
   not End of Life.
@@ -164,8 +169,8 @@ pip install .[dev]
 
 Running all checks:
 ```bash
+ruff check
 mypy basyx test
-pycodestyle --max-line-length 120 basyx test
 python -m unittest
 coverage run --source basyx --branch -m unittest
 coverage report -m
@@ -175,7 +180,7 @@ We aim to cover our code with tests by at least 80%.
 
 This should help you sort out the most important bugs in your code.
 Note that there are more checks that run in the CI once you open a Pull Request.
-If you want to run the additional checks, please refer to the [CI definition](./.github/workflows/ci.yml).
+If you want to run the additional checks, please refer to the [CI definition](./.github/workflows/pr.yml).
 
 ### Testing the Server
 Currently, the automated server tests are still under development. 
@@ -183,11 +188,13 @@ To test that the server is working, we expect to at least be able to build the d
 of it without error. 
 
 For that, you need to have Docker installed on your system. 
-In the directory with the `Dockerfile`: 
+In the `server` directory: 
 ```bash
-docker build -t basyx-python-server .
-docker run --name basyx-python-server basyx-python-server
+ruff check
+docker build -t basyx-python-repository -f docker/repository/Dockerfile --build-context sdk=../sdk --build-context license=.. .
+docker run --name basyx-python-repository basyx-python-repository
 ```
+Replace `repository` with `discovery` or `registry` to test the other server profiles.
 Wait until you see the line:
 ```
 INFO success: quit_on_failure entered RUNNING state
@@ -204,8 +211,8 @@ itself.
 
 Then you can run the checks via:
 ```bash
+ruff check
 mypy basyx test
-pycodestyle --max-line-length 120 basyx test
 python -m unittest
 coverage run --source basyx --branch -m unittest
 coverage report -m
@@ -214,4 +221,4 @@ coverage report -m
 We aim to cover our code with tests by at least 80%.
 This should help you sort out the most important bugs in your code.
 Note that there are more checks that run in the CI once you open a Pull Request.
-If you want to run the additional checks, please refer to the [CI definition](./.github/workflows/ci.yml).
+If you want to run the additional checks, please refer to the [CI definition](./.github/workflows/pr.yml).

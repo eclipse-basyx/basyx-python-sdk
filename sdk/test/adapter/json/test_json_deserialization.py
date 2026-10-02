@@ -11,13 +11,20 @@ Deserialization is also somehow tested in the serialization tests -- at least, w
 when trying to reconstruct the serialized data structure. This module additionally tests error behaviour and verifies
 deserialization results.
 """
+
 import io
 import json
 import logging
 import unittest
-from basyx.aas.adapter.json import AASFromJsonDecoder, StrictAASFromJsonDecoder, StrictStrippedAASFromJsonDecoder, \
-    read_aas_json_file, read_aas_json_file_into
+
 from basyx.aas import model
+from basyx.aas.adapter.json import (
+    AASFromJsonDecoder,
+    StrictAASFromJsonDecoder,
+    StrictStrippedAASFromJsonDecoder,
+    read_aas_json_file,
+    read_aas_json_file_into,
+)
 
 
 class JsonDeserializationTest(unittest.TestCase):
@@ -37,8 +44,11 @@ class JsonDeserializationTest(unittest.TestCase):
                     }
                 ]
             }"""
-        with self.assertRaisesRegex(TypeError, r"AssetAdministrationShell.* was "
-                                               r"in the wrong list 'submodels'"):
+        with self.assertRaisesRegex(
+            TypeError,
+            r"AssetAdministrationShell.* was "
+            r"in the wrong list 'submodels'",
+        ):
             read_aas_json_file(io.StringIO(data), failsafe=False)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
             read_aas_json_file(io.StringIO(data), failsafe=True)
@@ -166,7 +176,9 @@ class JsonDeserializationTest(unittest.TestCase):
         sm_id = "http://example.org/test_submodel"
 
         def get_clean_store() -> model.DictIdentifiableStore:
-            store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+            store: model.DictIdentifiableStore[model.Identifiable] = (
+                model.DictIdentifiableStore()
+            )
             submodel_ = model.Submodel(sm_id, id_short="test123")
             store.add(submodel_)
             return store
@@ -198,7 +210,10 @@ class JsonDeserializationTest(unittest.TestCase):
         identifiable_store = get_clean_store()
         with self.assertLogs(logging.getLogger(), level=logging.INFO) as log_ctx:
             identifiers = read_aas_json_file_into(
-                identifiable_store, string_io, replace_existing=False, ignore_existing=True
+                identifiable_store,
+                string_io,
+                replace_existing=False,
+                ignore_existing=True,
             )
         self.assertEqual(len(identifiers), 0)
         self.assertIn("already exists in store", log_ctx.output[0])  # type: ignore
@@ -210,8 +225,12 @@ class JsonDeserializationTest(unittest.TestCase):
 
         identifiable_store = get_clean_store()
         with self.assertRaisesRegex(KeyError, r"already exists in store"):
-            identifiers = read_aas_json_file_into(identifiable_store, string_io, replace_existing=False,
-                                                  ignore_existing=False)
+            identifiers = read_aas_json_file_into(
+                identifiable_store,
+                string_io,
+                replace_existing=False,
+                ignore_existing=False,
+            )
         self.assertEqual(len(identifiers), 0)
         submodel = identifiable_store.pop()
         self.assertIsInstance(submodel, model.Submodel)

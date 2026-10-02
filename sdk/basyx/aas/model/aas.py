@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -9,9 +9,9 @@ The main module of the AAS metamodel. It is used to define the class structures 
 AssetAdministrationShell.
 """
 
-from typing import Optional, Set, Iterable, List
+from typing import Iterable, List, Optional, Set
 
-from . import base, _string_constraints
+from . import _string_constraints, base
 from .submodel import Submodel
 
 
@@ -49,22 +49,26 @@ class AssetInformation:
     :ivar default_thumbnail: Thumbnail of the asset represented by the asset administration shell. Used as default.
     """
 
-    def __init__(self,
-                 asset_kind: base.AssetKind = base.AssetKind.INSTANCE,
-                 global_asset_id: Optional[base.Identifier] = None,
-                 specific_asset_id: Iterable[base.SpecificAssetId] = (),
-                 asset_type: Optional[base.Identifier] = None,
-                 default_thumbnail: Optional[base.Resource] = None):
+    def __init__(
+        self,
+        asset_kind: base.AssetKind = base.AssetKind.INSTANCE,
+        global_asset_id: Optional[base.Identifier] = None,
+        specific_asset_id: Iterable[base.SpecificAssetId] = (),
+        asset_type: Optional[base.Identifier] = None,
+        default_thumbnail: Optional[base.Resource] = None,
+    ):
 
         super().__init__()
         self.asset_kind: base.AssetKind = asset_kind
         self.asset_type: Optional[base.Identifier] = asset_type
         self.default_thumbnail: Optional[base.Resource] = default_thumbnail
         # assign private attributes, bypassing setters, as constraints will be checked below
-        self._specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = base.ConstrainedList(
-            specific_asset_id,
-            item_set_hook=self._check_constraint_set_spec_asset_id,
-            item_del_hook=self._check_constraint_del_spec_asset_id
+        self._specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = (
+            base.ConstrainedList(
+                specific_asset_id,
+                item_set_hook=self._check_constraint_set_spec_asset_id,
+                item_del_hook=self._check_constraint_del_spec_asset_id,
+            )
         )
         self._global_asset_id: Optional[base.Identifier] = global_asset_id
         self._validate_global_asset_id(global_asset_id)
@@ -85,18 +89,26 @@ class AssetInformation:
         return self._specific_asset_id
 
     @specific_asset_id.setter
-    def specific_asset_id(self, specific_asset_id: Iterable[base.SpecificAssetId]) -> None:
+    def specific_asset_id(
+        self, specific_asset_id: Iterable[base.SpecificAssetId]
+    ) -> None:
         # constraints are checked via _check_constraint_set_spec_asset_id() in this case
         self._specific_asset_id[:] = specific_asset_id
 
-    def _check_constraint_set_spec_asset_id(self, items_to_replace: List[base.SpecificAssetId],
-                                            new_items: List[base.SpecificAssetId],
-                                            old_list: List[base.SpecificAssetId]) -> None:
-        self._validate_aasd_131(self.global_asset_id,
-                                len(old_list) - len(items_to_replace) + len(new_items) > 0)
+    def _check_constraint_set_spec_asset_id(
+        self,
+        items_to_replace: List[base.SpecificAssetId],
+        new_items: List[base.SpecificAssetId],
+        old_list: List[base.SpecificAssetId],
+    ) -> None:
+        self._validate_aasd_131(
+            self.global_asset_id,
+            len(old_list) - len(items_to_replace) + len(new_items) > 0,
+        )
 
-    def _check_constraint_del_spec_asset_id(self, _item_to_del: base.SpecificAssetId,
-                                            old_list: List[base.SpecificAssetId]) -> None:
+    def _check_constraint_del_spec_asset_id(
+        self, _item_to_del: base.SpecificAssetId, old_list: List[base.SpecificAssetId]
+    ) -> None:
         self._validate_aasd_131(self.global_asset_id, len(old_list) > 1)
 
     @staticmethod
@@ -105,20 +117,33 @@ class AssetInformation:
             _string_constraints.check_identifier(global_asset_id)
 
     @staticmethod
-    def _validate_aasd_131(global_asset_id: Optional[base.Identifier], specific_asset_id_nonempty: bool) -> None:
+    def _validate_aasd_131(
+        global_asset_id: Optional[base.Identifier], specific_asset_id_nonempty: bool
+    ) -> None:
         if global_asset_id is None and not specific_asset_id_nonempty:
-            raise base.AASConstraintViolation(131,
-                                              "An AssetInformation has to have a globalAssetId or a specificAssetId")
+            raise base.AASConstraintViolation(
+                131,
+                "An AssetInformation has to have a globalAssetId or a specificAssetId",
+            )
         if global_asset_id is not None:
             _string_constraints.check_identifier(global_asset_id)
 
     def __repr__(self) -> str:
-        return "AssetInformation(assetKind={}, globalAssetId={}, specificAssetId={}, assetType={}, " \
-               "defaultThumbnail={})".format(self.asset_kind, self._global_asset_id, str(self.specific_asset_id),
-                                             self.asset_type, str(self.default_thumbnail))
+        return (
+            "AssetInformation(assetKind={}, globalAssetId={}, specificAssetId={}, assetType={}, "
+            "defaultThumbnail={})".format(
+                self.asset_kind,
+                self._global_asset_id,
+                str(self.specific_asset_id),
+                self.asset_type,
+                str(self.default_thumbnail),
+            )
+        )
 
 
-class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace, base.HasDataSpecification):
+class AssetAdministrationShell(
+    base.Identifiable, base.UniqueIdShortNamespace, base.HasDataSpecification
+):
     """
     An Asset Administration Shell
 
@@ -145,20 +170,22 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace, b
     :ivar extension: An extension of the element.
                      (from :class:`~basyx.aas.model.base.HasExtension`)
     """
-    def __init__(self,
-                 asset_information: AssetInformation,
-                 id_: base.Identifier,
-                 id_short: Optional[base.NameType] = None,
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 administration: Optional[base.AdministrativeInformation] = None,
-                 submodel: Optional[Set[base.ModelReference[Submodel]]] = None,
-                 derived_from: Optional[base.ModelReference["AssetAdministrationShell"]] = None,
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification]
-                 = (),
-                 extension: Iterable[base.Extension] = ()):
+
+    def __init__(
+        self,
+        asset_information: AssetInformation,
+        id_: base.Identifier,
+        id_short: Optional[base.NameType] = None,
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        administration: Optional[base.AdministrativeInformation] = None,
+        submodel: Optional[Set[base.ModelReference[Submodel]]] = None,
+        derived_from: Optional[base.ModelReference["AssetAdministrationShell"]] = None,
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+        extension: Iterable[base.Extension] = (),
+    ):
         super().__init__()
         self.id: base.Identifier = id_
         self.asset_information: AssetInformation = asset_information
@@ -168,7 +195,13 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace, b
         self.description: Optional[base.MultiLanguageTextType] = description
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
-        self.derived_from: Optional[base.ModelReference["AssetAdministrationShell"]] = derived_from
-        self.submodel: Set[base.ModelReference[Submodel]] = set() if submodel is None else submodel
-        self.embedded_data_specifications: List[base.EmbeddedDataSpecification] = list(embedded_data_specifications)
+        self.derived_from: Optional[base.ModelReference["AssetAdministrationShell"]] = (
+            derived_from
+        )
+        self.submodel: Set[base.ModelReference[Submodel]] = (
+            set() if submodel is None else submodel
+        )
+        self.embedded_data_specifications: List[base.EmbeddedDataSpecification] = list(
+            embedded_data_specifications
+        )
         self.extension = base.NamespaceSet(self, [("name", True)], extension)

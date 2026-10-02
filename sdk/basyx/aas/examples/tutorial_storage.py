@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 the Eclipse BaSyx Authors
+#
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
+#
+# SPDX-License-Identifier: MIT
+
 # This work is licensed under a Creative Commons CCZero 1.0 Universal License.
 # See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
 """
@@ -18,10 +25,8 @@ these identifiables by id and resolving references.
 # Step 3: retrieving objects from the store by their identifier
 # Step 4: using the IdentifiableStore to resolve a reference
 
-
 from basyx.aas import model
-from basyx.aas.model import AssetInformation, AssetAdministrationShell, Submodel
-
+from basyx.aas.model import AssetAdministrationShell, AssetInformation, Submodel
 
 ######################################################################################
 # Step 1: Creating AssetInformation, Submodel and Asset Administration Shell objects #
@@ -31,28 +36,27 @@ from basyx.aas.model import AssetInformation, AssetAdministrationShell, Submodel
 
 asset_information = AssetInformation(
     asset_kind=model.AssetKind.INSTANCE,
-    global_asset_id='http://example.org/Simple_Asset'
+    global_asset_id="http://example.org/Simple_Asset",
 )
 
 prop = model.Property(
-    id_short='ExampleProperty',
+    id_short="ExampleProperty",
     value_type=model.datatypes.String,
-    value='exampleValue',
+    value="exampleValue",
     semantic_id=model.ExternalReference(
-        (model.Key(
-            type_=model.KeyTypes.GLOBAL_REFERENCE,
-            value='http://example.org/Properties/SimpleProperty'
-        ),)
-    )
+        (
+            model.Key(
+                type_=model.KeyTypes.GLOBAL_REFERENCE,
+                value="http://example.org/Properties/SimpleProperty",
+            ),
+        )
+    ),
 )
-submodel = Submodel(
-    id_='https://example.org/Simple_Submodel',
-    submodel_element={prop}
-)
+submodel = Submodel(id_="https://example.org/Simple_Submodel", submodel_element={prop})
 aas = AssetAdministrationShell(
-    id_='https://example.org/Simple_AAS',
+    id_="https://example.org/Simple_AAS",
     asset_information=asset_information,
-    submodel={model.ModelReference.from_referable(submodel)}
+    submodel={model.ModelReference.from_referable(submodel)},
 )
 
 
@@ -69,7 +73,9 @@ aas = AssetAdministrationShell(
 # `aas.backends.couchdb` to use a CouchDB database server as persistent storage. Both ObjectStore implementations
 # provide the same interface. In addition, the CouchDBIdentifiableStore allows synchronizing the local object with the
 # database via a Backend. See the `tutorial_backend_couchdb.py` for more information.
-identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+identifiable_store: model.DictIdentifiableStore[model.Identifiable] = (
+    model.DictIdentifiableStore()
+)
 
 # step 2.2: add submodel and asset administration shell to store
 identifiable_store.add(submodel)
@@ -80,8 +86,7 @@ identifiable_store.add(aas)
 # Step 3: Retrieving Objects From the Store by Their Identifier #
 #################################################################
 
-tmp_submodel = identifiable_store.get_item(
-    'https://example.org/Simple_Submodel')
+tmp_submodel = identifiable_store.get_item("https://example.org/Simple_Submodel")
 
 assert submodel is tmp_submodel
 
@@ -92,8 +97,7 @@ assert submodel is tmp_submodel
 
 # The `aas` object already contains a reference to the submodel.
 # Let's create a list of all submodels, to which the AAS has references, by resolving each of the submodel references:
-submodels = [reference.resolve(identifiable_store)
-             for reference in aas.submodel]
+submodels = [reference.resolve(identifiable_store) for reference in aas.submodel]
 
 # The first (and only) element of this list should be our example submodel:
 assert submodel is submodels[0]
@@ -102,14 +106,13 @@ assert submodel is submodels[0]
 # identifying the submodel by its id, the second one resolving to the Property within the submodel by its
 # idShort.
 property_reference = model.ModelReference(
-    (model.Key(
-        type_=model.KeyTypes.SUBMODEL,
-        value='https://example.org/Simple_Submodel'),
-     model.Key(
-         type_=model.KeyTypes.PROPERTY,
-         value='ExampleProperty'),
-     ),
-    type_=model.Property
+    (
+        model.Key(
+            type_=model.KeyTypes.SUBMODEL, value="https://example.org/Simple_Submodel"
+        ),
+        model.Key(type_=model.KeyTypes.PROPERTY, value="ExampleProperty"),
+    ),
+    type_=model.Property,
 )
 
 # Now, we can resolve this new reference.

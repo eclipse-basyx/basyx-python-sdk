@@ -7,12 +7,10 @@
 import gc
 import os.path
 import shutil
-
 from unittest import TestCase
 
 from basyx.aas.backend import local_file
 from basyx.aas.examples.data.example_aas import *
-
 
 store_path: str = os.path.dirname(__file__) + "/local_file_test_folder"
 source_core: str = "file://localhost/{}/".format(store_path)
@@ -40,12 +38,16 @@ class LocalFileBackendTest(TestCase):
         self.identifiable_store.add(test_object)
 
         # When retrieving the object, we should get the *same* instance as we added
-        test_object_retrieved = self.identifiable_store.get_item('https://example.org/Test_Submodel')
+        test_object_retrieved = self.identifiable_store.get_item(
+            "https://example.org/Test_Submodel"
+        )
         self.assertIs(test_object, test_object_retrieved)
 
         # When retrieving it again, we should still get the same object
         del test_object
-        test_object_retrieved_again = self.identifiable_store.get_item('https://example.org/Test_Submodel')
+        test_object_retrieved_again = self.identifiable_store.get_item(
+            "https://example.org/Test_Submodel"
+        )
         self.assertIs(test_object_retrieved, test_object_retrieved_again)
 
     def test_example_submodel_storing(self) -> None:
@@ -57,8 +59,10 @@ class LocalFileBackendTest(TestCase):
         self.assertIn(example_submodel, self.identifiable_store)
 
         # Restore example submodel and check data
-        submodel_restored = self.identifiable_store.get_item('https://example.org/Test_Submodel')
-        assert (isinstance(submodel_restored, model.Submodel))
+        submodel_restored = self.identifiable_store.get_item(
+            "https://example.org/Test_Submodel"
+        )
+        assert isinstance(submodel_restored, model.Submodel)
         checker = AASDataChecker(raise_immediately=True)
         check_example_submodel(checker, submodel_restored)
 
@@ -95,9 +99,9 @@ class LocalFileBackendTest(TestCase):
         self.assertEqual(5, len(self.identifiable_store))
 
         # Iterate objects, add them to a DictIdentifiableStore and check them
-        retrieved_data_store: model.provider.DictIdentifiableStore[model.Identifiable] = (
-            model.provider.DictIdentifiableStore()
-        )
+        retrieved_data_store: model.provider.DictIdentifiableStore[
+            model.Identifiable
+        ] = model.provider.DictIdentifiableStore()
         for item in self.identifiable_store:
             retrieved_data_store.add(item)
         checker = AASDataChecker(raise_immediately=True)
@@ -109,23 +113,33 @@ class LocalFileBackendTest(TestCase):
         self.identifiable_store.add(example_submodel)
         with self.assertRaises(KeyError) as cm:
             self.identifiable_store.add(example_submodel)
-        self.assertEqual("'Identifiable with id https://example.org/Test_Submodel already exists in "
-                         "local file database'", str(cm.exception))
+        self.assertEqual(
+            "'Identifiable with id https://example.org/Test_Submodel already exists in "
+            "local file database'",
+            str(cm.exception),
+        )
 
         # Querying a deleted object should raise a KeyError
-        retrieved_submodel = self.identifiable_store.get_item('https://example.org/Test_Submodel')
+        retrieved_submodel = self.identifiable_store.get_item(
+            "https://example.org/Test_Submodel"
+        )
         self.identifiable_store.discard(example_submodel)
         with self.assertRaises(KeyError) as cm:
-            self.identifiable_store.get_item('https://example.org/Test_Submodel')
-        self.assertEqual("'No Identifiable with id https://example.org/Test_Submodel "
-                         "found in local file database'",
-                         str(cm.exception))
+            self.identifiable_store.get_item("https://example.org/Test_Submodel")
+        self.assertEqual(
+            "'No Identifiable with id https://example.org/Test_Submodel "
+            "found in local file database'",
+            str(cm.exception),
+        )
 
         # Double deleting should also raise a KeyError
         with self.assertRaises(KeyError) as cm:
             self.identifiable_store.discard(retrieved_submodel)
-        self.assertEqual("'No AAS object with id https://example.org/Test_Submodel exists in "
-                         "local file database'", str(cm.exception))
+        self.assertEqual(
+            "'No AAS object with id https://example.org/Test_Submodel exists in "
+            "local file database'",
+            str(cm.exception),
+        )
 
     def test_add_and_len_consistent(self) -> None:
         # Each add() must increment len() by exactly 1
@@ -156,29 +170,35 @@ class LocalFileBackendTest(TestCase):
 
     def test_mutation_persistence(self) -> None:
         submodel = model.Submodel(
-            id_='https://example.org/MutationTest',
+            id_="https://example.org/MutationTest",
             submodel_element={
-                model.Property(id_short='Prop', value_type=model.datatypes.String, value='before')
-            }
+                model.Property(
+                    id_short="Prop", value_type=model.datatypes.String, value="before"
+                )
+            },
         )
         self.identifiable_store.add(submodel)
 
-        retrieved = self.identifiable_store.get_item('https://example.org/MutationTest')
+        retrieved = self.identifiable_store.get_item("https://example.org/MutationTest")
         assert isinstance(retrieved, model.Submodel)
-        prop = retrieved.get_referable(['Prop'])
+        prop = retrieved.get_referable(["Prop"])
         assert isinstance(prop, model.Property)
-        prop.update_from(model.Property(id_short='Prop', value_type=model.datatypes.String, value='after'))
+        prop.update_from(
+            model.Property(
+                id_short="Prop", value_type=model.datatypes.String, value="after"
+            )
+        )
         self.identifiable_store.commit(retrieved)
 
         # Drop all strong references to evict the WeakValueDictionary cache
         del submodel, retrieved, prop
         gc.collect()
 
-        fresh = self.identifiable_store.get_item('https://example.org/MutationTest')
+        fresh = self.identifiable_store.get_item("https://example.org/MutationTest")
         assert isinstance(fresh, model.Submodel)
-        fresh_prop = fresh.get_referable(['Prop'])
+        fresh_prop = fresh.get_referable(["Prop"])
         assert isinstance(fresh_prop, model.Property)
-        self.assertEqual('after', fresh_prop.value)
+        self.assertEqual("after", fresh_prop.value)
 
     def test_reload_discard(self) -> None:
         # Load example submodel

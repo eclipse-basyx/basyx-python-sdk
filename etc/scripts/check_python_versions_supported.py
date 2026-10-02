@@ -1,12 +1,21 @@
+# Copyright (c) 2026 the Eclipse BaSyx Authors
+#
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
+#
+# SPDX-License-Identifier: MIT
+
 """
 This helper script checks that the provided `min_version` and `max_version` are supported and released, respectively,
 using the API from the great https://github.com/endoflife-date/endoflife.date project.
 """
 import argparse
 import sys
+from datetime import datetime
+
 import requests
 from packaging.version import InvalidVersion
-from datetime import datetime
+
 
 def main(min_version: str, max_version: str) -> None:
     # Fetch supported Python versions and check min/max versions

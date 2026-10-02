@@ -1,3 +1,10 @@
+# Copyright (c) 2026 the Eclipse BaSyx Authors
+#
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
+#
+# SPDX-License-Identifier: MIT
+
 from __future__ import absolute_import
 
 import abc
@@ -41,7 +48,6 @@ class Descriptor(model.HasExtension, metaclass=abc.ABCMeta):
 
 
 class SubmodelDescriptor(Descriptor):
-
     def __init__(
         self,
         id_: model.Identifier,
@@ -63,7 +69,6 @@ class SubmodelDescriptor(Descriptor):
 
 
 class AssetAdministrationShellDescriptor(Descriptor):
-
     def __init__(
         self,
         id_: model.Identifier,

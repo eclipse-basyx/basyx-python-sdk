@@ -1,10 +1,17 @@
+# Copyright (c) 2026 the Eclipse BaSyx Authors
+#
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
+#
+# SPDX-License-Identifier: MIT
+
 """
 This module implements the Registry interface defined in the
 'Specification of the Asset Administration Shell Part 2
 – Application Programming Interface'.
 """
 
-from typing import Dict, Iterator, Tuple, Type, Optional
+from typing import Dict, Iterator, Optional, Tuple, Type
 
 import werkzeug.exceptions
 import werkzeug.routing
@@ -16,20 +23,23 @@ from werkzeug.routing import MapAdapter, Rule, Submount
 from werkzeug.wrappers import Request, Response
 
 import app.model as server_model
-from app.interfaces.base import APIResponse, HTTPApiDecoder, ObjectStoreWSGIApp, is_stripped_request, PagingMetadata
-from app.model import DictDescriptorStore, ServiceSpecificationProfileEnum, ServiceDescription
+from app._config import API_BASE_PATH
+from app.interfaces.base import APIResponse, HTTPApiDecoder, ObjectStoreWSGIApp, PagingMetadata, is_stripped_request
+from app.model import DictDescriptorStore, ServiceDescription, ServiceSpecificationProfileEnum
 from app.util.converters import IdentifierToBase64URLConverter, base64url_decode
 
-SUPPORTED_PROFILES: ServiceDescription = ServiceDescription([
-    ServiceSpecificationProfileEnum.AAS_REGISTRY_FULL,
-    ServiceSpecificationProfileEnum.SUBMODEL_REGISTRY_FULL,
-    ServiceSpecificationProfileEnum.AAS_REGISTRY_READ,
-    ServiceSpecificationProfileEnum.SUBMODEL_REGISTRY_READ,
-])
+SUPPORTED_PROFILES: ServiceDescription = ServiceDescription(
+    [
+        ServiceSpecificationProfileEnum.AAS_REGISTRY_FULL,
+        ServiceSpecificationProfileEnum.SUBMODEL_REGISTRY_FULL,
+        ServiceSpecificationProfileEnum.AAS_REGISTRY_READ,
+        ServiceSpecificationProfileEnum.SUBMODEL_REGISTRY_READ,
+    ]
+)
 
 
 class RegistryAPI(ObjectStoreWSGIApp):
-    def __init__(self, object_store: model.AbstractObjectStore, base_path: str = "/api/v3.1"):
+    def __init__(self, object_store: model.AbstractObjectStore, base_path: str = API_BASE_PATH):
         self.object_store: model.AbstractObjectStore = object_store
         self.url_map = werkzeug.routing.Map(
             [
@@ -127,8 +137,7 @@ class RegistryAPI(ObjectStoreWSGIApp):
                 asset_kind = model.AssetKind[asset_kind_str]
             except KeyError:
                 raise BadRequest(
-                    f"Invalid assetKind '{asset_kind_str}', "
-                    f"must be one of {list(model.AssetKind.__members__)}"
+                    f"Invalid assetKind '{asset_kind_str}', must be one of {list(model.AssetKind.__members__)}"
                 )
             descriptors = filter(lambda desc: desc.asset_kind == asset_kind, descriptors)
 
@@ -147,9 +156,9 @@ class RegistryAPI(ObjectStoreWSGIApp):
     def _get_aas_descriptor(self, url_args: Dict) -> server_model.AssetAdministrationShellDescriptor:
         return self._get_obj_ts(url_args["aas_id"], server_model.AssetAdministrationShellDescriptor)
 
-    def _get_all_submodel_descriptors(self, request: Request) -> Tuple[
-        Iterator[server_model.SubmodelDescriptor], Optional[PagingMetadata]
-    ]:
+    def _get_all_submodel_descriptors(
+        self, request: Request
+    ) -> Tuple[Iterator[server_model.SubmodelDescriptor], Optional[PagingMetadata]]:
         submodel_descriptors: Iterator[server_model.SubmodelDescriptor] = self._get_all_obj_of_type(
             server_model.SubmodelDescriptor
         )

@@ -29,6 +29,7 @@ import app.model
 from app.adapter import ServerAASToJsonEncoder, ServerStrictAASFromJsonDecoder, ServerStrictStrippedAASFromJsonDecoder
 from app.model import AssetAdministrationShellDescriptor, AssetLink, SubmodelDescriptor
 from app.util.converters import base64url_decode
+
 from . import _string_constraints
 
 # The following string aliases are constrained by the decorator functions defined in the string_constraints module,
@@ -90,8 +91,12 @@ class PagingMetadata:
 class APIResponse(abc.ABC, Response):
     @abc.abstractmethod
     def __init__(
-            self, obj: Optional[ResponseData] = None, paging_metadata: Optional[PagingMetadata] = None,
-            stripped: bool = False, *args, **kwargs
+        self,
+        obj: Optional[ResponseData] = None,
+        paging_metadata: Optional[PagingMetadata] = None,
+        stripped: bool = False,
+        *args,
+        **kwargs,
     ):
         super().__init__(*args, **kwargs)
         if obj is None:
@@ -229,8 +234,10 @@ class BaseWSGIApp:
         limit_str = request.args.get("limit", default="100")
         cursor_str = request.args.get("cursor", default="1")
         try:
-            limit, cursor = (NonNegativeInteger(int(limit_str)),
-                             NonNegativeInteger(int(cursor_str) - 1))  # cursor is 1-indexed
+            limit, cursor = (
+                NonNegativeInteger(int(limit_str)),
+                NonNegativeInteger(int(cursor_str) - 1),
+            )  # cursor is 1-indexed
         except ValueError:
             raise BadRequest("Limit can not be negative, cursor must be positive!")
         start_index = cursor
@@ -481,5 +488,5 @@ def is_stripped_request(request: Request) -> bool:
         raise BadRequest(f"Level {level} is not a valid level!")
     extent = request.args.get("extent")
     if extent is not None:
-        raise werkzeug.exceptions.NotImplemented(f"The parameter extent is not yet implemented for this server!")
+        raise werkzeug.exceptions.NotImplemented("The parameter extent is not yet implemented for this server!")
     return level == "core"

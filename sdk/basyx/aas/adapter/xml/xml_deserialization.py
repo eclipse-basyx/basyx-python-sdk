@@ -41,16 +41,30 @@ found. Constructor functions of these elements will then again search for mandat
 and construct them if available, and so on.
 """
 
-from ... import model
-from lxml import etree
-import logging
 import base64
 import enum
-
+import logging
 from typing import Any, Callable, Dict, Iterable, Optional, Set, Tuple, Type, TypeVar
-from .._generic import XML_NS_MAP, XML_NS_AAS, MODELLING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, \
-    ENTITY_TYPES_INVERSE, IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, \
-    REFERENCE_TYPES_INVERSE, DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE, PathOrIO
+
+from lxml import etree
+
+from ... import model
+from .._generic import (
+    ASSET_KIND_INVERSE,
+    DIRECTION_INVERSE,
+    ENTITY_TYPES_INVERSE,
+    IEC61360_DATA_TYPES_INVERSE,
+    IEC61360_LEVEL_TYPES_INVERSE,
+    KEY_TYPES_CLASSES_INVERSE,
+    KEY_TYPES_INVERSE,
+    MODELLING_KIND_INVERSE,
+    QUALIFIER_KIND_INVERSE,
+    REFERENCE_TYPES_INVERSE,
+    STATE_OF_EVENT_INVERSE,
+    XML_NS_AAS,
+    XML_NS_MAP,
+    PathOrIO,
+)
 
 NS_AAS = XML_NS_AAS
 REQUIRED_NAMESPACES: Set[str] = {XML_NS_MAP["aas"]}
@@ -73,7 +87,9 @@ def _str_to_bool(string: str) -> bool:
     :raises ValueError: If string is neither ``true`` nor ``false``.
     """
     if string not in ("true", "false"):
-        raise ValueError(f"{string} is not a valid boolean! Only true and false are allowed.")
+        raise ValueError(
+            f"{string} is not a valid boolean! Only true and false are allowed."
+        )
     return string == "true"
 
 
@@ -140,12 +156,16 @@ def _get_child_mandatory(parent: etree._Element, child_tag: str) -> etree._Eleme
     """
     child = parent.find(child_tag)
     if child is None:
-        raise KeyError(_element_pretty_identifier(parent)
-                       + f" has no child {_tag_replace_namespace(child_tag, parent.nsmap)}!")
+        raise KeyError(
+            _element_pretty_identifier(parent)
+            + f" has no child {_tag_replace_namespace(child_tag, parent.nsmap)}!"
+        )
     return child
 
 
-def _get_all_children_expect_tag(parent: etree._Element, expected_tag: str, failsafe: bool) -> Iterable[etree._Element]:
+def _get_all_children_expect_tag(
+    parent: etree._Element, expected_tag: str, failsafe: bool
+) -> Iterable[etree._Element]:
     """
     Iterates over all children, matching the tag.
 
@@ -159,8 +179,10 @@ def _get_all_children_expect_tag(parent: etree._Element, expected_tag: str, fail
     """
     for child in parent:
         if child.tag != expected_tag:
-            error_message = f"{_element_pretty_identifier(child)}, child of {_element_pretty_identifier(parent)}, " \
-                            f"doesn't match the expected tag {_tag_replace_namespace(expected_tag, child.nsmap)}!"
+            error_message = (
+                f"{_element_pretty_identifier(child)}, child of {_element_pretty_identifier(parent)}, "
+                f"doesn't match the expected tag {_tag_replace_namespace(expected_tag, child.nsmap)}!"
+            )
             if not failsafe:
                 raise KeyError(error_message)
             logger.warning(error_message)
@@ -178,11 +200,15 @@ def _get_attrib_mandatory(element: etree._Element, attrib: str) -> str:
     :raises KeyError: If the attribute does not exist.
     """
     if attrib not in element.attrib:
-        raise KeyError(f"{_element_pretty_identifier(element)} has no attribute with name {attrib}!")
+        raise KeyError(
+            f"{_element_pretty_identifier(element)} has no attribute with name {attrib}!"
+        )
     return element.attrib[attrib]  # type: ignore[return-value]
 
 
-def _get_attrib_mandatory_mapped(element: etree._Element, attrib: str, dct: Dict[str, T]) -> T:
+def _get_attrib_mandatory_mapped(
+    element: etree._Element, attrib: str, dct: Dict[str, T]
+) -> T:
     """
     A helper function for getting a mapped mandatory attribute of an xml element.
 
@@ -198,8 +224,10 @@ def _get_attrib_mandatory_mapped(element: etree._Element, attrib: str, dct: Dict
     """
     attrib_value = _get_attrib_mandatory(element, attrib)
     if attrib_value not in dct:
-        raise ValueError(f"Attribute {attrib} of {_element_pretty_identifier(element)} "
-                         f"has invalid value: {attrib_value}")
+        raise ValueError(
+            f"Attribute {attrib} of {_element_pretty_identifier(element)} "
+            f"has invalid value: {attrib_value}"
+        )
     return dct[attrib_value]
 
 
@@ -219,7 +247,9 @@ def _get_text_or_none(element: Optional[etree._Element]) -> Optional[str]:
     return element.text if element is not None else None
 
 
-def _get_text_or_empty_string_or_none(element: Optional[etree._Element]) -> Optional[str]:
+def _get_text_or_empty_string_or_none(
+    element: Optional[etree._Element],
+) -> Optional[str]:
     """
     Returns element.text or "" if the element has no text
     or None, if the element is None.
@@ -234,7 +264,9 @@ def _get_text_or_empty_string_or_none(element: Optional[etree._Element]) -> Opti
     return element.text if element.text is not None else ""
 
 
-def _get_text_mapped_or_none(element: Optional[etree._Element], dct: Dict[str, T]) -> Optional[T]:
+def _get_text_mapped_or_none(
+    element: Optional[etree._Element], dct: Dict[str, T]
+) -> Optional[T]:
     """
     Returns dct[element.text] or None, if the element is None, has no text or the text is not in dct.
 
@@ -277,12 +309,18 @@ def _get_text_mandatory_mapped(element: etree._Element, dct: Dict[str, T]) -> T:
     """
     text = _get_text_mandatory(element)
     if text not in dct:
-        raise ValueError(_element_pretty_identifier(element) + f" has invalid text: {text}")
+        raise ValueError(
+            _element_pretty_identifier(element) + f" has invalid text: {text}"
+        )
     return dct[text]
 
 
-def _failsafe_construct(element: Optional[etree._Element], constructor: Callable[..., T], failsafe: bool,
-                        **kwargs: Any) -> Optional[T]:
+def _failsafe_construct(
+    element: Optional[etree._Element],
+    constructor: Callable[..., T],
+    failsafe: bool,
+    **kwargs: Any,
+) -> Optional[T]:
     """
     A wrapper function that is used to handle exceptions raised in constructor functions.
 
@@ -307,7 +345,9 @@ def _failsafe_construct(element: Optional[etree._Element], constructor: Callable
     except (KeyError, ValueError, model.AASConstraintViolation) as e:
         error_message = f"Failed to construct {_element_pretty_identifier(element)} using {constructor.__name__}!"
         if not failsafe:
-            raise (type(e) if isinstance(e, (KeyError, ValueError)) else ValueError)(error_message) from e
+            raise (type(e) if isinstance(e, (KeyError, ValueError)) else ValueError)(
+                error_message
+            ) from e
         error_type = type(e).__name__
         cause: Optional[BaseException] = e
         while cause is not None:
@@ -317,7 +357,9 @@ def _failsafe_construct(element: Optional[etree._Element], constructor: Callable
         return None
 
 
-def _failsafe_construct_mandatory(element: etree._Element, constructor: Callable[..., T], **kwargs: Any) -> T:
+def _failsafe_construct_mandatory(
+    element: etree._Element, constructor: Callable[..., T], **kwargs: Any
+) -> T:
     """
     _failsafe_construct() but not failsafe and it returns T instead of Optional[T]
 
@@ -330,13 +372,19 @@ def _failsafe_construct_mandatory(element: etree._Element, constructor: Callable
     """
     constructed = _failsafe_construct(element, constructor, False, **kwargs)
     if constructed is None:
-        raise AssertionError("The result of a non-failsafe _failsafe_construct() call was None! "
-                             "This is a bug in the Eclipse BaSyx Python SDK XML deserialization, please report it!")
+        raise AssertionError(
+            "The result of a non-failsafe _failsafe_construct() call was None! "
+            "This is a bug in the Eclipse BaSyx Python SDK XML deserialization, please report it!"
+        )
     return constructed
 
 
-def _failsafe_construct_multiple(elements: Iterable[etree._Element], constructor: Callable[..., T], failsafe: bool,
-                                 **kwargs: Any) -> Iterable[T]:
+def _failsafe_construct_multiple(
+    elements: Iterable[etree._Element],
+    constructor: Callable[..., T],
+    failsafe: bool,
+    **kwargs: Any,
+) -> Iterable[T]:
     """
     A generator function that applies _failsafe_construct() to multiple elements.
 
@@ -354,8 +402,9 @@ def _failsafe_construct_multiple(elements: Iterable[etree._Element], constructor
             yield parsed
 
 
-def _child_construct_mandatory(parent: etree._Element, child_tag: str, constructor: Callable[..., T], **kwargs: Any) \
-        -> T:
+def _child_construct_mandatory(
+    parent: etree._Element, child_tag: str, constructor: Callable[..., T], **kwargs: Any
+) -> T:
     """
     Shorthand for _failsafe_construct_mandatory() in combination with _get_child_mandatory().
 
@@ -365,11 +414,18 @@ def _child_construct_mandatory(parent: etree._Element, child_tag: str, construct
     :param kwargs: Optional keyword arguments that are passed to the constructor function.
     :return: The constructed child element.
     """
-    return _failsafe_construct_mandatory(_get_child_mandatory(parent, child_tag), constructor, **kwargs)
+    return _failsafe_construct_mandatory(
+        _get_child_mandatory(parent, child_tag), constructor, **kwargs
+    )
 
 
-def _child_construct_multiple(parent: etree._Element, expected_tag: str, constructor: Callable[..., T],
-                              failsafe: bool, **kwargs: Any) -> Iterable[T]:
+def _child_construct_multiple(
+    parent: etree._Element,
+    expected_tag: str,
+    constructor: Callable[..., T],
+    failsafe: bool,
+    **kwargs: Any,
+) -> Iterable[T]:
     """
     Shorthand for _failsafe_construct_multiple() in combination with _get_child_multiple().
 
@@ -381,8 +437,12 @@ def _child_construct_multiple(parent: etree._Element, expected_tag: str, constru
              If an error occurred while constructing an element and while in failsafe mode,
              the respective element will be skipped.
     """
-    return _failsafe_construct_multiple(_get_all_children_expect_tag(parent, expected_tag, failsafe), constructor,
-                                        failsafe, **kwargs)
+    return _failsafe_construct_multiple(
+        _get_all_children_expect_tag(parent, expected_tag, failsafe),
+        constructor,
+        failsafe,
+        **kwargs,
+    )
 
 
 def _child_text_mandatory(parent: etree._Element, child_tag: str) -> str:
@@ -396,7 +456,9 @@ def _child_text_mandatory(parent: etree._Element, child_tag: str) -> str:
     return _get_text_mandatory(_get_child_mandatory(parent, child_tag))
 
 
-def _child_text_mandatory_mapped(parent: etree._Element, child_tag: str, dct: Dict[str, T]) -> T:
+def _child_text_mandatory_mapped(
+    parent: etree._Element, child_tag: str, dct: Dict[str, T]
+) -> T:
     """
     Shorthand for _get_text_mandatory_mapped() in combination with _get_child_mandatory().
 
@@ -415,11 +477,17 @@ def _get_kind(element: etree._Element) -> model.ModellingKind:
     :param element: The xml element.
     :return: The modelling kind of the element.
     """
-    modelling_kind = _get_text_mapped_or_none(element.find(NS_AAS + "kind"), MODELLING_KIND_INVERSE)
-    return modelling_kind if modelling_kind is not None else model.ModellingKind.INSTANCE
+    modelling_kind = _get_text_mapped_or_none(
+        element.find(NS_AAS + "kind"), MODELLING_KIND_INVERSE
+    )
+    return (
+        modelling_kind if modelling_kind is not None else model.ModellingKind.INSTANCE
+    )
 
 
-def _expect_reference_type(element: etree._Element, expected_type: Type[model.Reference]) -> None:
+def _expect_reference_type(
+    element: etree._Element, expected_type: Type[model.Reference]
+) -> None:
     """
     Validates the type attribute of a Reference.
 
@@ -427,9 +495,13 @@ def _expect_reference_type(element: etree._Element, expected_type: Type[model.Re
     :param expected_type: The expected type of the Reference.
     :return: None
     """
-    actual_type = _child_text_mandatory_mapped(element, NS_AAS + "type", REFERENCE_TYPES_INVERSE)
+    actual_type = _child_text_mandatory_mapped(
+        element, NS_AAS + "type", REFERENCE_TYPES_INVERSE
+    )
     if actual_type is not expected_type:
-        raise ValueError(f"{_element_pretty_identifier(element)} is of type {actual_type}, expected {expected_type}!")
+        raise ValueError(
+            f"{_element_pretty_identifier(element)} is of type {actual_type}, expected {expected_type}!"
+        )
 
 
 class AASFromXmlDecoder:
@@ -441,6 +513,7 @@ class AASFromXmlDecoder:
     Most member functions support the ``object_class`` parameter. It was introduced, so they can be overwritten
     in subclasses, which allows constructing instances of subtypes.
     """
+
     failsafe = True
     stripped = False
 
@@ -459,146 +532,215 @@ class AASFromXmlDecoder:
             if id_short is not None:
                 obj.id_short = id_short
             category = _get_text_or_none(element.find(NS_AAS + "category"))
-            display_name = _failsafe_construct(element.find(NS_AAS + "displayName"),
-                                               cls.construct_multi_language_name_type, cls.failsafe)
+            display_name = _failsafe_construct(
+                element.find(NS_AAS + "displayName"),
+                cls.construct_multi_language_name_type,
+                cls.failsafe,
+            )
             if display_name is not None:
                 obj.display_name = display_name
             if category is not None:
                 obj.category = category
-            description = _failsafe_construct(element.find(NS_AAS + "description"),
-                                              cls.construct_multi_language_text_type, cls.failsafe)
+            description = _failsafe_construct(
+                element.find(NS_AAS + "description"),
+                cls.construct_multi_language_text_type,
+                cls.failsafe,
+            )
             if description is not None:
                 obj.description = description
         if isinstance(obj, model.Identifiable):
-            administration = _failsafe_construct(element.find(NS_AAS + "administration"),
-                                                 cls.construct_administrative_information, cls.failsafe)
+            administration = _failsafe_construct(
+                element.find(NS_AAS + "administration"),
+                cls.construct_administrative_information,
+                cls.failsafe,
+            )
             if administration:
                 obj.administration = administration
         if isinstance(obj, model.HasSemantics):
-            semantic_id = _failsafe_construct(element.find(NS_AAS + "semanticId"), cls.construct_reference,
-                                              cls.failsafe)
+            semantic_id = _failsafe_construct(
+                element.find(NS_AAS + "semanticId"),
+                cls.construct_reference,
+                cls.failsafe,
+            )
             if semantic_id is not None:
                 obj.semantic_id = semantic_id
             supplemental_semantic_ids = element.find(NS_AAS + "supplementalSemanticIds")
             if supplemental_semantic_ids is not None:
-                for supplemental_semantic_id in _child_construct_multiple(supplemental_semantic_ids,
-                                                                          NS_AAS + "reference", cls.construct_reference,
-                                                                          cls.failsafe):
+                for supplemental_semantic_id in _child_construct_multiple(
+                    supplemental_semantic_ids,
+                    NS_AAS + "reference",
+                    cls.construct_reference,
+                    cls.failsafe,
+                ):
                     obj.supplemental_semantic_id.append(supplemental_semantic_id)
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
             qualifiers_elem = element.find(NS_AAS + "qualifiers")
             if qualifiers_elem is not None and len(qualifiers_elem) > 0:
-                for qualifier in _failsafe_construct_multiple(qualifiers_elem, cls.construct_qualifier, cls.failsafe):
+                for qualifier in _failsafe_construct_multiple(
+                    qualifiers_elem, cls.construct_qualifier, cls.failsafe
+                ):
                     obj.qualifier.add(qualifier)
         if isinstance(obj, model.HasDataSpecification) and not cls.stripped:
-            embedded_data_specifications_elem = element.find(NS_AAS + "embeddedDataSpecifications")
+            embedded_data_specifications_elem = element.find(
+                NS_AAS + "embeddedDataSpecifications"
+            )
             if embedded_data_specifications_elem is not None:
-                for eds in _failsafe_construct_multiple(embedded_data_specifications_elem,
-                                                        cls.construct_embedded_data_specification, cls.failsafe):
+                for eds in _failsafe_construct_multiple(
+                    embedded_data_specifications_elem,
+                    cls.construct_embedded_data_specification,
+                    cls.failsafe,
+                ):
                     obj.embedded_data_specifications.append(eds)
         if isinstance(obj, model.HasExtension) and not cls.stripped:
             extension_elem = element.find(NS_AAS + "extensions")
             if extension_elem is not None:
-                for extension in _child_construct_multiple(extension_elem, NS_AAS + "extension",
-                                                           cls.construct_extension, cls.failsafe):
+                for extension in _child_construct_multiple(
+                    extension_elem,
+                    NS_AAS + "extension",
+                    cls.construct_extension,
+                    cls.failsafe,
+                ):
                     obj.extension.add(extension)
 
     @classmethod
-    def _construct_relationship_element_internal(cls, element: etree._Element, object_class: Type[RE], **_kwargs: Any) \
-            -> RE:
+    def _construct_relationship_element_internal(
+        cls, element: etree._Element, object_class: Type[RE], **_kwargs: Any
+    ) -> RE:
         """
         Helper function used by construct_relationship_element() and construct_annotated_relationship_element()
         to reduce duplicate code
         """
         relationship_element = object_class(
             None,
-            _failsafe_construct(element.find(NS_AAS + "first"), cls.construct_reference, cls.failsafe),
-            _failsafe_construct(element.find(NS_AAS + "second"), cls.construct_reference, cls.failsafe)
+            _failsafe_construct(
+                element.find(NS_AAS + "first"), cls.construct_reference, cls.failsafe
+            ),
+            _failsafe_construct(
+                element.find(NS_AAS + "second"), cls.construct_reference, cls.failsafe
+            ),
         )
         cls._amend_abstract_attributes(relationship_element, element)
         return relationship_element
 
     @classmethod
-    def _construct_key_tuple(cls, element: etree._Element, namespace: str = NS_AAS, **_kwargs: Any) \
-            -> Tuple[model.Key, ...]:
+    def _construct_key_tuple(
+        cls, element: etree._Element, namespace: str = NS_AAS, **_kwargs: Any
+    ) -> Tuple[model.Key, ...]:
         """
         Helper function used by construct_reference() and construct_aas_reference() to reduce duplicate code
         """
         keys = _get_child_mandatory(element, namespace + "keys")
-        return tuple(_child_construct_multiple(keys, namespace + "key", cls.construct_key, cls.failsafe))
+        return tuple(
+            _child_construct_multiple(
+                keys, namespace + "key", cls.construct_key, cls.failsafe
+            )
+        )
 
     @classmethod
-    def _construct_submodel_reference(cls, element: etree._Element, **kwargs: Any) \
-            -> model.ModelReference[model.Submodel]:
+    def _construct_submodel_reference(
+        cls, element: etree._Element, **kwargs: Any
+    ) -> model.ModelReference[model.Submodel]:
         """
         Helper function. Doesn't support the object_class parameter. Overwrite construct_aas_reference instead.
         """
-        return cls.construct_model_reference_expect_type(element, model.Submodel, **kwargs)
+        return cls.construct_model_reference_expect_type(
+            element, model.Submodel, **kwargs
+        )
 
     @classmethod
-    def _construct_asset_administration_shell_reference(cls, element: etree._Element, **kwargs: Any) \
-            -> model.ModelReference[model.AssetAdministrationShell]:
+    def _construct_asset_administration_shell_reference(
+        cls, element: etree._Element, **kwargs: Any
+    ) -> model.ModelReference[model.AssetAdministrationShell]:
         """
         Helper function. Doesn't support the object_class parameter. Overwrite construct_aas_reference instead.
         """
-        return cls.construct_model_reference_expect_type(element, model.AssetAdministrationShell, **kwargs)
+        return cls.construct_model_reference_expect_type(
+            element, model.AssetAdministrationShell, **kwargs
+        )
 
     @classmethod
-    def _construct_referable_reference(cls, element: etree._Element, **kwargs: Any) \
-            -> model.ModelReference[model.Referable]:
+    def _construct_referable_reference(
+        cls, element: etree._Element, **kwargs: Any
+    ) -> model.ModelReference[model.Referable]:
         """
         Helper function. Doesn't support the object_class parameter. Overwrite construct_aas_reference instead.
         """
         # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
-        return cls.construct_model_reference_expect_type(element, model.Referable, **kwargs)  # type: ignore
+        return cls.construct_model_reference_expect_type(
+            element, model.Referable, **kwargs  # type: ignore
+        )
 
     @classmethod
-    def _construct_operation_variable(cls, element: etree._Element, **kwargs: Any) -> model.SubmodelElement:
+    def _construct_operation_variable(
+        cls, element: etree._Element, **kwargs: Any
+    ) -> model.SubmodelElement:
         """
         Since we don't implement ``OperationVariable``, this constructor discards the wrapping `aas:operationVariable`
         and `aas:value` and just returns the contained :class:`~basyx.aas.model.submodel.SubmodelElement`.
         """
         value = _get_child_mandatory(element, NS_AAS + "value")
         if len(value) == 0:
-            raise KeyError(f"{_element_pretty_identifier(value)} has no submodel element!")
+            raise KeyError(
+                f"{_element_pretty_identifier(value)} has no submodel element!"
+            )
         if len(value) > 1:
-            logger.warning(f"{_element_pretty_identifier(value)} has more than one submodel element, "
-                           "using the first one...")
+            logger.warning(
+                f"{_element_pretty_identifier(value)} has more than one submodel element, "
+                "using the first one..."
+            )
         return cls.construct_submodel_element(value[0], **kwargs)
 
     @classmethod
-    def construct_key(cls, element: etree._Element, object_class=model.Key, **_kwargs: Any) \
-            -> model.Key:
+    def construct_key(
+        cls, element: etree._Element, object_class=model.Key, **_kwargs: Any
+    ) -> model.Key:
         return object_class(
             _child_text_mandatory_mapped(element, NS_AAS + "type", KEY_TYPES_INVERSE),
-            _child_text_mandatory(element, NS_AAS + "value")
+            _child_text_mandatory(element, NS_AAS + "value"),
         )
 
     @classmethod
-    def construct_reference(cls, element: etree._Element, namespace: str = NS_AAS, **kwargs: Any) -> model.Reference:
-        reference_type: Type[model.Reference] = _child_text_mandatory_mapped(element, NS_AAS + "type",
-                                                                             REFERENCE_TYPES_INVERSE)
+    def construct_reference(
+        cls, element: etree._Element, namespace: str = NS_AAS, **kwargs: Any
+    ) -> model.Reference:
+        reference_type: Type[model.Reference] = _child_text_mandatory_mapped(
+            element, NS_AAS + "type", REFERENCE_TYPES_INVERSE
+        )
         references: Dict[Type[model.Reference], Callable[..., model.Reference]] = {
             model.ExternalReference: cls.construct_external_reference,
-            model.ModelReference: cls.construct_model_reference
+            model.ModelReference: cls.construct_model_reference,
         }
         if reference_type not in references:
-            raise KeyError(_element_pretty_identifier(element) + f" is of unsupported Reference type {reference_type}!")
+            raise KeyError(
+                _element_pretty_identifier(element)
+                + f" is of unsupported Reference type {reference_type}!"
+            )
         return references[reference_type](element, namespace=namespace, **kwargs)
 
     @classmethod
-    def construct_external_reference(cls, element: etree._Element, namespace: str = NS_AAS,
-                                     object_class=model.ExternalReference, **_kwargs: Any) \
-            -> model.ExternalReference:
+    def construct_external_reference(
+        cls,
+        element: etree._Element,
+        namespace: str = NS_AAS,
+        object_class=model.ExternalReference,
+        **_kwargs: Any,
+    ) -> model.ExternalReference:
         _expect_reference_type(element, model.ExternalReference)
-        return object_class(cls._construct_key_tuple(element, namespace=namespace),
-                            _failsafe_construct(element.find(NS_AAS + "referredSemanticId"), cls.construct_reference,
-                                                cls.failsafe, namespace=namespace))
+        return object_class(
+            cls._construct_key_tuple(element, namespace=namespace),
+            _failsafe_construct(
+                element.find(NS_AAS + "referredSemanticId"),
+                cls.construct_reference,
+                cls.failsafe,
+                namespace=namespace,
+            ),
+        )
 
     @classmethod
-    def construct_model_reference(cls, element: etree._Element, object_class=model.ModelReference, **_kwargs: Any) \
-            -> model.ModelReference:
+    def construct_model_reference(
+        cls, element: etree._Element, object_class=model.ModelReference, **_kwargs: Any
+    ) -> model.ModelReference:
         """
         This constructor for ModelReference determines the type of the ModelReference by its keys. If no keys are
         present, it will default to the type Referable. This behaviour is wanted in read_aas_xml_element().
@@ -610,13 +752,24 @@ class AASFromXmlDecoder:
         type_: Type[model.Referable] = model.Referable  # type: ignore
         if len(keys) > 0:
             type_ = KEY_TYPES_CLASSES_INVERSE.get(keys[-1].type, model.Referable)  # type: ignore
-        return object_class(keys, type_, _failsafe_construct(element.find(NS_AAS + "referredSemanticId"),
-                                                             cls.construct_reference, cls.failsafe))
+        return object_class(
+            keys,
+            type_,
+            _failsafe_construct(
+                element.find(NS_AAS + "referredSemanticId"),
+                cls.construct_reference,
+                cls.failsafe,
+            ),
+        )
 
     @classmethod
-    def construct_model_reference_expect_type(cls, element: etree._Element, type_: Type[model.base._RT],
-                                              object_class=model.ModelReference, **_kwargs: Any) \
-            -> model.ModelReference[model.base._RT]:
+    def construct_model_reference_expect_type(
+        cls,
+        element: etree._Element,
+        type_: Type[model.base._RT],
+        object_class=model.ModelReference,
+        **_kwargs: Any,
+    ) -> model.ModelReference[model.base._RT]:
         """
         This constructor for ModelReference allows passing an expected type, which is checked against the type of the
         last key of the reference. This constructor function is used by other constructor functions, since all expect a
@@ -624,88 +777,151 @@ class AASFromXmlDecoder:
         """
         _expect_reference_type(element, model.ModelReference)
         keys = cls._construct_key_tuple(element)
-        if keys and not issubclass(KEY_TYPES_CLASSES_INVERSE.get(keys[-1].type, type(None)), type_):
-            logger.warning("type %s of last key of reference to %s does not match reference type %s",
-                           keys[-1].type.name, " / ".join(str(k) for k in keys), type_.__name__)
-        return object_class(keys, type_, _failsafe_construct(element.find(NS_AAS + "referredSemanticId"),
-                                                             cls.construct_reference, cls.failsafe))
+        if keys and not issubclass(
+            KEY_TYPES_CLASSES_INVERSE.get(keys[-1].type, type(None)), type_
+        ):
+            logger.warning(
+                "type %s of last key of reference to %s does not match reference type %s",
+                keys[-1].type.name,
+                " / ".join(str(k) for k in keys),
+                type_.__name__,
+            )
+        return object_class(
+            keys,
+            type_,
+            _failsafe_construct(
+                element.find(NS_AAS + "referredSemanticId"),
+                cls.construct_reference,
+                cls.failsafe,
+            ),
+        )
 
     @classmethod
-    def construct_administrative_information(cls, element: etree._Element, object_class=model.AdministrativeInformation,
-                                             **_kwargs: Any) -> model.AdministrativeInformation:
+    def construct_administrative_information(
+        cls,
+        element: etree._Element,
+        object_class=model.AdministrativeInformation,
+        **_kwargs: Any,
+    ) -> model.AdministrativeInformation:
         administrative_information = object_class(
             revision=_get_text_or_none(element.find(NS_AAS + "revision")),
             version=_get_text_or_none(element.find(NS_AAS + "version")),
-            template_id=_get_text_or_none(element.find(NS_AAS + "templateId"))
+            template_id=_get_text_or_none(element.find(NS_AAS + "templateId")),
         )
-        creator = _failsafe_construct(element.find(NS_AAS + "creator"), cls.construct_reference, cls.failsafe)
+        creator = _failsafe_construct(
+            element.find(NS_AAS + "creator"), cls.construct_reference, cls.failsafe
+        )
         if creator is not None:
             administrative_information.creator = creator
         cls._amend_abstract_attributes(administrative_information, element)
         return administrative_information
 
     @classmethod
-    def construct_lang_string_set(cls, element: etree._Element, expected_tag: str, object_class: Type[LSS],
-                                  **_kwargs: Any) -> LSS:
+    def construct_lang_string_set(
+        cls,
+        element: etree._Element,
+        expected_tag: str,
+        object_class: Type[LSS],
+        **_kwargs: Any,
+    ) -> LSS:
         collected_lang_strings: Dict[str, str] = {}
-        for lang_string_elem in _get_all_children_expect_tag(element, expected_tag, cls.failsafe):
-            collected_lang_strings[_child_text_mandatory(lang_string_elem, NS_AAS + "language")] = \
-                _child_text_mandatory(lang_string_elem, NS_AAS + "text")
+        for lang_string_elem in _get_all_children_expect_tag(
+            element, expected_tag, cls.failsafe
+        ):
+            collected_lang_strings[
+                _child_text_mandatory(lang_string_elem, NS_AAS + "language")
+            ] = _child_text_mandatory(lang_string_elem, NS_AAS + "text")
         return object_class(collected_lang_strings)
 
     @classmethod
-    def construct_multi_language_name_type(cls, element: etree._Element, object_class=model.MultiLanguageNameType,
-                                           **kwargs: Any) -> model.MultiLanguageNameType:
-        return cls.construct_lang_string_set(element, NS_AAS + "langStringNameType", object_class, **kwargs)
+    def construct_multi_language_name_type(
+        cls,
+        element: etree._Element,
+        object_class=model.MultiLanguageNameType,
+        **kwargs: Any,
+    ) -> model.MultiLanguageNameType:
+        return cls.construct_lang_string_set(
+            element, NS_AAS + "langStringNameType", object_class, **kwargs
+        )
 
     @classmethod
-    def construct_multi_language_text_type(cls, element: etree._Element, object_class=model.MultiLanguageTextType,
-                                           **kwargs: Any) -> model.MultiLanguageTextType:
-        return cls.construct_lang_string_set(element, NS_AAS + "langStringTextType", object_class, **kwargs)
+    def construct_multi_language_text_type(
+        cls,
+        element: etree._Element,
+        object_class=model.MultiLanguageTextType,
+        **kwargs: Any,
+    ) -> model.MultiLanguageTextType:
+        return cls.construct_lang_string_set(
+            element, NS_AAS + "langStringTextType", object_class, **kwargs
+        )
 
     @classmethod
-    def construct_definition_type_iec61360(cls, element: etree._Element, object_class=model.DefinitionTypeIEC61360,
-                                           **kwargs: Any) -> model.DefinitionTypeIEC61360:
-        return cls.construct_lang_string_set(element, NS_AAS + "langStringDefinitionTypeIec61360", object_class,
-                                             **kwargs)
+    def construct_definition_type_iec61360(
+        cls,
+        element: etree._Element,
+        object_class=model.DefinitionTypeIEC61360,
+        **kwargs: Any,
+    ) -> model.DefinitionTypeIEC61360:
+        return cls.construct_lang_string_set(
+            element, NS_AAS + "langStringDefinitionTypeIec61360", object_class, **kwargs
+        )
 
     @classmethod
-    def construct_preferred_name_type_iec61360(cls, element: etree._Element,
-                                               object_class=model.PreferredNameTypeIEC61360,
-                                               **kwargs: Any) -> model.PreferredNameTypeIEC61360:
-        return cls.construct_lang_string_set(element, NS_AAS + "langStringPreferredNameTypeIec61360", object_class,
-                                             **kwargs)
+    def construct_preferred_name_type_iec61360(
+        cls,
+        element: etree._Element,
+        object_class=model.PreferredNameTypeIEC61360,
+        **kwargs: Any,
+    ) -> model.PreferredNameTypeIEC61360:
+        return cls.construct_lang_string_set(
+            element,
+            NS_AAS + "langStringPreferredNameTypeIec61360",
+            object_class,
+            **kwargs,
+        )
 
     @classmethod
-    def construct_short_name_type_iec61360(cls, element: etree._Element, object_class=model.ShortNameTypeIEC61360,
-                                           **kwargs: Any) -> model.ShortNameTypeIEC61360:
-        return cls.construct_lang_string_set(element, NS_AAS + "langStringShortNameTypeIec61360", object_class,
-                                             **kwargs)
+    def construct_short_name_type_iec61360(
+        cls,
+        element: etree._Element,
+        object_class=model.ShortNameTypeIEC61360,
+        **kwargs: Any,
+    ) -> model.ShortNameTypeIEC61360:
+        return cls.construct_lang_string_set(
+            element, NS_AAS + "langStringShortNameTypeIec61360", object_class, **kwargs
+        )
 
     @classmethod
-    def construct_qualifier(cls, element: etree._Element, object_class=model.Qualifier, **_kwargs: Any) \
-            -> model.Qualifier:
+    def construct_qualifier(
+        cls, element: etree._Element, object_class=model.Qualifier, **_kwargs: Any
+    ) -> model.Qualifier:
         qualifier = object_class(
             _child_text_mandatory(element, NS_AAS + "type"),
-            _child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES)
+            _child_text_mandatory_mapped(
+                element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES
+            ),
         )
-        kind = _get_text_mapped_or_none(element.find(NS_AAS + "kind"), QUALIFIER_KIND_INVERSE)
+        kind = _get_text_mapped_or_none(
+            element.find(NS_AAS + "kind"), QUALIFIER_KIND_INVERSE
+        )
         if kind is not None:
             qualifier.kind = kind
         value = _get_text_or_empty_string_or_none(element.find(NS_AAS + "value"))
         if value is not None:
             qualifier.value = model.datatypes.from_xsd(value, qualifier.value_type)
-        value_id = _failsafe_construct(element.find(NS_AAS + "valueId"), cls.construct_reference, cls.failsafe)
+        value_id = _failsafe_construct(
+            element.find(NS_AAS + "valueId"), cls.construct_reference, cls.failsafe
+        )
         if value_id is not None:
             qualifier.value_id = value_id
         cls._amend_abstract_attributes(qualifier, element)
         return qualifier
 
     @classmethod
-    def construct_extension(cls, element: etree._Element, object_class=model.Extension, **_kwargs: Any) \
-            -> model.Extension:
-        extension = object_class(
-            _child_text_mandatory(element, NS_AAS + "name"))
+    def construct_extension(
+        cls, element: etree._Element, object_class=model.Extension, **_kwargs: Any
+    ) -> model.Extension:
+        extension = object_class(_child_text_mandatory(element, NS_AAS + "name"))
         value_type = _get_text_or_none(element.find(NS_AAS + "valueType"))
         if value_type is not None:
             extension.value_type = model.datatypes.XSD_TYPE_CLASSES[value_type]
@@ -714,97 +930,142 @@ class AASFromXmlDecoder:
             extension.value = model.datatypes.from_xsd(value, extension.value_type)
         refers_to = element.find(NS_AAS + "refersTo")
         if refers_to is not None:
-            for ref in _child_construct_multiple(refers_to, NS_AAS + "reference", cls._construct_referable_reference,
-                                                 cls.failsafe):
+            for ref in _child_construct_multiple(
+                refers_to,
+                NS_AAS + "reference",
+                cls._construct_referable_reference,
+                cls.failsafe,
+            ):
                 extension.refers_to.add(ref)
         cls._amend_abstract_attributes(extension, element)
         return extension
 
     @classmethod
-    def construct_submodel_element(cls, element: etree._Element, **kwargs: Any) -> model.SubmodelElement:
+    def construct_submodel_element(
+        cls, element: etree._Element, **kwargs: Any
+    ) -> model.SubmodelElement:
         """
         This function doesn't support the object_class parameter.
         Overwrite each individual SubmodelElement/DataElement constructor function instead.
         """
-        submodel_elements: Dict[str, Callable[..., model.SubmodelElement]] = {NS_AAS + k: v for k, v in {
-            "annotatedRelationshipElement": cls.construct_annotated_relationship_element,
-            "basicEventElement": cls.construct_basic_event_element,
-            "capability": cls.construct_capability,
-            "entity": cls.construct_entity,
-            "operation": cls.construct_operation,
-            "relationshipElement": cls.construct_relationship_element,
-            "submodelElementCollection": cls.construct_submodel_element_collection,
-            "submodelElementList": cls.construct_submodel_element_list
-        }.items()}
+        submodel_elements: Dict[str, Callable[..., model.SubmodelElement]] = {
+            NS_AAS + k: v
+            for k, v in {
+                "annotatedRelationshipElement": cls.construct_annotated_relationship_element,
+                "basicEventElement": cls.construct_basic_event_element,
+                "capability": cls.construct_capability,
+                "entity": cls.construct_entity,
+                "operation": cls.construct_operation,
+                "relationshipElement": cls.construct_relationship_element,
+                "submodelElementCollection": cls.construct_submodel_element_collection,
+                "submodelElementList": cls.construct_submodel_element_list,
+            }.items()
+        }
         if element.tag not in submodel_elements:
-            return cls.construct_data_element(element, abstract_class_name="SubmodelElement", **kwargs)
+            return cls.construct_data_element(
+                element, abstract_class_name="SubmodelElement", **kwargs
+            )
         return submodel_elements[element.tag](element, **kwargs)
 
     @classmethod
-    def construct_data_element(cls, element: etree._Element, abstract_class_name: str = "DataElement", **kwargs: Any) \
-            -> model.DataElement:
+    def construct_data_element(
+        cls,
+        element: etree._Element,
+        abstract_class_name: str = "DataElement",
+        **kwargs: Any,
+    ) -> model.DataElement:
         """
         This function does not support the object_class parameter.
         Overwrite each individual DataElement constructor function instead.
         """
-        data_elements: Dict[str, Callable[..., model.DataElement]] = {NS_AAS + k: v for k, v in {
-            "blob": cls.construct_blob,
-            "file": cls.construct_file,
-            "multiLanguageProperty": cls.construct_multi_language_property,
-            "property": cls.construct_property,
-            "range": cls.construct_range,
-            "referenceElement": cls.construct_reference_element,
-        }.items()}
+        data_elements: Dict[str, Callable[..., model.DataElement]] = {
+            NS_AAS + k: v
+            for k, v in {
+                "blob": cls.construct_blob,
+                "file": cls.construct_file,
+                "multiLanguageProperty": cls.construct_multi_language_property,
+                "property": cls.construct_property,
+                "range": cls.construct_range,
+                "referenceElement": cls.construct_reference_element,
+            }.items()
+        }
         if element.tag not in data_elements:
-            raise KeyError(_element_pretty_identifier(element) + f" is not a valid {abstract_class_name}!")
+            raise KeyError(
+                _element_pretty_identifier(element)
+                + f" is not a valid {abstract_class_name}!"
+            )
         return data_elements[element.tag](element, **kwargs)
 
     @classmethod
-    def construct_annotated_relationship_element(cls, element: etree._Element,
-                                                 object_class=model.AnnotatedRelationshipElement, **_kwargs: Any) \
-            -> model.AnnotatedRelationshipElement:
-        annotated_relationship_element = cls._construct_relationship_element_internal(element, object_class)
+    def construct_annotated_relationship_element(
+        cls,
+        element: etree._Element,
+        object_class=model.AnnotatedRelationshipElement,
+        **_kwargs: Any,
+    ) -> model.AnnotatedRelationshipElement:
+        annotated_relationship_element = cls._construct_relationship_element_internal(
+            element, object_class
+        )
         if not cls.stripped:
             annotations = element.find(NS_AAS + "annotations")
             if annotations is not None:
-                for data_element in _failsafe_construct_multiple(annotations, cls.construct_data_element,
-                                                                 cls.failsafe):
+                for data_element in _failsafe_construct_multiple(
+                    annotations, cls.construct_data_element, cls.failsafe
+                ):
                     annotated_relationship_element.annotation.add(data_element)
         return annotated_relationship_element
 
     @classmethod
-    def construct_basic_event_element(cls, element: etree._Element, object_class=model.BasicEventElement,
-                                      **_kwargs: Any) -> model.BasicEventElement:
+    def construct_basic_event_element(
+        cls,
+        element: etree._Element,
+        object_class=model.BasicEventElement,
+        **_kwargs: Any,
+    ) -> model.BasicEventElement:
         basic_event_element = object_class(
             None,
-            _child_construct_mandatory(element, NS_AAS + "observed", cls._construct_referable_reference),
-            _child_text_mandatory_mapped(element, NS_AAS + "direction", DIRECTION_INVERSE),
-            _child_text_mandatory_mapped(element, NS_AAS + "state", STATE_OF_EVENT_INVERSE)
+            _child_construct_mandatory(
+                element, NS_AAS + "observed", cls._construct_referable_reference
+            ),
+            _child_text_mandatory_mapped(
+                element, NS_AAS + "direction", DIRECTION_INVERSE
+            ),
+            _child_text_mandatory_mapped(
+                element, NS_AAS + "state", STATE_OF_EVENT_INVERSE
+            ),
         )
         message_topic = _get_text_or_none(element.find(NS_AAS + "messageTopic"))
         if message_topic is not None:
             basic_event_element.message_topic = message_topic
         message_broker = element.find(NS_AAS + "messageBroker")
         if message_broker is not None:
-            basic_event_element.message_broker = _failsafe_construct(message_broker, cls.construct_reference,
-                                                                     cls.failsafe)
+            basic_event_element.message_broker = _failsafe_construct(
+                message_broker, cls.construct_reference, cls.failsafe
+            )
         last_update = _get_text_or_none(element.find(NS_AAS + "lastUpdate"))
         if last_update is not None:
-            basic_event_element.last_update = model.datatypes.from_xsd(last_update, model.datatypes.DateTime)
+            basic_event_element.last_update = model.datatypes.from_xsd(
+                last_update, model.datatypes.DateTime
+            )
         min_interval = _get_text_or_none(element.find(NS_AAS + "minInterval"))
         if min_interval is not None:
-            basic_event_element.min_interval = model.datatypes.from_xsd(min_interval, model.datatypes.Duration)
+            basic_event_element.min_interval = model.datatypes.from_xsd(
+                min_interval, model.datatypes.Duration
+            )
         max_interval = _get_text_or_none(element.find(NS_AAS + "maxInterval"))
         if max_interval is not None:
-            basic_event_element.max_interval = model.datatypes.from_xsd(max_interval, model.datatypes.Duration)
+            basic_event_element.max_interval = model.datatypes.from_xsd(
+                max_interval, model.datatypes.Duration
+            )
         cls._amend_abstract_attributes(basic_event_element, element)
         return basic_event_element
 
     @classmethod
-    def construct_blob(cls, element: etree._Element, object_class=model.Blob, **_kwargs: Any) -> model.Blob:
+    def construct_blob(
+        cls, element: etree._Element, object_class=model.Blob, **_kwargs: Any
+    ) -> model.Blob:
         blob = object_class(
-            None,
-            _get_text_or_none(element.find(NS_AAS + "contentType"))
+            None, _get_text_or_none(element.find(NS_AAS + "contentType"))
         )
         value = _get_text_or_none(element.find(NS_AAS + "value"))
         if value is not None:
@@ -813,19 +1074,26 @@ class AASFromXmlDecoder:
         return blob
 
     @classmethod
-    def construct_capability(cls, element: etree._Element, object_class=model.Capability, **_kwargs: Any) \
-            -> model.Capability:
+    def construct_capability(
+        cls, element: etree._Element, object_class=model.Capability, **_kwargs: Any
+    ) -> model.Capability:
         capability = object_class(None)
         cls._amend_abstract_attributes(capability, element)
         return capability
 
     @classmethod
-    def construct_entity(cls, element: etree._Element, object_class=model.Entity, **_kwargs: Any) -> model.Entity:
+    def construct_entity(
+        cls, element: etree._Element, object_class=model.Entity, **_kwargs: Any
+    ) -> model.Entity:
         specific_asset_id = set()
         specific_asset_ids = element.find(NS_AAS + "specificAssetIds")
         if specific_asset_ids is not None:
-            for id in _child_construct_multiple(specific_asset_ids, NS_AAS + "specificAssetId",
-                                                cls.construct_specific_asset_id, cls.failsafe):
+            for id in _child_construct_multiple(
+                specific_asset_ids,
+                NS_AAS + "specificAssetId",
+                cls.construct_specific_asset_id,
+                cls.failsafe,
+            ):
                 specific_asset_id.add(id)
         entity_type_text = _get_text_or_none(element.find(NS_AAS + "entityType"))
         if entity_type_text is not None:
@@ -836,22 +1104,25 @@ class AASFromXmlDecoder:
             id_short=None,
             entity_type=entity_type,
             global_asset_id=_get_text_or_none(element.find(NS_AAS + "globalAssetId")),
-            specific_asset_id=specific_asset_id)
+            specific_asset_id=specific_asset_id,
+        )
 
         if not cls.stripped:
             statements = element.find(NS_AAS + "statements")
             if statements is not None:
-                for submodel_element in _failsafe_construct_multiple(statements, cls.construct_submodel_element,
-                                                                     cls.failsafe):
+                for submodel_element in _failsafe_construct_multiple(
+                    statements, cls.construct_submodel_element, cls.failsafe
+                ):
                     entity.statement.add(submodel_element)
         cls._amend_abstract_attributes(entity, element)
         return entity
 
     @classmethod
-    def construct_file(cls, element: etree._Element, object_class=model.File, **_kwargs: Any) -> model.File:
+    def construct_file(
+        cls, element: etree._Element, object_class=model.File, **_kwargs: Any
+    ) -> model.File:
         file = object_class(
-            None,
-            _get_text_or_none(element.find(NS_AAS + "contentType"))
+            None, _get_text_or_none(element.find(NS_AAS + "contentType"))
         )
         value = _get_text_or_none(element.find(NS_AAS + "value"))
         if value is not None:
@@ -860,10 +1131,10 @@ class AASFromXmlDecoder:
         return file
 
     @classmethod
-    def construct_resource(cls, element: etree._Element, object_class=model.Resource, **_kwargs: Any) -> model.Resource:
-        resource = object_class(
-            _child_text_mandatory(element, NS_AAS + "path")
-        )
+    def construct_resource(
+        cls, element: etree._Element, object_class=model.Resource, **_kwargs: Any
+    ) -> model.Resource:
+        resource = object_class(_child_text_mandatory(element, NS_AAS + "path"))
         content_type = _get_text_or_none(element.find(NS_AAS + "contentType"))
         if content_type is not None:
             resource.content_type = content_type
@@ -871,54 +1142,80 @@ class AASFromXmlDecoder:
         return resource
 
     @classmethod
-    def construct_multi_language_property(cls, element: etree._Element, object_class=model.MultiLanguageProperty,
-                                          **_kwargs: Any) -> model.MultiLanguageProperty:
+    def construct_multi_language_property(
+        cls,
+        element: etree._Element,
+        object_class=model.MultiLanguageProperty,
+        **_kwargs: Any,
+    ) -> model.MultiLanguageProperty:
         multi_language_property = object_class(None)
-        value = _failsafe_construct(element.find(NS_AAS + "value"), cls.construct_multi_language_text_type,
-                                    cls.failsafe)
+        value = _failsafe_construct(
+            element.find(NS_AAS + "value"),
+            cls.construct_multi_language_text_type,
+            cls.failsafe,
+        )
         if value is not None:
             multi_language_property.value = value
-        value_id = _failsafe_construct(element.find(NS_AAS + "valueId"), cls.construct_reference, cls.failsafe)
+        value_id = _failsafe_construct(
+            element.find(NS_AAS + "valueId"), cls.construct_reference, cls.failsafe
+        )
         if value_id is not None:
             multi_language_property.value_id = value_id
         cls._amend_abstract_attributes(multi_language_property, element)
         return multi_language_property
 
     @classmethod
-    def construct_operation(cls, element: etree._Element, object_class=model.Operation, **_kwargs: Any) \
-            -> model.Operation:
+    def construct_operation(
+        cls, element: etree._Element, object_class=model.Operation, **_kwargs: Any
+    ) -> model.Operation:
         operation = object_class(None)
-        for tag, target in ((NS_AAS + "inputVariables", operation.input_variable),
-                            (NS_AAS + "outputVariables", operation.output_variable),
-                            (NS_AAS + "inoutputVariables", operation.in_output_variable)):
+        for tag, target in (
+            (NS_AAS + "inputVariables", operation.input_variable),
+            (NS_AAS + "outputVariables", operation.output_variable),
+            (NS_AAS + "inoutputVariables", operation.in_output_variable),
+        ):
             variables = element.find(tag)
             if variables is not None:
-                for var in _child_construct_multiple(variables, NS_AAS + "operationVariable",
-                                                     cls._construct_operation_variable, cls.failsafe):
+                for var in _child_construct_multiple(
+                    variables,
+                    NS_AAS + "operationVariable",
+                    cls._construct_operation_variable,
+                    cls.failsafe,
+                ):
                     target.add(var)
         cls._amend_abstract_attributes(operation, element)
         return operation
 
     @classmethod
-    def construct_property(cls, element: etree._Element, object_class=model.Property, **_kwargs: Any) -> model.Property:
+    def construct_property(
+        cls, element: etree._Element, object_class=model.Property, **_kwargs: Any
+    ) -> model.Property:
         property_ = object_class(
             None,
-            value_type=_child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES)
+            value_type=_child_text_mandatory_mapped(
+                element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES
+            ),
         )
         value = _get_text_or_empty_string_or_none(element.find(NS_AAS + "value"))
         if value is not None:
             property_.value = model.datatypes.from_xsd(value, property_.value_type)
-        value_id = _failsafe_construct(element.find(NS_AAS + "valueId"), cls.construct_reference, cls.failsafe)
+        value_id = _failsafe_construct(
+            element.find(NS_AAS + "valueId"), cls.construct_reference, cls.failsafe
+        )
         if value_id is not None:
             property_.value_id = value_id
         cls._amend_abstract_attributes(property_, element)
         return property_
 
     @classmethod
-    def construct_range(cls, element: etree._Element, object_class=model.Range, **_kwargs: Any) -> model.Range:
+    def construct_range(
+        cls, element: etree._Element, object_class=model.Range, **_kwargs: Any
+    ) -> model.Range:
         range_ = object_class(
             None,
-            value_type=_child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES)
+            value_type=_child_text_mandatory_mapped(
+                element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES
+            ),
         )
         max_ = _get_text_or_empty_string_or_none(element.find(NS_AAS + "max"))
         if max_ is not None:
@@ -930,105 +1227,170 @@ class AASFromXmlDecoder:
         return range_
 
     @classmethod
-    def construct_reference_element(cls, element: etree._Element, object_class=model.ReferenceElement, **_kwargs: Any) \
-            -> model.ReferenceElement:
+    def construct_reference_element(
+        cls,
+        element: etree._Element,
+        object_class=model.ReferenceElement,
+        **_kwargs: Any,
+    ) -> model.ReferenceElement:
         reference_element = object_class(None)
-        value = _failsafe_construct(element.find(NS_AAS + "value"), cls.construct_reference, cls.failsafe)
+        value = _failsafe_construct(
+            element.find(NS_AAS + "value"), cls.construct_reference, cls.failsafe
+        )
         if value is not None:
             reference_element.value = value
         cls._amend_abstract_attributes(reference_element, element)
         return reference_element
 
     @classmethod
-    def construct_relationship_element(cls, element: etree._Element, object_class=model.RelationshipElement,
-                                       **_kwargs: Any) -> model.RelationshipElement:
-        return cls._construct_relationship_element_internal(element, object_class=object_class, **_kwargs)
+    def construct_relationship_element(
+        cls,
+        element: etree._Element,
+        object_class=model.RelationshipElement,
+        **_kwargs: Any,
+    ) -> model.RelationshipElement:
+        return cls._construct_relationship_element_internal(
+            element, object_class=object_class, **_kwargs
+        )
 
     @classmethod
-    def construct_submodel_element_collection(cls, element: etree._Element,
-                                              object_class=model.SubmodelElementCollection,
-                                              **_kwargs: Any) -> model.SubmodelElementCollection:
+    def construct_submodel_element_collection(
+        cls,
+        element: etree._Element,
+        object_class=model.SubmodelElementCollection,
+        **_kwargs: Any,
+    ) -> model.SubmodelElementCollection:
         collection = object_class(None)
         if not cls.stripped:
             value = element.find(NS_AAS + "value")
             if value is not None:
-                for submodel_element in _failsafe_construct_multiple(value, cls.construct_submodel_element,
-                                                                     cls.failsafe):
+                for submodel_element in _failsafe_construct_multiple(
+                    value, cls.construct_submodel_element, cls.failsafe
+                ):
                     collection.value.add(submodel_element)
         cls._amend_abstract_attributes(collection, element)
         return collection
 
     @classmethod
-    def construct_submodel_element_list(cls, element: etree._Element, object_class=model.SubmodelElementList,
-                                        **_kwargs: Any) -> model.SubmodelElementList:
+    def construct_submodel_element_list(
+        cls,
+        element: etree._Element,
+        object_class=model.SubmodelElementList,
+        **_kwargs: Any,
+    ) -> model.SubmodelElementList:
         type_value_list_element = KEY_TYPES_CLASSES_INVERSE[
-            _child_text_mandatory_mapped(element, NS_AAS + "typeValueListElement", KEY_TYPES_INVERSE)]
+            _child_text_mandatory_mapped(
+                element, NS_AAS + "typeValueListElement", KEY_TYPES_INVERSE
+            )
+        ]
         if not issubclass(type_value_list_element, model.SubmodelElement):
-            raise ValueError("Expected a SubmodelElementList with a typeValueListElement that is a subclass of"
-                             f"{model.SubmodelElement}, got {type_value_list_element}!")
+            raise ValueError(
+                "Expected a SubmodelElementList with a typeValueListElement that is a subclass of"
+                f"{model.SubmodelElement}, got {type_value_list_element}!"
+            )
         order_relevant = element.find(NS_AAS + "orderRelevant")
         list_ = object_class(
             None,
             type_value_list_element,
-            semantic_id_list_element=_failsafe_construct(element.find(NS_AAS + "semanticIdListElement"),
-                                                         cls.construct_reference, cls.failsafe),
-            value_type_list_element=_get_text_mapped_or_none(element.find(NS_AAS + "valueTypeListElement"),
-                                                             model.datatypes.XSD_TYPE_CLASSES),
+            semantic_id_list_element=_failsafe_construct(
+                element.find(NS_AAS + "semanticIdListElement"),
+                cls.construct_reference,
+                cls.failsafe,
+            ),
+            value_type_list_element=_get_text_mapped_or_none(
+                element.find(NS_AAS + "valueTypeListElement"),
+                model.datatypes.XSD_TYPE_CLASSES,
+            ),
             order_relevant=_str_to_bool(_get_text_mandatory(order_relevant))
-            if order_relevant is not None else True
+            if order_relevant is not None
+            else True,
         )
         if not cls.stripped:
             value = element.find(NS_AAS + "value")
             if value is not None:
-                list_.value.extend(_failsafe_construct_multiple(value, cls.construct_submodel_element, cls.failsafe))
+                list_.value.extend(
+                    _failsafe_construct_multiple(
+                        value, cls.construct_submodel_element, cls.failsafe
+                    )
+                )
         cls._amend_abstract_attributes(list_, element)
         return list_
 
     @classmethod
-    def construct_asset_administration_shell(cls, element: etree._Element, object_class=model.AssetAdministrationShell,
-                                             **_kwargs: Any) -> model.AssetAdministrationShell:
+    def construct_asset_administration_shell(
+        cls,
+        element: etree._Element,
+        object_class=model.AssetAdministrationShell,
+        **_kwargs: Any,
+    ) -> model.AssetAdministrationShell:
         aas = object_class(
             id_=_child_text_mandatory(element, NS_AAS + "id"),
-            asset_information=_child_construct_mandatory(element, NS_AAS + "assetInformation",
-                                                         cls.construct_asset_information)
+            asset_information=_child_construct_mandatory(
+                element, NS_AAS + "assetInformation", cls.construct_asset_information
+            ),
         )
         if not cls.stripped:
             submodels = element.find(NS_AAS + "submodels")
             if submodels is not None:
-                for ref in _child_construct_multiple(submodels, NS_AAS + "reference",
-                                                     cls._construct_submodel_reference, cls.failsafe):
+                for ref in _child_construct_multiple(
+                    submodels,
+                    NS_AAS + "reference",
+                    cls._construct_submodel_reference,
+                    cls.failsafe,
+                ):
                     aas.submodel.add(ref)
-        derived_from = _failsafe_construct(element.find(NS_AAS + "derivedFrom"),
-                                           cls._construct_asset_administration_shell_reference, cls.failsafe)
+        derived_from = _failsafe_construct(
+            element.find(NS_AAS + "derivedFrom"),
+            cls._construct_asset_administration_shell_reference,
+            cls.failsafe,
+        )
         if derived_from is not None:
             aas.derived_from = derived_from
         cls._amend_abstract_attributes(aas, element)
         return aas
 
     @classmethod
-    def construct_specific_asset_id(cls, element: etree._Element, object_class=model.SpecificAssetId,
-                                    **_kwargs: Any) -> model.SpecificAssetId:
+    def construct_specific_asset_id(
+        cls, element: etree._Element, object_class=model.SpecificAssetId, **_kwargs: Any
+    ) -> model.SpecificAssetId:
         # semantic_id can't be applied by _amend_abstract_attributes because specificAssetId is immutable
         return object_class(
             name=_get_text_or_none(element.find(NS_AAS + "name")),
             value=_get_text_or_none(element.find(NS_AAS + "value")),
-            external_subject_id=_failsafe_construct(element.find(NS_AAS + "externalSubjectId"),
-                                                    cls.construct_external_reference, cls.failsafe),
-            semantic_id=_failsafe_construct(element.find(NS_AAS + "semanticId"), cls.construct_reference, cls.failsafe)
+            external_subject_id=_failsafe_construct(
+                element.find(NS_AAS + "externalSubjectId"),
+                cls.construct_external_reference,
+                cls.failsafe,
+            ),
+            semantic_id=_failsafe_construct(
+                element.find(NS_AAS + "semanticId"),
+                cls.construct_reference,
+                cls.failsafe,
+            ),
         )
 
     @classmethod
-    def construct_asset_information(cls, element: etree._Element, object_class=model.AssetInformation, **_kwargs: Any) \
-            -> model.AssetInformation:
+    def construct_asset_information(
+        cls,
+        element: etree._Element,
+        object_class=model.AssetInformation,
+        **_kwargs: Any,
+    ) -> model.AssetInformation:
         specific_asset_id = set()
         specific_asset_ids = element.find(NS_AAS + "specificAssetIds")
         if specific_asset_ids is not None:
-            for id in _child_construct_multiple(specific_asset_ids, NS_AAS + "specificAssetId",
-                                                cls.construct_specific_asset_id, cls.failsafe):
+            for id in _child_construct_multiple(
+                specific_asset_ids,
+                NS_AAS + "specificAssetId",
+                cls.construct_specific_asset_id,
+                cls.failsafe,
+            ):
                 specific_asset_id.add(id)
 
         asset_information = object_class(
-            _child_text_mandatory_mapped(element, NS_AAS + "assetKind", ASSET_KIND_INVERSE),
+            _child_text_mandatory_mapped(
+                element, NS_AAS + "assetKind", ASSET_KIND_INVERSE
+            ),
             global_asset_id=_get_text_or_none(element.find(NS_AAS + "globalAssetId")),
             specific_asset_id=specific_asset_id,
         )
@@ -1036,8 +1398,11 @@ class AASFromXmlDecoder:
         asset_type = _get_text_or_none(element.find(NS_AAS + "assetType"))
         if asset_type is not None:
             asset_information.asset_type = asset_type
-        thumbnail = _failsafe_construct(element.find(NS_AAS + "defaultThumbnail"),
-                                        cls.construct_resource, cls.failsafe)
+        thumbnail = _failsafe_construct(
+            element.find(NS_AAS + "defaultThumbnail"),
+            cls.construct_resource,
+            cls.failsafe,
+        )
         if thumbnail is not None:
             asset_information.default_thumbnail = thumbnail
 
@@ -1045,118 +1410,178 @@ class AASFromXmlDecoder:
         return asset_information
 
     @classmethod
-    def construct_submodel(cls, element: etree._Element, object_class=model.Submodel, **_kwargs: Any) \
-            -> model.Submodel:
+    def construct_submodel(
+        cls, element: etree._Element, object_class=model.Submodel, **_kwargs: Any
+    ) -> model.Submodel:
         submodel = object_class(
-            _child_text_mandatory(element, NS_AAS + "id"),
-            kind=_get_kind(element)
+            _child_text_mandatory(element, NS_AAS + "id"), kind=_get_kind(element)
         )
         if not cls.stripped:
             submodel_elements = element.find(NS_AAS + "submodelElements")
             if submodel_elements is not None:
-                for submodel_element in _failsafe_construct_multiple(submodel_elements, cls.construct_submodel_element,
-                                                                     cls.failsafe):
+                for submodel_element in _failsafe_construct_multiple(
+                    submodel_elements, cls.construct_submodel_element, cls.failsafe
+                ):
                     submodel.submodel_element.add(submodel_element)
         cls._amend_abstract_attributes(submodel, element)
         return submodel
 
     @classmethod
-    def construct_value_reference_pair(cls, element: etree._Element, object_class=model.ValueReferencePair,
-                                       **_kwargs: Any) -> model.ValueReferencePair:
+    def construct_value_reference_pair(
+        cls,
+        element: etree._Element,
+        object_class=model.ValueReferencePair,
+        **_kwargs: Any,
+    ) -> model.ValueReferencePair:
         value_id_element = element.find(NS_AAS + "valueId")
-        value_id = cls.construct_reference(value_id_element, **_kwargs) if value_id_element is not None else None
-        return object_class(_child_text_mandatory(element, NS_AAS + "value"),
-                            value_id)
+        value_id = (
+            cls.construct_reference(value_id_element, **_kwargs)
+            if value_id_element is not None
+            else None
+        )
+        return object_class(_child_text_mandatory(element, NS_AAS + "value"), value_id)
 
     @classmethod
-    def construct_value_list(cls, element: etree._Element, **_kwargs: Any) -> model.ValueList:
+    def construct_value_list(
+        cls, element: etree._Element, **_kwargs: Any
+    ) -> model.ValueList:
         """
         This function doesn't support the object_class parameter, because ValueList is just a generic type alias.
         """
 
         return set(
-            _child_construct_multiple(_get_child_mandatory(element, NS_AAS + "valueReferencePairs"),
-                                      NS_AAS + "valueReferencePair", cls.construct_value_reference_pair,
-                                      cls.failsafe)
+            _child_construct_multiple(
+                _get_child_mandatory(element, NS_AAS + "valueReferencePairs"),
+                NS_AAS + "valueReferencePair",
+                cls.construct_value_reference_pair,
+                cls.failsafe,
+            )
         )
 
     @classmethod
-    def construct_concept_description(cls, element: etree._Element, object_class=model.ConceptDescription,
-                                      **_kwargs: Any) -> model.ConceptDescription:
+    def construct_concept_description(
+        cls,
+        element: etree._Element,
+        object_class=model.ConceptDescription,
+        **_kwargs: Any,
+    ) -> model.ConceptDescription:
         cd = object_class(_child_text_mandatory(element, NS_AAS + "id"))
         is_case_of = element.find(NS_AAS + "isCaseOf")
         if is_case_of is not None:
-            for ref in _child_construct_multiple(is_case_of, NS_AAS + "reference", cls.construct_reference,
-                                                 cls.failsafe):
+            for ref in _child_construct_multiple(
+                is_case_of, NS_AAS + "reference", cls.construct_reference, cls.failsafe
+            ):
                 cd.is_case_of.add(ref)
         cls._amend_abstract_attributes(cd, element)
         return cd
 
     @classmethod
-    def construct_embedded_data_specification(cls, element: etree._Element,
-                                              object_class=model.EmbeddedDataSpecification,
-                                              **_kwargs: Any) -> model.EmbeddedDataSpecification:
-        data_specification_content = _get_child_mandatory(element, NS_AAS + "dataSpecificationContent")
+    def construct_embedded_data_specification(
+        cls,
+        element: etree._Element,
+        object_class=model.EmbeddedDataSpecification,
+        **_kwargs: Any,
+    ) -> model.EmbeddedDataSpecification:
+        data_specification_content = _get_child_mandatory(
+            element, NS_AAS + "dataSpecificationContent"
+        )
         if len(data_specification_content) == 0:
-            raise KeyError(f"{_element_pretty_identifier(data_specification_content)} has no data specification!")
+            raise KeyError(
+                f"{_element_pretty_identifier(data_specification_content)} has no data specification!"
+            )
         if len(data_specification_content) > 1:
-            logger.warning(f"{_element_pretty_identifier(data_specification_content)} has more than one "
-                           "data specification, using the first one...")
+            logger.warning(
+                f"{_element_pretty_identifier(data_specification_content)} has more than one "
+                "data specification, using the first one..."
+            )
         embedded_data_specification = object_class(
-            _child_construct_mandatory(element, NS_AAS + "dataSpecification", cls.construct_external_reference),
-            _failsafe_construct_mandatory(data_specification_content[0], cls.construct_data_specification_content)
+            _child_construct_mandatory(
+                element, NS_AAS + "dataSpecification", cls.construct_external_reference
+            ),
+            _failsafe_construct_mandatory(
+                data_specification_content[0], cls.construct_data_specification_content
+            ),
         )
         cls._amend_abstract_attributes(embedded_data_specification, element)
         return embedded_data_specification
 
     @classmethod
-    def construct_data_specification_content(cls, element: etree._Element, **kwargs: Any) \
-            -> model.DataSpecificationContent:
+    def construct_data_specification_content(
+        cls, element: etree._Element, **kwargs: Any
+    ) -> model.DataSpecificationContent:
         """
         This function doesn't support the object_class parameter.
         Overwrite each individual DataSpecificationContent constructor function instead.
         """
-        data_specification_contents: Dict[str, Callable[..., model.DataSpecificationContent]] = \
-            {NS_AAS + k: v for k, v in {
+        data_specification_contents: Dict[
+            str, Callable[..., model.DataSpecificationContent]
+        ] = {
+            NS_AAS + k: v
+            for k, v in {
                 "dataSpecificationIec61360": cls.construct_data_specification_iec61360,
-            }.items()}
+            }.items()
+        }
         if element.tag not in data_specification_contents:
-            raise KeyError(f"{_element_pretty_identifier(element)} is not a valid DataSpecificationContent!")
+            raise KeyError(
+                f"{_element_pretty_identifier(element)} is not a valid DataSpecificationContent!"
+            )
         return data_specification_contents[element.tag](element, **kwargs)
 
     @classmethod
-    def construct_data_specification_iec61360(cls, element: etree._Element,
-                                              object_class=model.DataSpecificationIEC61360,
-                                              **_kwargs: Any) -> model.DataSpecificationIEC61360:
-        ds_iec = object_class(_child_construct_mandatory(element, NS_AAS + "preferredName",
-                                                         cls.construct_preferred_name_type_iec61360))
-        short_name = _failsafe_construct(element.find(NS_AAS + "shortName"), cls.construct_short_name_type_iec61360,
-                                         cls.failsafe)
+    def construct_data_specification_iec61360(
+        cls,
+        element: etree._Element,
+        object_class=model.DataSpecificationIEC61360,
+        **_kwargs: Any,
+    ) -> model.DataSpecificationIEC61360:
+        ds_iec = object_class(
+            _child_construct_mandatory(
+                element,
+                NS_AAS + "preferredName",
+                cls.construct_preferred_name_type_iec61360,
+            )
+        )
+        short_name = _failsafe_construct(
+            element.find(NS_AAS + "shortName"),
+            cls.construct_short_name_type_iec61360,
+            cls.failsafe,
+        )
         if short_name is not None:
             ds_iec.short_name = short_name
         unit = _get_text_or_none(element.find(NS_AAS + "unit"))
         if unit is not None:
             ds_iec.unit = unit
-        unit_id = _failsafe_construct(element.find(NS_AAS + "unitId"), cls.construct_reference, cls.failsafe)
+        unit_id = _failsafe_construct(
+            element.find(NS_AAS + "unitId"), cls.construct_reference, cls.failsafe
+        )
         if unit_id is not None:
             ds_iec.unit_id = unit_id
-        source_of_definition = _get_text_or_none(element.find(NS_AAS + "sourceOfDefinition"))
+        source_of_definition = _get_text_or_none(
+            element.find(NS_AAS + "sourceOfDefinition")
+        )
         if source_of_definition is not None:
             ds_iec.source_of_definition = source_of_definition
         symbol = _get_text_or_none(element.find(NS_AAS + "symbol"))
         if symbol is not None:
             ds_iec.symbol = symbol
-        data_type = _get_text_mapped_or_none(element.find(NS_AAS + "dataType"), IEC61360_DATA_TYPES_INVERSE)
+        data_type = _get_text_mapped_or_none(
+            element.find(NS_AAS + "dataType"), IEC61360_DATA_TYPES_INVERSE
+        )
         if data_type is not None:
             ds_iec.data_type = data_type
-        definition = _failsafe_construct(element.find(NS_AAS + "definition"), cls.construct_definition_type_iec61360,
-                                         cls.failsafe)
+        definition = _failsafe_construct(
+            element.find(NS_AAS + "definition"),
+            cls.construct_definition_type_iec61360,
+            cls.failsafe,
+        )
         if definition is not None:
             ds_iec.definition = definition
         value_format = _get_text_or_none(element.find(NS_AAS + "valueFormat"))
         if value_format is not None:
             ds_iec.value_format = value_format
-        value_list = _failsafe_construct(element.find(NS_AAS + "valueList"), cls.construct_value_list, cls.failsafe)
+        value_list = _failsafe_construct(
+            element.find(NS_AAS + "valueList"), cls.construct_value_list, cls.failsafe
+        )
         if value_list is not None:
             ds_iec.value_list = value_list
         value = _get_text_or_none(element.find(NS_AAS + "value"))
@@ -1177,8 +1602,10 @@ class AASFromXmlDecoder:
                         raise ValueError
                     level_type_value = _str_to_bool(child.text)
                 except ValueError:
-                    error_message = f"levelType {tag} of {_element_pretty_identifier(element)} has invalid boolean: " \
-                            + str(child.text)
+                    error_message = (
+                        f"levelType {tag} of {_element_pretty_identifier(element)} has invalid boolean: "
+                        + str(child.text)
+                    )
                     if not cls.failsafe:
                         raise ValueError(error_message)
                     logger.warning(error_message)
@@ -1193,6 +1620,7 @@ class StrictAASFromXmlDecoder(AASFromXmlDecoder):
     """
     Non-failsafe XML decoder. Encountered errors won't be caught and abort parsing.
     """
+
     failsafe = False
 
 
@@ -1200,17 +1628,22 @@ class StrippedAASFromXmlDecoder(AASFromXmlDecoder):
     """
     Decoder for stripped XML elements. Used in the HTTP adapter.
     """
+
     stripped = True
 
 
-class StrictStrippedAASFromXmlDecoder(StrictAASFromXmlDecoder, StrippedAASFromXmlDecoder):
+class StrictStrippedAASFromXmlDecoder(
+    StrictAASFromXmlDecoder, StrippedAASFromXmlDecoder
+):
     """
     Non-failsafe decoder for stripped XML elements.
     """
-    pass
 
 
-def _parse_xml_document(file: PathOrIO, failsafe: bool = True, **parser_kwargs: Any) -> Optional[etree._Element]:
+
+def _parse_xml_document(
+    file: PathOrIO, failsafe: bool = True, **parser_kwargs: Any
+) -> Optional[etree._Element]:
     """
     Parse an XML document into an element tree
 
@@ -1223,7 +1656,9 @@ def _parse_xml_document(file: PathOrIO, failsafe: bool = True, **parser_kwargs: 
     :return: The root element of the element tree
     """
 
-    parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, **parser_kwargs)
+    parser = etree.XMLParser(
+        remove_blank_text=True, remove_comments=True, **parser_kwargs
+    )
 
     try:
         root = etree.parse(file, parser).getroot()
@@ -1235,16 +1670,19 @@ def _parse_xml_document(file: PathOrIO, failsafe: bool = True, **parser_kwargs: 
 
     missing_namespaces: Set[str] = REQUIRED_NAMESPACES - set(root.nsmap.values())
     if missing_namespaces:
-        error_message = f"The following required namespaces are not declared: {' | '.join(missing_namespaces)}" \
-                        + " - Is the input document of an older version?"
+        error_message = (
+            f"The following required namespaces are not declared: {' | '.join(missing_namespaces)}"
+            + " - Is the input document of an older version?"
+        )
         if not failsafe:
             raise KeyError(error_message)
         logger.error(error_message)
     return root
 
 
-def _select_decoder(failsafe: bool, stripped: bool, decoder: Optional[Type[AASFromXmlDecoder]]) \
-        -> Type[AASFromXmlDecoder]:
+def _select_decoder(
+    failsafe: bool, stripped: bool, decoder: Optional[Type[AASFromXmlDecoder]]
+) -> Type[AASFromXmlDecoder]:
     """
     Returns the correct decoder based on the parameters failsafe and stripped. If a decoder class is given, failsafe
     and stripped are ignored.
@@ -1272,6 +1710,7 @@ class XMLConstructables(enum.Enum):
     """
     This enum is used to specify which type to construct in read_aas_xml_element().
     """
+
     KEY = enum.auto()
     REFERENCE = enum.auto()
     MODEL_REFERENCE = enum.auto()
@@ -1315,8 +1754,14 @@ class XMLConstructables(enum.Enum):
     DATA_SPECIFICATION_IEC61360 = enum.auto()
 
 
-def read_aas_xml_element(file: PathOrIO, construct: XMLConstructables, failsafe: bool = True, stripped: bool = False,
-                         decoder: Optional[Type[AASFromXmlDecoder]] = None, **constructor_kwargs) -> Optional[object]:
+def read_aas_xml_element(
+    file: PathOrIO,
+    construct: XMLConstructables,
+    failsafe: bool = True,
+    stripped: bool = False,
+    decoder: Optional[Type[AASFromXmlDecoder]] = None,
+    **constructor_kwargs,
+) -> Optional[object]:
     """
     Construct a single object from an XML string. The namespaces have to be declared on the object itself, since there
     is no surrounding environment element.
@@ -1424,18 +1869,20 @@ def read_aas_xml_element(file: PathOrIO, construct: XMLConstructables, failsafe:
         raise ValueError(f"{construct.name} cannot be constructed!")
 
     element = _parse_xml_document(file, failsafe=decoder_.failsafe)
-    return _failsafe_construct(element, constructor, decoder_.failsafe, **constructor_kwargs)
+    return _failsafe_construct(
+        element, constructor, decoder_.failsafe, **constructor_kwargs
+    )
 
 
 def read_aas_xml_file_into(
-        object_store: model.AbstractObjectStore[model.Identifier, model.Identifiable],
-        file: PathOrIO,
-        replace_existing: bool = False,
-        ignore_existing: bool = False,
-        failsafe: bool = True,
-        stripped: bool = False,
-        decoder: Optional[Type[AASFromXmlDecoder]] = None,
-        **parser_kwargs: Any
+    object_store: model.AbstractObjectStore[model.Identifier, model.Identifiable],
+    file: PathOrIO,
+    replace_existing: bool = False,
+    ignore_existing: bool = False,
+    failsafe: bool = True,
+    stripped: bool = False,
+    decoder: Optional[Type[AASFromXmlDecoder]] = None,
+    **parser_kwargs: Any,
 ) -> Set[model.Identifier]:
     """
     Read an Asset Administration Shell XML file according to 'Details of the Asset Administration Shell', chapter 5.4
@@ -1472,7 +1919,7 @@ def read_aas_xml_file_into(
     element_constructors: Dict[str, Callable[..., model.Identifiable]] = {
         "assetAdministrationShell": decoder_.construct_asset_administration_shell,
         "conceptDescription": decoder_.construct_concept_description,
-        "submodel": decoder_.construct_submodel
+        "submodel": decoder_.construct_submodel,
     }
 
     element_constructors = {NS_AAS + k: v for k, v in element_constructors.items()}
@@ -1486,13 +1933,17 @@ def read_aas_xml_file_into(
     for list_ in root:
         element_tag = list_.tag[:-1]
         if list_.tag[-1] != "s" or element_tag not in element_constructors:
-            error_message = f"Unexpected top-level list {_element_pretty_identifier(list_)}!"
+            error_message = (
+                f"Unexpected top-level list {_element_pretty_identifier(list_)}!"
+            )
             if not decoder_.failsafe:
                 raise TypeError(error_message)
             logger.warning(error_message)
             continue
         constructor = element_constructors[element_tag]
-        for element in _child_construct_multiple(list_, element_tag, constructor, decoder_.failsafe):
+        for element in _child_construct_multiple(
+            list_, element_tag, constructor, decoder_.failsafe
+        ):
             if element.id in ret:
                 error_message = f"{element} has a duplicate identifier already parsed in the document!"
                 if not decoder_.failsafe:
@@ -1502,8 +1953,10 @@ def read_aas_xml_file_into(
             existing_element = object_store.get(element.id)
             if existing_element is not None:
                 if not replace_existing:
-                    error_message = f"object with identifier {element.id} already exists " \
-                                    f"in the object store: {existing_element}!"
+                    error_message = (
+                        f"object with identifier {element.id} already exists "
+                        f"in the object store: {existing_element}!"
+                    )
                     if not ignore_existing:
                         raise KeyError(error_message + f" failed to insert {element}!")
                     logger.info(error_message + f" skipping insertion of {element}...")
@@ -1514,8 +1967,9 @@ def read_aas_xml_file_into(
     return ret
 
 
-def read_aas_xml_file(file: PathOrIO, failsafe: bool = True, **kwargs: Any)\
-        -> model.DictIdentifiableStore:
+def read_aas_xml_file(
+    file: PathOrIO, failsafe: bool = True, **kwargs: Any
+) -> model.DictIdentifiableStore:
     """
     A wrapper of :meth:`~basyx.aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`, that reads all objects in an
     empty :class:`~basyx.aas.model.provider.DictIdentifiableStore`. This function supports
@@ -1533,6 +1987,8 @@ def read_aas_xml_file(file: PathOrIO, failsafe: bool = True, **kwargs: Any)\
     :raises TypeError: **Non-failsafe**: Encountered an undefined top-level list (e.g. ``<aas:submodels1>``)
     :return: A :class:`~basyx.aas.model.provider.DictIdentifiableStore` containing all AAS objects from the XML file
     """
-    identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+    identifiable_store: model.DictIdentifiableStore[model.Identifiable] = (
+        model.DictIdentifiableStore()
+    )
     read_aas_xml_file_into(identifiable_store, file, failsafe=failsafe, **kwargs)
     return identifiable_store

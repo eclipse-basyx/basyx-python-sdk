@@ -32,11 +32,10 @@ from typing import Set
 
 import hypothesis.strategies
 import schemathesis
+from app.interfaces.repository import WSGIApp
 from basyx.aas import model
 from basyx.aas.adapter.aasx import DictSupplementaryFileContainer
 from basyx.aas.examples.data.example_aas import create_full_example
-
-from app.interfaces.repository import WSGIApp
 
 
 def _encode_and_quote(identifier: model.Identifier) -> str:

@@ -17,7 +17,7 @@ To Generate [identifier]:  -> Try:
 import abc
 import re
 import uuid
-from typing import Optional, Dict, Union
+from typing import Dict, Optional, Union
 
 from .. import model
 
@@ -31,6 +31,7 @@ class AbstractIdentifierGenerator(metaclass=abc.ABCMeta):
     IRDIs, etc. Some of them may use a given private namespace and create ids within this namespace, others may just
     use long random numbers to ensure uniqueness.
     """
+
     @abc.abstractmethod
     def generate_id(self, proposal: Optional[str] = None) -> model.Identifier:
         """
@@ -40,13 +41,13 @@ class AbstractIdentifierGenerator(metaclass=abc.ABCMeta):
                          fragment of an IRI). It may be ignored by some implementations of or be changed if the
                          resulting id is already existing.
         """
-        pass
 
 
 class UUIDGenerator(AbstractIdentifierGenerator):
     """
     An IdentifierGenerator, that generates URNs of version 1 UUIDs according to RFC 4122.
     """
+
     def __init__(self):
         super().__init__()
         self._sequence = 0
@@ -70,7 +71,12 @@ class NamespaceIRIGenerator(AbstractIdentifierGenerator):
     :ivar provider: An :class:`~basyx.aas.model.provider.AbstractObjectProvider` to check existence of
         :class:`Identifiers <basyx.aas.model.base.Identifier>`
     """
-    def __init__(self, namespace: str, provider: model.AbstractObjectProvider[model.Identifier, model.Identifiable]):
+
+    def __init__(
+        self,
+        namespace: str,
+        provider: model.AbstractObjectProvider[model.Identifier, model.Identifiable],
+    ):
         """
         Create a new NamespaceIRIGenerator
         :param namespace: The IRI Namespace to generate Identifiers in. It must be a valid IRI (starting with a
@@ -78,7 +84,7 @@ class NamespaceIRIGenerator(AbstractIdentifierGenerator):
         :param provider: An AbstractObjectProvider to check existence of Identifiers
         """
         super().__init__()
-        if not re.match(r'^[a-zA-Z][a-zA-Z0-9+\-\.]*:.*[#/=]$', namespace):
+        if not re.match(r"^[a-zA-Z][a-zA-Z0-9+\-\.]*:.*[#/=]$", namespace):
             raise ValueError("Namespace must be a valid IRI, ending with #, / or =")
         self.provider = provider
         self._namespace = namespace
@@ -95,7 +101,9 @@ class NamespaceIRIGenerator(AbstractIdentifierGenerator):
         counter: int = self._counter_cache.get(proposal, 0)
         while True:
             if counter or not proposal:
-                iri = "{}{}{}{:04d}".format(self._namespace, proposal, "_" if proposal else "", counter)
+                iri = "{}{}{}{:04d}".format(
+                    self._namespace, proposal, "_" if proposal else "", counter
+                )
             else:
                 iri = "{}{}".format(self._namespace, proposal)
             # Try to find iri in provider. If it does not exist (KeyError), we found a unique one to return
@@ -111,18 +119,39 @@ class NamespaceIRIGenerator(AbstractIdentifierGenerator):
 # minus '/', '?', '=', '&', '#', which can be used in a path, querystring and fragment
 # plus not allowed characters (see) https://stackoverflow.com/a/36667242/10315508
 _iri_segment_quote_table_tmpl: Dict[Union[str, int], Optional[str]] = {
-    c: '%{:02X}'.format(c.encode()[0])
+    c: "%{:02X}".format(c.encode()[0])
     for c in [
-        ':', '[', ']', '@',  # '/', '?', '#',
-        '!', '$', '\'', '(', ')', '*', '+', ',', ';',  # '=', '&',
-        ' ', '"', '<', '>', '\\', '^', '`', '{', '|', '}',
-    ]}
+        ":",
+        "[",
+        "]",
+        "@",  # '/', '?', '#',
+        "!",
+        "$",
+        "'",
+        "(",
+        ")",
+        "*",
+        "+",
+        ",",
+        ";",  # '=', '&',
+        " ",
+        '"',
+        "<",
+        ">",
+        "\\",
+        "^",
+        "`",
+        "{",
+        "|",
+        "}",
+    ]
+}
 # Remove ASCII control characters
-_iri_segment_quote_table_tmpl.update({
-    i: None
-    for i in range(0, 0x1f)})
-_iri_segment_quote_table_tmpl[0x7f] = None
-_iri_segment_quote_table: Dict[int, Optional[str]] = str.maketrans(_iri_segment_quote_table_tmpl)
+_iri_segment_quote_table_tmpl.update({i: None for i in range(0x1F)})
+_iri_segment_quote_table_tmpl[0x7F] = None
+_iri_segment_quote_table: Dict[int, Optional[str]] = str.maketrans(
+    _iri_segment_quote_table_tmpl
+)
 
 
 def _quote_iri_segment(segment: str) -> str:

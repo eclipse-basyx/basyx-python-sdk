@@ -8,10 +8,11 @@
 This module defines a :class:`~.ComplianceToolStateManager` to store :class:`LogRecords <logging.LogRecord>`
 for single steps in a compliance check of the compliance tool
 """
-import logging
 import enum
+import logging
 import pprint
-from typing import List, Dict
+from typing import Dict, List
+
 from basyx.aas.examples.data._helper import DataChecker
 
 
@@ -25,6 +26,7 @@ class Status(enum.IntEnum):
     :cvar FAILED:
     :cvar NOT_EXECUTED:
     """
+
     SUCCESS = 0
     SUCCESS_WITH_WARNINGS = 1  # never used
     FAILED = 2
@@ -39,6 +41,7 @@ class Step:
     :ivar status: Status of the step from type Status
     :ivar log_list: List of :class:`LogRecords <logging.LogRecord>` which belong to this step
     """
+
     def __init__(self, name: str, status: Status, log_list: List[logging.LogRecord]):
         self.name = name
         self.status = status
@@ -65,6 +68,7 @@ class ComplianceToolStateManager(logging.Handler):
 
     :ivar steps: List of :class:`Steps <.Step>`
     """
+
     def __init__(self):
         """
         steps: List of steps. Each step consist of a step name, a step status and LogRecords belong to to this step.

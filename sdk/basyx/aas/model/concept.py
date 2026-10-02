@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -7,7 +7,8 @@
 """
 This module contains the class :class:`~.ConceptDescription` from the AAS metamodel.
 """
-from typing import Optional, Set, Iterable, List
+
+from typing import Iterable, List, Optional, Set
 
 from . import base
 
@@ -23,7 +24,7 @@ ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES: Set[str] = {
     "EVENT",
     "ENTITY",
     "APPLICATION_CLASS",
-    "QUALIFIER"
+    "QUALIFIER",
 }
 
 
@@ -54,31 +55,36 @@ class ConceptDescription(base.Identifiable, base.HasDataSpecification):
     :ivar embedded_data_specifications: List of Embedded data specification.
     :ivar extension: An extension of the element. (from
                      :class:`~basyx.aas.model.base.HasExtension`)
-"""
+    """
 
-    def __init__(self,
-                 id_: base.Identifier,
-                 is_case_of: Optional[Set[base.Reference]] = None,
-                 id_short: Optional[base.NameType] = None,
-                 display_name: Optional[base.MultiLanguageNameType] = None,
-                 category: Optional[base.NameType] = None,
-                 description: Optional[base.MultiLanguageTextType] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 administration: Optional[base.AdministrativeInformation] = None,
-                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification]
-                 = (),
-                 extension: Iterable[base.Extension] = ()):
+    def __init__(
+        self,
+        id_: base.Identifier,
+        is_case_of: Optional[Set[base.Reference]] = None,
+        id_short: Optional[base.NameType] = None,
+        display_name: Optional[base.MultiLanguageNameType] = None,
+        category: Optional[base.NameType] = None,
+        description: Optional[base.MultiLanguageTextType] = None,
+        parent: Optional[base.UniqueIdShortNamespace] = None,
+        administration: Optional[base.AdministrativeInformation] = None,
+        embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = (),
+        extension: Iterable[base.Extension] = (),
+    ):
 
         super().__init__()
         self.id: base.Identifier = id_
-        self.is_case_of: Set[base.Reference] = set() if is_case_of is None else is_case_of
+        self.is_case_of: Set[base.Reference] = (
+            set() if is_case_of is None else is_case_of
+        )
         self.id_short = id_short
         self.display_name: Optional[base.MultiLanguageNameType] = display_name
         self.category = category
         self.description: Optional[base.MultiLanguageTextType] = description
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
-        self.embedded_data_specifications: List[base.EmbeddedDataSpecification] = list(embedded_data_specifications)
+        self.embedded_data_specifications: List[base.EmbeddedDataSpecification] = list(
+            embedded_data_specifications
+        )
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
 
     def _set_category(self, category: Optional[str]):
@@ -89,6 +95,6 @@ class ConceptDescription(base.Identifiable, base.HasDataSpecification):
                 raise base.AASConstraintViolation(
                     51,
                     "ConceptDescription must have one of the following "
-                    "categories: " + str(ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES)
+                    "categories: " + str(ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES),
                 )
             self._category = category

@@ -8,12 +8,13 @@ specialized Concept Descriptions) are imported into this top-level package, for 
     from basyx.aas.model import AssetAdministrationShell, Submodel, Property
 """
 
+import inspect
+
 from .aas import *
 from .base import *
-from .submodel import *
-from .provider import *
 from .concept import ConceptDescription
-from . import datatypes
+from .provider import *
+from .submodel import *
 
 # A mapping of BaSyx Python SDK implementation classes to the corresponding `KeyTypes` enum members for all classes
 # that are covered by this enum.
@@ -49,7 +50,11 @@ def resolve_referable_class_in_key_types(referable: Referable) -> type:
     :raises TypeError: If the type of the referable or any of its parent classes is not given in `KEY_TYPES_CLASSES`.
     """
     try:
-        ref_type = next(iter(t for t in inspect.getmro(type(referable)) if t in KEY_TYPES_CLASSES))
+        ref_type = next(
+            iter(t for t in inspect.getmro(type(referable)) if t in KEY_TYPES_CLASSES)
+        )
     except StopIteration:
-        raise TypeError(f"Could not find a matching class in KEY_TYPES_CLASSES for {type(referable)}")
+        raise TypeError(
+            f"Could not find a matching class in KEY_TYPES_CLASSES for {type(referable)}"
+        )
     return ref_type

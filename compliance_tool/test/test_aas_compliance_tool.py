@@ -7,12 +7,11 @@
 import datetime
 import hashlib
 import io
-import os
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
-from unittest.mock import patch, ANY
+from unittest.mock import ANY, patch
 
 from aas_compliance_tool.cli import main, parse_cli_arguments
 from basyx.aas import model

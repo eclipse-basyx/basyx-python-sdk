@@ -20,20 +20,22 @@ See [below](#options) on how to configure this.
 Pre-built images are published to [Docker Hub][11] on every release.
 Pull the latest version via:
 ```
-$ docker pull eclipsebasyx/basyx-python-server:latest
+$ docker pull eclipsebasyx/basyx-python-repository:latest
 ```
 
 Or pin to a specific release by replacing `<version>` with the desired release number:
 ```
-$ docker pull eclipsebasyx/basyx-python-server:<version>
+$ docker pull eclipsebasyx/basyx-python-repository:<version>
 ```
 
 ## Building
 
-If you need to build the image locally (e.g. for development), run:
+If you need to build an image locally (e.g. for development) run the following build command in this directory:
 ```
-$ docker build -t basyx-python-server -f Dockerfile ..
+$ docker build -t basyx-python-repository -f docker/repository/Dockerfile --build-context sdk=../sdk --build-context license=.. .
 ```
+Note that the image is built from the `server` directory. The local `sdk` directory is passed in as an additional build context named `sdk`.
+To include the package license, a second additional build context `license` passes in the repository root.
 
 Note that when cloning this repository on Windows, Git may convert the line separators to CRLF. This breaks [`entrypoint.sh`](docker/repository/entrypoint.sh) and [`stop-supervisor.sh`](docker/common/stop-supervisor.sh). Ensure both files use LF line separators (`\n`) before building. 
 
@@ -61,11 +63,11 @@ The container can be configured via environment variables. The most important on
 
 | Variable              | Description                                                                                                                                                                                                                                                                                                                                                                    | Default      |
 |-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|
-| `API_BASE_PATH`       | Base path under which the API is served.                                                                                                                                                                                                                                                                                                                                       | `/api/v3.1/` |
+| `API_BASE_PATH`       | Base path under which the API is served. Overrides the default from `app/config.toml`.                                                                                                                                                                                                                                                                                          | `/api/v3.1`  |
 | `INPUT`               | Path inside the container pointing to the directory from which the server takes its start-up data. The repository server takes *AASX*, *JSON* and *XML* files, while the registry server takes AAS/Submodel descriptors from *JSON* files only.                                                                                                                                | `/input`     |
 | `STORAGE`             | Path inside the container pointing to the directory used by the repository or registry server to persistently store data (*JSON*).                                                                                                                                                                                                                                             | `/storage`   |
 | `STORAGE_PERSISTENCY` | Flag to enable data persistence via the [LocalFileBackend][2]. AAS/Submodels (repository server) or AAS/Submodel descriptors (registry server) are stored as *JSON* files in the directory specified by `STORAGE`. Supplementary files, i.e. files referenced by `File` SubmodelElements, are not stored. If disabled, any changes made via the API are only stored in memory. | `False`      |
-| `STORAGE_OVERWRITE`   | Flag to enable storage overwrite if `STORAGE_PERSISTENCY` is enabled. Any AAS/Submodel from the `INPUT` directory already present in the LocalFileBackend replaces its existing version. If disabled, the existing version is kept.                                                                          | `False`      |
+| `STORAGE_OVERWRITE`   | Flag to enable storage overwrite if `STORAGE_PERSISTENCY` is enabled. Any AAS/Submodel from the `INPUT` directory already present in the LocalFileBackend replaces its existing version. If disabled, the existing version is kept.                                                                                                                                            | `False`      |
 
 
 This implies the following start-up behaviour:
@@ -96,7 +98,7 @@ The server can also be run directly on the host system without Docker, NGINX and
 1. Install the local SDK and the local server package.
    ```bash
    $ pip install ../sdk
-   $ pip install ./app
+   $ pip install .
    ```
 
 2. Run the server by executing the main function in [`./app/interfaces/repository.py`](./app/interfaces/repository.py).
@@ -148,7 +150,7 @@ This Dockerfile is inspired by the [tiangolo/uwsgi-nginx-docker][10] repository.
 [8]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/json.html
 [9]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/xml.html
 [10]: https://github.com/tiangolo/uwsgi-nginx-docker
-[11]: https://hub.docker.com/r/eclipsebasyx/basyx-python-server
+[11]: https://hub.docker.com/r/eclipsebasyx/basyx-python-repository
 [12]: https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShellRegistryServiceSpecification/V3.1.1_SSP-001
 [13]: https://app.swaggerhub.com/apis/Plattform_i40/DiscoveryServiceSpecification/V3.1.1_SSP-001
 [14]: https://app.swaggerhub.com/apis/Plattform_i40/SubmodelRegistryServiceSpecification/V3.1.1_SSP-001

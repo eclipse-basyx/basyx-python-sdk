@@ -14,18 +14,15 @@ All functions reports any issues using the given
 import datetime
 import logging
 from typing import Optional, Tuple, cast
-import io
-from lxml import etree  # type: ignore
 
 import pyecma376_2
-
-from aas_compliance_tool import compliance_check_json, compliance_check_xml
 from basyx.aas import model
 from basyx.aas.adapter import aasx
-from basyx.aas.adapter.xml import xml_deserialization
 from basyx.aas.adapter.json import json_deserialization
-from basyx.aas.examples.data import example_aas, create_example_aas_binding
+from basyx.aas.adapter.xml import xml_deserialization
+from basyx.aas.examples.data import create_example_aas_binding, example_aas
 from basyx.aas.examples.data._helper import AASDataChecker, DataChecker
+
 from aas_compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 
