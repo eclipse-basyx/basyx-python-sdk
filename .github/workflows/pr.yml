@@ -346,6 +346,11 @@ jobs:
         working-directory: ./server
     steps:
     - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+      with:
+        # TODO(#592): revisit when the sdk<->server version pinning is fixed.
+        # Need tags so setuptools_scm builds the local sdk as >=1.0.0, else the loose
+        # `basyx-python-sdk>=1.0.0` pin lets pip replace it with the PyPI release.
+        fetch-depth: 0
     - uses: ./.github/actions/load-versions
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
@@ -354,6 +359,7 @@ jobs:
         cache: "pip"
         cache-dependency-path: "**/pyproject.toml"
     - name: Install Python dependencies
+      # install the local sdk first so its version satisfies the >=1.0.0 pin and pip keeps it instead of PyPI
       run: |
         python -m pip install --upgrade pip
         python -m pip install ../sdk
