@@ -188,12 +188,13 @@ To test that the server is working, we expect to at least be able to build the d
 of it without error. 
 
 For that, you need to have Docker installed on your system. 
-In the directory with the `Dockerfile`: 
+In the `server` directory: 
 ```bash
 ruff check
-docker build -t basyx-python-server .
-docker run --name basyx-python-server basyx-python-server
+docker build -t basyx-python-repository -f docker/repository/Dockerfile --build-context sdk=../sdk --build-context license=.. .
+docker run --name basyx-python-repository basyx-python-repository
 ```
+Replace `repository` with `discovery` or `registry` to test the other server profiles.
 Wait until you see the line:
 ```
 INFO success: quit_on_failure entered RUNNING state
