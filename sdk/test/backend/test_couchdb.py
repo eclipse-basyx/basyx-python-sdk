@@ -10,7 +10,12 @@ import unittest.mock
 from basyx.aas.backend import couchdb
 from basyx.aas.examples.data.example_aas import *
 
-from test._helper.test_helpers import COUCHDB_ERROR, COUCHDB_OKAY, TEST_CONFIG
+from test._helper.test_helpers import (
+    COUCHDB_ERROR,
+    COUCHDB_OKAY,
+    REQUIRE_COUCHDB_INTEGRATION_TESTS,
+    TEST_CONFIG,
+)
 
 source_core: str = (
     "couchdb://"
@@ -22,12 +27,21 @@ source_core: str = (
 
 
 @unittest.skipUnless(
-    COUCHDB_OKAY,
+    COUCHDB_OKAY or REQUIRE_COUCHDB_INTEGRATION_TESTS,
     "No CouchDB is reachable at {}/{}: {}".format(
         TEST_CONFIG["couchdb"]["url"], TEST_CONFIG["couchdb"]["database"], COUCHDB_ERROR
     ),
 )
 class CouchDBBackendTest(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        if not COUCHDB_OKAY:
+            raise RuntimeError(
+                f"REQUIRE_COUCHDB_INTEGRATION_TESTS is set, but no CouchDB is reachable at "
+                f"{TEST_CONFIG['couchdb']['url']}/{TEST_CONFIG['couchdb']['database']}: {COUCHDB_ERROR}"
+            )
+
     def setUp(self) -> None:
         self.couch_identifiable_store = couchdb.CouchDBIdentifiableStore(
             TEST_CONFIG["couchdb"]["url"], TEST_CONFIG["couchdb"]["database"]

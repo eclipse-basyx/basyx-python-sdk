@@ -115,6 +115,9 @@ jobs:
       env:
         # Fail instead of silently skipping if the schema files above are missing (see test_helpers.py).
         REQUIRE_SCHEMA_TESTS: "1"
+        # A CouchDB service container is always started for this job (see `services:` above), so a
+        # missing or misconfigured CouchDB should fail the build, not silently skip the CouchDB tests.
+        REQUIRE_COUCHDB_INTEGRATION_TESTS: "1"
       run: |
         python -m coverage run --source=basyx -m unittest
     - name: Report test coverage
