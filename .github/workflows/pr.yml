@@ -112,6 +112,10 @@ jobs:
       run: |
         python test/_helper/setup_testdb.py -u "admin" -p "$COUCHDB_ADMIN_PASSWORD"
     - name: Test with coverage + unittest
+      env:
+        # A CouchDB service container is always started for this job (see `services:` above), so a
+        # missing or misconfigured CouchDB should fail the build, not silently skip the CouchDB tests.
+        REQUIRE_COUCHDB_INTEGRATION_TESTS: "1"
       run: |
         python -m coverage run --source=basyx -m unittest
     - name: Report test coverage
