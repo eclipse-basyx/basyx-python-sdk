@@ -1,9 +1,10 @@
-Tutorials for working with the Eclipse BaSyx Python SDK
-=======================================================
+Tutorials
+=========
 
+Tutorials for working with the Eclipse BaSyx Python SDK
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    tutorial_create_simple_aas

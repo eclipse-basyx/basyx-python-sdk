@@ -1,5 +1,7 @@
-base - Abstract Classes and Basic Structures
-============================================
+Abstract Classes and Basic Structures
+=====================================
+
+.. rubric:: :mod:`basyx.aas.model.base`
 
 .. automodule:: basyx.aas.model.base
     :exclude-members: ConstrainedList, LangStringSet

@@ -59,8 +59,16 @@ exclude_patterns = []
 # Don't prepend the name of the current module to all classes.
 add_module_names = False
 
-# Include all public documented and undocumented members by default.
-autodoc_default_options = {"members": True, "undoc-members": True}
+# Keep class members (methods, attributes) OUT of the global TOC / sidebar.
+# Still render on the page just dont clutter / leak into navigation or TOC.
+toc_object_entries = False
+
+# Autodoc defaults: document public members only, preserve source order
+autodoc_default_options = {
+    "members": True,
+    "member-order": "bysource", # alphabetic ordering can break logical grouping of source files
+    "undoc-members": True,
+}
 
 # Mapping for correctly linking other module documentations.
 intersphinx_mapping = {
@@ -89,6 +97,12 @@ def setup(app):
 # a list of builtin themes.
 #
 html_theme = "sphinx_rtd_theme"
+
+html_theme_options = {
+    "collapse_navigation": True, # collapse inactive sections (otherwise navbar can get cluttered fast)
+    "navigation_depth": 4, # base and xml use H2
+    "titles_only": False,
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

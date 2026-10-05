@@ -1,5 +1,5 @@
-Tutorial: Navigate Submodels
-============================
+Navigate submodels
+==================
 
 .. _tutorial_navigate_aas:
 

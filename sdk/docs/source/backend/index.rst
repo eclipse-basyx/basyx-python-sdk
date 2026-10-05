@@ -1,5 +1,7 @@
-basyx.aas.backend - Storing and Retrieving of AAS-objects in Backends
-=====================================================================
+Storing and Retrieving of AAS-Objects in Backends
+=================================================
+
+.. rubric:: :mod:`basyx.aas.backend`
 
 .. automodule:: basyx.aas.backend
 

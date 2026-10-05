@@ -1,5 +1,7 @@
-submodel - metamodel of the submodels and events
-=================================================
+Metamodel of the Submodels and Events
+=====================================
+
+.. rubric:: :mod:`basyx.aas.model.submodel`
 
 .. automodule:: basyx.aas.model.submodel
 

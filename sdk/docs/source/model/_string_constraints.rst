@@ -1,5 +1,4 @@
-_string_constraints - Constraint Functions for Constrained String Types
-=======================================================================
+:orphan:
 
 .. automodule:: basyx.aas.model._string_constraints
 

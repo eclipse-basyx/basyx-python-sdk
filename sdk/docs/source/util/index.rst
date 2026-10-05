@@ -1,5 +1,7 @@
-basyx.aas.util - Provide helpful utilities
-==========================================
+Provide Helpful Utilities
+=========================
+
+.. rubric:: :mod:`basyx.aas.util`
 
 .. automodule:: basyx.aas.util
 

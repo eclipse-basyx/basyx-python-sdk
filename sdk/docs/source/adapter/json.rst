@@ -1,16 +1,22 @@
-json - JSON serialization and deserialization
-=============================================
+JSON Serialization and Deserialization
+======================================
+
+.. rubric:: :mod:`basyx.aas.adapter.json`
 
 .. automodule:: basyx.aas.adapter.json
 
 
-json.json_serialization: JSON serialization of AAS objects
-##########################################################
+JSON Serialization of AAS Objects
+---------------------------------
+
+.. rubric:: :mod:`basyx.aas.adapter.json.json_serialization`
 
 .. automodule:: basyx.aas.adapter.json.json_serialization
 
 
-json.json_deserialization: JSON deserialization into AAS objects
-################################################################
+JSON Deserialization into AAS Objects
+-------------------------------------
+
+.. rubric:: :mod:`basyx.aas.adapter.json.json_deserialization`
 
 .. automodule:: basyx.aas.adapter.json.json_deserialization
