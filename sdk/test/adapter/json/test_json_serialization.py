@@ -25,6 +25,8 @@ from basyx.aas.examples.data import (
 )
 from jsonschema import validate  # type: ignore
 
+from test._helper.test_helpers import REQUIRE_SCHEMAS
+
 JSON_SCHEMA_FILE = os.path.join(
     os.path.dirname(__file__), "../schemas/aasJSONSchema.json"
 )
@@ -92,6 +94,10 @@ class JsonSerializationSchemaTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         if not os.path.exists(JSON_SCHEMA_FILE):
+            if REQUIRE_SCHEMAS:
+                raise RuntimeError(
+                    f"REQUIRE_SCHEMA_TESTS is set, but the JSON Schema does not exist at {JSON_SCHEMA_FILE}"
+                )
             raise unittest.SkipTest(
                 f"JSON Schema does not exist at {JSON_SCHEMA_FILE}, skipping test"
             )

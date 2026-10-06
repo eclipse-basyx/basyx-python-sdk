@@ -101,9 +101,9 @@ jobs:
         cache-dependency-path: "**/pyproject.toml"
     - name: Collect schema files from aas-specs
       run: |
-        mkdir -p ./test/adapter/schema
-        curl -sSLf -o ./test/adapter/schema/aasJSONSchema.json https://raw.githubusercontent.com/admin-shell-io/aas-specs-metamodel/refs/tags/${{ env.X_AAS_SPECS_RELEASE_TAG }}/schemas/json/aas.json
-        curl -sSLf -o ./test/adapter/schema/aasXMLSchema.xsd https://raw.githubusercontent.com/admin-shell-io/aas-specs-metamodel/refs/tags/${{ env.X_AAS_SPECS_RELEASE_TAG }}/schemas/xml/AAS.xsd
+        mkdir -p ./test/adapter/schemas
+        curl -sSLf -o ./test/adapter/schemas/aasJSONSchema.json https://raw.githubusercontent.com/admin-shell-io/aas-specs-metamodel/refs/tags/${{ env.X_AAS_SPECS_RELEASE_TAG }}/schemas/json/aas.json
+        curl -sSLf -o ./test/adapter/schemas/aasXMLSchema.xsd https://raw.githubusercontent.com/admin-shell-io/aas-specs-metamodel/refs/tags/${{ env.X_AAS_SPECS_RELEASE_TAG }}/schemas/xml/AAS.xsd
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
@@ -112,6 +112,9 @@ jobs:
       run: |
         python test/_helper/setup_testdb.py -u "admin" -p "$COUCHDB_ADMIN_PASSWORD"
     - name: Test with coverage + unittest
+      env:
+        # Fail instead of silently skipping if the schema files above are missing (see test_helpers.py).
+        REQUIRE_SCHEMA_TESTS: "1"
       run: |
         python -m coverage run --source=basyx -m unittest
     - name: Report test coverage
