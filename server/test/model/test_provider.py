@@ -9,10 +9,9 @@ import json
 import os
 import tempfile
 import unittest
-from typing import Iterable, Union
+from typing import Iterable
 
 from app import adapter, model
-from app.backend.local_file import DESCRIPTOR_TYPE_TO_STRING
 from app.model.provider import DictDescriptorStore, load_directory
 
 from ..adapter.descriptor_utils import example_aas_descriptor, example_submodel_descriptor
@@ -91,19 +90,20 @@ class LoadDirectoryTest(unittest.TestCase):
         aas_descriptors: Iterable[model.AssetAdministrationShellDescriptor] = (),
         submodel_descriptors: Iterable[model.SubmodelDescriptor] = (),
     ) -> None:
-        def to_json_dict(
-            desc: Union[model.AssetAdministrationShellDescriptor, model.SubmodelDescriptor],
-        ) -> dict:
-            data = json.loads(json.dumps(desc, cls=adapter.ServerAASToJsonEncoder))
-            data["modelType"] = DESCRIPTOR_TYPE_TO_STRING[type(desc)]
-            return data
-
         data = {
-            "assetAdministrationShellDescriptors": [to_json_dict(d) for d in aas_descriptors],
-            "submodelDescriptors": [to_json_dict(d) for d in submodel_descriptors],
+            "assetAdministrationShellDescriptors": list(aas_descriptors),
+            "submodelDescriptors": list(submodel_descriptors),
         }
+
+        # Hack in the "modelType" to deserialize into the right classes
+        json_save = json.loads(json.dumps(data, cls=adapter.ServerAASToJsonEncoder))
+        for aas in json_save["assetAdministrationShellDescriptors"]:
+            aas["modelType"] = "AssetAdministrationShellDescriptor"
+        for sm in json_save["submodelDescriptors"]:
+            sm["modelType"] = "SubmodelDescriptor"
+
         with open(os.path.join(directory, filename), "w") as f:
-            json.dump(data, f)
+            json.dump(json_save, f)
 
     def test_loads_descriptors_from_single_file(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
