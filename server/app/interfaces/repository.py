@@ -35,7 +35,7 @@ from .base import (
     T,
     assert_json_response,
     is_stripped_request,
-    parse_level,
+    is_deep_request,
 )
 
 SUPPORTED_PROFILES: ServiceDescription = ServiceDescription(
@@ -724,7 +724,7 @@ class WSGIApp(ObjectStoreWSGIApp):
     ) -> Response:
         self._assert_path_supported(response_t)
         submodels, paging_metadata = self._get_submodels(request)
-        paths = [compute_id_short_paths(submodel, parse_level(request), include_self=False) for submodel in submodels]
+        paths = [compute_id_short_paths(submodel, is_deep_request(request), include_self=False) for submodel in submodels]
         return response_t(paths, paging_metadata=paging_metadata)
 
     # --------- SUBMODEL ROUTES ---------
@@ -757,7 +757,7 @@ class WSGIApp(ObjectStoreWSGIApp):
     ) -> Response:
         self._assert_path_supported(response_t)
         submodel = self._get_submodel(url_args)
-        paths = compute_id_short_paths(submodel, parse_level(request), include_self=False)
+        paths = compute_id_short_paths(submodel, is_deep_request(request), include_self=False)
         return response_t(paths)
 
     def put_submodel(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
@@ -797,7 +797,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         self._assert_path_supported(response_t)
         submodel_elements, paging_metadata = self._get_submodel_submodel_elements(request, url_args)
         paths = [
-            compute_id_short_paths(element, parse_level(request), include_self=True) for element in submodel_elements
+            compute_id_short_paths(element, is_deep_request(request), include_self=True) for element in submodel_elements
         ]
         return response_t(paths, paging_metadata=paging_metadata)
 
@@ -829,7 +829,7 @@ class WSGIApp(ObjectStoreWSGIApp):
     ) -> Response:
         self._assert_path_supported(response_t)
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
-        paths = compute_id_short_paths(submodel_element, parse_level(request), include_self=True)
+        paths = compute_id_short_paths(submodel_element, is_deep_request(request), include_self=True)
         return response_t(paths)
 
     def post_submodel_submodel_elements_id_short_path(

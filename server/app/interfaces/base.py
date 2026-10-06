@@ -500,12 +500,5 @@ def is_stripped_request(request: Request) -> bool:
     return level == "core"
 
 
-def parse_level(request: Request) -> bool:
-    """
-    Parses the ``?level`` query parameter (SerializationModifier Level).
-    :return: True for ``level=deep`` (matches path_serialization.py), False for ``level=core``.
-    """
-    level = request.args.get("level")
-    if level not in {"deep", "core", None}:
-        raise BadRequest(f"Level {level} is not a valid level!")
-    return level != "core"
+def is_deep_request(request: Request) -> bool:
+    return not is_stripped_request(request)
