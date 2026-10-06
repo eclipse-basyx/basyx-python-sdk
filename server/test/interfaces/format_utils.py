@@ -231,7 +231,13 @@ class AssertResponseMixin(unittest.TestCase):
 
     def assert_error(self, response: TestResponse, status_code: int) -> None:
         self.assertEqual(status_code, response.status_code, msg=response.get_data(as_text=True))
-        self.assertIn("success", response.get_data(as_text=True), msg=response.get_data(as_text=True))
+        body_text = response.get_data(as_text=True)
+        if "json" in (response.content_type or ""):
+            success = json.loads(body_text).get("success", False)
+        else:
+            success_elem = etree.fromstring(response.data).find("success")
+            success = success_elem is not None and success_elem.text == "true"
+        self.assertFalse(success, msg=body_text)
 
 
 def with_json_client(func):
