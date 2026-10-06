@@ -34,8 +34,8 @@ from .base import (
     ObjectStoreWSGIApp,
     T,
     assert_json_response,
-    is_stripped_request,
     is_deep_request,
+    is_stripped_request,
 )
 
 SUPPORTED_PROFILES: ServiceDescription = ServiceDescription(
@@ -724,7 +724,9 @@ class WSGIApp(ObjectStoreWSGIApp):
     ) -> Response:
         self._assert_path_supported(response_t)
         submodels, paging_metadata = self._get_submodels(request)
-        paths = [compute_id_short_paths(submodel, is_deep_request(request), include_self=False) for submodel in submodels]
+        paths = [compute_id_short_paths(submodel,
+                                        is_deep_request(request),
+                                        include_self=False) for submodel in submodels]
         return response_t(paths, paging_metadata=paging_metadata)
 
     # --------- SUBMODEL ROUTES ---------
@@ -797,7 +799,9 @@ class WSGIApp(ObjectStoreWSGIApp):
         self._assert_path_supported(response_t)
         submodel_elements, paging_metadata = self._get_submodel_submodel_elements(request, url_args)
         paths = [
-            compute_id_short_paths(element, is_deep_request(request), include_self=True) for element in submodel_elements
+            compute_id_short_paths(element,
+                                   is_deep_request(request),
+                                   include_self=True) for element in submodel_elements
         ]
         return response_t(paths, paging_metadata=paging_metadata)
 
