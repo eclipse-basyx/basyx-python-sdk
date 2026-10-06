@@ -1,3 +1,15 @@
+"""
+This script tests the deserialization of the BaSyx Python SDK against the example files that
+`aas-core-testdatagen` generates. The `aas-specs-metamodel` repository supplies these example files.
+
+The script reads each JSON and XML example file with the SDK adapters. It puts the result of each test into one of
+the categories in `TestResult`. For each test that does not succeed, the script can write a report that contains the
+example file and the stack trace. It can also write a Markdown summary, which the CI shows as the GitHub job summary.
+
+The script exits with code 1 if at least one test has a result in `FAILING_RESULTS`.
+
+For the usage and the arguments, refer to the `Readme.md` in this directory.
+"""
 import argparse
 import enum
 import logging
@@ -7,7 +19,7 @@ import sys
 import traceback
 from collections import Counter
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 from basyx.aas import adapter
 from basyx.aas.model import AASConstraintViolation
@@ -22,13 +34,25 @@ class TestResult(enum.Enum):
     def __format__(self, format_spec):
         return f"{self.value}"
 
+# Results that count as failures, both in the summary and for the exit code of the script
+FAILING_RESULTS = (TestResult.FAILED, TestResult.UNEXPECTED_ERROR)
+
 def sanitize_name(name: str, max_len: int = 120) -> str:
     pattern = r'[<>:"/\\|?*\x00-\x1f\s\'{}\(\)\[\]]'
     name = re.sub(pattern, '_', name)
     name = re.sub(r'_+', '_', name)
     return name.strip('_')[:max_len]
 
-def write_error_report(file_type, example_file, rel_path, error_dir, tb):
+def write_error_report(file_type: str, example_file: Path, rel_path: Path, error_dir: Path, tb: str) -> None:
+    """
+    Writes a report with the content of the example file and the stack trace of the error.
+
+    :param file_type: Format of the example file (`json` or `xml`)
+    :param example_file: File which contains the example that failed
+    :param rel_path: Path of the example file relative to the examples directory, used to name the report
+    :param error_dir: Directory to write the report to
+    :param tb: Formatted stack trace of the error
+    """
     error_dir.mkdir(parents=True, exist_ok=True)
     # Use the full relative path (not just the stem) to avoid collisions: generated example sets reuse
     # the same filenames across many different subdirectories.
@@ -40,8 +64,25 @@ def write_error_report(file_type, example_file, rel_path, error_dir, tb):
 
 
 def run_example_test(
-    file_type, example_file, read_fn, base_path=None, output_dir=None, is_xml=False
+    file_type: str,
+    example_file: Path,
+    read_fn: Callable[[Path], object],
+    base_path: Optional[Path] = None,
+    output_dir: Optional[Path] = None,
+    is_xml: bool = False,
 ) -> tuple[TestResult, str]:
+    """
+    Deserializes an example file with `read_fn` and categorizes the outcome. Writes an error report to `output_dir`
+    for each test that does not succeed.
+
+    :param file_type: Format of the example file (`json` or `xml`), used for logging and the report directory
+    :param example_file: File which contains the example that should be deserialized
+    :param read_fn: Function that deserializes the example file
+    :param base_path: Base directory to compute relative paths
+    :param output_dir: Path to store the failed outputs
+    :param is_xml: If True, the error message is extracted from the chain of causes of the exception
+    :return: Result of the test and the error message (empty on success)
+    """
     rel_path = example_file.relative_to(base_path) if base_path else example_file
 
     try:
@@ -86,7 +127,14 @@ def run_example_test(
             write_error_report(file_type, example_file, rel_path, error_dir, tb)
         return TestResult.UNEXPECTED_ERROR, error_msg
 
-def extract_error_message(ex):
+def extract_error_message(ex: BaseException) -> str:
+    """
+    Extracts the message of the innermost cause of an exception, without line numbers, so that errors of different
+    example files can be grouped.
+
+    :param ex: Exception to extract the message from
+    :return: Message of the innermost cause
+    """
     message = str(ex)
     cause = ex.__cause__
     while cause is not None:
@@ -104,7 +152,7 @@ def test_json_example(
     :param example_file: File which contains the example that should be deserialized
     :param base_path: Base directory to compute relative paths
     :param output_dir: Path to store the failed outputs
-    :return: bool that indicates if the example was successfully deserialized
+    :return: Result of the test and the error message (empty on success)
     """
     return run_example_test(
         file_type="json",
@@ -124,7 +172,7 @@ def test_xml_example(
     :param example_file: File which contains the example that should be deserialized
     :param base_path: Base directory to compute relative paths
     :param output_dir: Path to store the failed outputs
-    :return: bool that indicates if the example was successfully deserialized
+    :return: Result of the test and the error message (empty on success)
     """
     return run_example_test(
         file_type="xml",
@@ -156,7 +204,7 @@ def summarize_output(
         ).stdout.strip()
 
         if "aas-specs-metamodel" not in metamodel_origin:
-            raise ValueError("Exaple files do not stem from aas-specs-metamodel repository")
+            raise ValueError("Example files do not stem from aas-specs-metamodel repository")
         metamodel_tag = subprocess.run(
             ["git", "describe", "--tags", "--exact-match"],
             cwd=example_path, capture_output=True, text=True, check=True
@@ -165,9 +213,9 @@ def summarize_output(
         metamodel_tag = "unknown"
 
     sections = [f"## AAS testdatagen results (metamodel: `{metamodel_tag}`)",
-                f"Summary of the results from testing the SDK implementation (`{sdk_commit}`) against the example files"
-                f"from `aas-specs-metamodel` (version: `{metamodel_tag}`). For detailed information on each failed test"
-                f"consider the artifact uploaded with this job."]
+                f"Summary of the results from testing the SDK implementation (`{sdk_commit}`) against the example "
+                f"files from `aas-specs-metamodel` (version: `{metamodel_tag}`). For detailed information on each "
+                f"failed test consider the artifact uploaded with this job."]
 
     for format_name in test_results.keys():
         format_results = test_results[format_name]
@@ -178,10 +226,11 @@ def summarize_output(
             totals[category] = totals.get(category, 0) + format_results[category, err_msg]
         sections.append(" · ".join(f"{category} : {count}" for category, count in totals.items()))
 
-        total_failed = sum((value for category, value in totals.items() if category != TestResult.SUCCESS))
+        total_failed = sum(value for category, value in totals.items() if category in FAILING_RESULTS)
+        total_not_implemented = totals.get(TestResult.NOT_IMPLEMENTED, 0)
         table_lines = [
             "<details>",
-            f"<summary>Error groups ({total_failed})</summary>",
+            f"<summary>Error groups ({total_failed} failed, {total_not_implemented} not implemented)</summary>",
             "",
             "| Category | Group | Count |",
             "|---|---|---|",
@@ -223,7 +272,7 @@ def main(example_path_str: str, output_path_str: Optional[str], summary_path_str
         test_results[name] = format_results
         failed = sum((format_results[result, err_msg]
                       for result, err_msg in format_results.keys()
-                      if result not in (TestResult.SUCCESS, TestResult.NOT_IMPLEMENTED)
+                      if result in FAILING_RESULTS
                       ))
         total_failed += failed
         total = sum(format_results.values())
