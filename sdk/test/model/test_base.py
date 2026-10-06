@@ -464,6 +464,54 @@ class ModelNamespaceTest(unittest.TestCase):
         self.namespace.set1.add(new_prop)
         self.assertEqual(1, len(self.namespace.set1))
 
+    def test_namespaceset_attribute_assignment(self) -> None:
+        # Assigning an iterable to an attribute holding a NamespaceSet must replace the content of that
+        # NamespaceSet instead of replacing the NamespaceSet itself, see issue #65
+        self.namespace.set2.add(self.prop1)
+        namespace_set = self.namespace.set2
+        number_of_sets = len(self.namespace.namespace_element_sets)
+
+        self.namespace.set2 = [self.prop2, self.prop4]  # type: ignore[assignment]
+        self.assertIs(namespace_set, self.namespace.set2)
+        self.assertEqual(number_of_sets, len(self.namespace.namespace_element_sets))
+        self.assertEqual((self.prop2, self.prop4), tuple(self.namespace.set2))
+        self.assertIsNone(self.prop1.parent)
+        self.assertIs(self.namespace, self.prop2.parent)
+        self.assertIs(self.namespace, self.prop4.parent)
+        self.assertIs(self.prop2, self.namespace.get_referable("Prop2"))
+
+        self.namespace.set2 = []  # type: ignore[assignment]
+        self.assertIs(namespace_set, self.namespace.set2)
+        self.assertEqual(0, len(self.namespace.set2))
+        self.assertIsNone(self.prop2.parent)
+        self.assertIsNone(self.prop4.parent)
+
+    def test_namespaceset_attribute_assignment_atomicity(self) -> None:
+        # If an item cannot be added, the previous content of the NamespaceSet must be restored
+        self.namespace.set2 = [self.prop1, self.prop2]  # type: ignore[assignment]
+
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            self.namespace.set2 = [self.prop4, self.prop3, self.prop7]  # type: ignore[assignment]
+        self.assertEqual(
+            "Object with attribute (name='id_short', value='Prop2') is already present in this set "
+            "of objects (Constraint AASd-022)",
+            str(cm.exception),
+        )
+        self.assertEqual((self.prop1, self.prop2), tuple(self.namespace.set2))
+        self.assertIs(self.namespace, self.prop1.parent)
+        self.assertIs(self.namespace, self.prop2.parent)
+        self.assertIsNone(self.prop3.parent)
+        self.assertIsNone(self.prop4.parent)
+        self.assertIsNone(self.prop7.parent)
+
+    def test_namespaceset_attribute_assignment_same_set(self) -> None:
+        self.namespace.set2.add(self.prop1)
+        namespace_set = self.namespace.set2
+        self.namespace.set2 = namespace_set
+        self.assertIs(namespace_set, self.namespace.set2)
+        self.assertEqual((self.prop1,), tuple(self.namespace.set2))
+        self.assertEqual(1, self.namespace.namespace_element_sets.count(namespace_set))
+
     def test_NamespaceSet(self) -> None:
         self.namespace.set1.add(self.prop1)
         self.assertEqual(1, len(self.namespace.set1))
@@ -949,6 +997,13 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
             str(cm2.exception),
         )
 
+    def test_ordered_namespaceset_attribute_assignment_preserves_order(self) -> None:
+        self.namespace.set2 = [self.prop2, self.prop1, self.prop4]  # type: ignore[assignment]
+        self.assertEqual(
+            [self.prop2, self.prop1, self.prop4], list(self.namespace.set2)
+        )
+        self.assertEqual(self.prop1, self.namespace.set2[1])
+
     def test_ordered_namespaceset_int_setitem_preserves_index(self) -> None:
         # __setitem__ int must place the new item at the exact index of the replaced item.
         # Items before and after the replaced index must not shift.
@@ -1024,6 +1079,48 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
         self.assertIsNone(p2.parent)
         self.assertIs(ns, new1.parent)
         self.assertIs(ns, new2.parent)
+
+
+class NamespaceSetAttributeAssignmentTest(unittest.TestCase):
+    """
+    Tests for assignments to attributes of the metamodel classes that hold a NamespaceSet, see issue #65
+    """
+
+    def test_assignment(self) -> None:
+        submodel = model.Submodel("urn:x-test:submodel")
+        prop = model.Property("Prop", model.datatypes.Int)
+        submodel.submodel_element = [prop]  # type: ignore[assignment]
+        self.assertIsInstance(submodel.submodel_element, model.NamespaceSet)
+        self.assertIs(prop, submodel.get_referable("Prop"))
+        self.assertIs(submodel, prop.parent)
+
+        qualifier = model.Qualifier("type1", model.datatypes.Int, 1)
+        submodel.qualifier = [qualifier]  # type: ignore[assignment]
+        self.assertIs(qualifier, submodel.get_qualifier_by_type("type1"))
+
+        aas = model.AssetAdministrationShell(
+            model.AssetInformation(global_asset_id="urn:x-test:asset"),
+            "urn:x-test:aas",
+        )
+        extension = model.Extension("Ext1", model.datatypes.Int, 1)
+        aas.extension = [extension]  # type: ignore[assignment]
+        self.assertIs(extension, aas.get_extension_by_name("Ext1"))
+
+    def test_update_from(self) -> None:
+        # update_from() and therefore the ObjectStore backends rely on these attributes being NamespaceSets
+        submodel = model.Submodel("urn:x-test:submodel")
+        submodel.submodel_element = [  # type: ignore[assignment]
+            model.Property("Prop", model.datatypes.Int, 1)
+        ]
+        other_submodel = model.Submodel(
+            "urn:x-test:submodel",
+            submodel_element=[model.Property("Prop", model.datatypes.Int, 2)],
+        )
+        submodel.update_from(other_submodel)
+        updated_prop = submodel.get_referable("Prop")
+        self.assertIsInstance(updated_prop, model.Property)
+        assert isinstance(updated_prop, model.Property)
+        self.assertEqual(2, updated_prop.value)
 
 
 class ExternalReferenceTest(unittest.TestCase):
