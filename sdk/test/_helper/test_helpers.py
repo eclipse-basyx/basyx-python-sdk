@@ -7,6 +7,7 @@
 
 import base64
 import configparser
+import os
 import os.path
 import urllib.error
 import urllib.request
@@ -20,7 +21,12 @@ TEST_CONFIG.read(
 )
 
 
-# Check if CouchDB database is available. Otherwise, skip tests.
+# Set this environment variable, to fail (instead of skip) the CouchDB tests when no CouchDB is reachable
+REQUIRE_COUCHDB_INTEGRATION_TESTS = os.environ.get("REQUIRE_COUCHDB_INTEGRATION_TESTS", "false").lower() in {
+    "1", "true", "yes",
+}
+
+# Check if CouchDB database is available. Otherwise, skip tests (unless REQUIRE_COUCHDB_INTEGRATION_TESTS is set).
 try:
     request = urllib.request.Request(
         "{}/{}".format(

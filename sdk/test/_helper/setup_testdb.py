@@ -13,8 +13,10 @@ the way the tests will expect it. The admin user and password used to do the set
 
     setup_testdb.py -u admin -p admin_password
 
-If no CouchDB server at the configured URL, the script will exit with exit code 1. To avoid the error exit code (for use
-in CI), provide the ``--failsafe`` option.
+If no CouchDB server is reachable at the configured URL, or the test database already exists, the script exits with
+exit code 1 by default. CI relies on this to fail fast if the CouchDB service container isn't healthy, rather than
+silently continuing into a test run that would just skip the CouchDB-backed tests. For idempotent/local re-runs
+where an already-existing database is expected and fine, pass ``--failsafe`` to exit with code 0 instead.
 """
 
 import argparse
