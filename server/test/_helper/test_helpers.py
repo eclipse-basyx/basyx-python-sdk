@@ -6,10 +6,11 @@
 # SPDX-License-Identifier: MIT
 
 import configparser
-import os
 import os.path
 import urllib.error
 import urllib.request
+
+from app._config import API_BASE_PATH
 
 TEST_CONFIG = configparser.ConfigParser()
 TEST_CONFIG.read(
@@ -18,7 +19,9 @@ TEST_CONFIG.read(
         os.path.join(os.path.dirname(__file__), "..", "test_config.ini"),
     )
 )
-
+if TEST_CONFIG.get("server", "base_path", fallback="default").lower() == "default":
+    TEST_CONFIG.set("server", "base_path", API_BASE_PATH)
+TEST_CONFIG.set("server", "url", TEST_CONFIG.get("server", "host") + TEST_CONFIG.get("server", "base_path"))
 
 # Set this environment variable, to fail (instead of skip) the integration test when server is not reachable
 REQUIRE_SERVER = os.environ.get("REQUIRE_SERVER_INTEGRATION_TESTS", "false").lower() in {"1", "true", "yes"}
