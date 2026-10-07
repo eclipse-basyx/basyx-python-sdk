@@ -18,7 +18,6 @@ Requests and responses go through the shared :class:`~..format_utils.JsonFormatC
 ``ServerAASToJsonEncoder`` so :class:`~app.model.descriptor.Descriptor` objects can be sent.
 """
 
-from typing import Any
 
 from app.interfaces.registry import RegistryAPI
 from app.model import DictDescriptorStore
@@ -31,13 +30,6 @@ from ..adapter.descriptor_utils import example_aas_descriptor, example_submodel_
 from .format_utils import AssertResponseMixin, JsonFormatClient
 
 
-# TODO(#626): Replace usages with original `DictDescriptorStore`, once `commit()` does not throw NotImplementedError
-class _InMemoryDescriptorStore(DictDescriptorStore):
-
-    def commit(self, x: Any) -> None:
-        pass
-
-
 class RegistryEndpointTestBase(AssertResponseMixin):
     AAS_ID = "https://example.org/shell-descriptors/1"
     AAS_ID_2 = "https://example.org/shell-descriptors/2"
@@ -45,7 +37,7 @@ class RegistryEndpointTestBase(AssertResponseMixin):
     SM_ID_2 = "https://example.org/submodel-descriptors/2"
     UNKNOWN_ID = "https://example.org/unknown"
 
-    store: _InMemoryDescriptorStore
+    store: DictDescriptorStore
     registry_server: RegistryAPI
     client: Client
     format_client: JsonFormatClient
@@ -53,7 +45,7 @@ class RegistryEndpointTestBase(AssertResponseMixin):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
-        cls.store = _InMemoryDescriptorStore()
+        cls.store = DictDescriptorStore()
         cls.registry_server = RegistryAPI(cls.store, base_path="")
         cls.client = Client(cls.registry_server)
         cls.format_client = JsonFormatClient(cls.client)
