@@ -101,9 +101,9 @@ jobs:
         cache-dependency-path: "**/pyproject.toml"
     - name: Collect schema files from aas-specs
       run: |
-        mkdir -p ./test/adapter/schema
-        curl -sSLf -o ./test/adapter/schema/aasJSONSchema.json https://raw.githubusercontent.com/admin-shell-io/aas-specs-metamodel/refs/tags/${{ env.X_AAS_SPECS_RELEASE_TAG }}/schemas/json/aas.json
-        curl -sSLf -o ./test/adapter/schema/aasXMLSchema.xsd https://raw.githubusercontent.com/admin-shell-io/aas-specs-metamodel/refs/tags/${{ env.X_AAS_SPECS_RELEASE_TAG }}/schemas/xml/AAS.xsd
+        mkdir -p ./test/adapter/schemas
+        curl -sSLf -o ./test/adapter/schemas/aasJSONSchema.json https://raw.githubusercontent.com/admin-shell-io/aas-specs-metamodel/refs/tags/${{ env.X_AAS_SPECS_RELEASE_TAG }}/schemas/json/aas.json
+        curl -sSLf -o ./test/adapter/schemas/aasXMLSchema.xsd https://raw.githubusercontent.com/admin-shell-io/aas-specs-metamodel/refs/tags/${{ env.X_AAS_SPECS_RELEASE_TAG }}/schemas/xml/AAS.xsd
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
@@ -112,6 +112,9 @@ jobs:
       run: |
         python test/_helper/setup_testdb.py -u "admin" -p "$COUCHDB_ADMIN_PASSWORD"
     - name: Test with coverage + unittest
+      env:
+        # Fail instead of silently skipping if the schema files above are missing (see test_helpers.py).
+        REQUIRE_SCHEMA_TESTS: "1"
       run: |
         python -m coverage run --source=basyx -m unittest
     - name: Report test coverage
@@ -381,6 +384,11 @@ jobs:
         working-directory: ./server
     steps:
     - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+      with:
+        # TODO(#592): revisit when the sdk<->server version pinning is fixed.
+        # Need tags so setuptools_scm builds the local sdk as >=1.0.0, else the loose
+        # `basyx-python-sdk>=1.0.0` pin lets pip replace it with the PyPI release.
+        fetch-depth: 0
     - uses: ./.github/actions/load-versions
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
@@ -389,6 +397,7 @@ jobs:
         cache: "pip"
         cache-dependency-path: "**/pyproject.toml"
     - name: Install Python dependencies
+      # install the local sdk first so its version satisfies the >=1.0.0 pin and pip keeps it instead of PyPI
       run: |
         python -m pip install --upgrade pip
         python -m pip install ../sdk

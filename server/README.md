@@ -20,20 +20,22 @@ See [below](#options) on how to configure this.
 Pre-built images are published to [Docker Hub][11] on every release.
 Pull the latest version via:
 ```
-$ docker pull eclipsebasyx/basyx-python-server:latest
+$ docker pull eclipsebasyx/basyx-python-repository:latest
 ```
 
 Or pin to a specific release by replacing `<version>` with the desired release number:
 ```
-$ docker pull eclipsebasyx/basyx-python-server:<version>
+$ docker pull eclipsebasyx/basyx-python-repository:<version>
 ```
 
 ## Building
 
-If you need to build the image locally (e.g. for development), run:
+If you need to build an image locally (e.g. for development) run the following build command in this directory:
 ```
-$ docker build -t basyx-python-server -f Dockerfile ..
+$ docker build -t basyx-python-repository -f docker/repository/Dockerfile --build-context sdk=../sdk --build-context license=.. .
 ```
+Note that the image is built from the `server` directory. The local `sdk` directory is passed in as an additional build context named `sdk`.
+To include the package license, a second additional build context `license` passes in the repository root.
 
 Note that when cloning this repository on Windows, Git may convert the line separators to CRLF. This breaks [`entrypoint.sh`](docker/repository/entrypoint.sh) and [`stop-supervisor.sh`](docker/common/stop-supervisor.sh). Ensure both files use LF line separators (`\n`) before building. 
 
@@ -103,7 +105,7 @@ The server can also be run directly on the host system without Docker, NGINX and
 1. Install the local SDK and the local server package.
    ```bash
    $ pip install ../sdk
-   $ pip install ./app
+   $ pip install .
    ```
 
 2. Run the server by executing the main function in [`./app/interfaces/repository.py`](./app/interfaces/repository.py).
@@ -155,7 +157,7 @@ This Dockerfile is inspired by the [tiangolo/uwsgi-nginx-docker][10] repository.
 [8]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/json.html
 [9]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/xml.html
 [10]: https://github.com/tiangolo/uwsgi-nginx-docker
-[11]: https://hub.docker.com/r/eclipsebasyx/basyx-python-server
+[11]: https://hub.docker.com/r/eclipsebasyx/basyx-python-repository
 [12]: https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShellRegistryServiceSpecification/V3.1.1_SSP-001
 [13]: https://app.swaggerhub.com/apis/Plattform_i40/DiscoveryServiceSpecification/V3.1.1_SSP-001
 [14]: https://app.swaggerhub.com/apis/Plattform_i40/SubmodelRegistryServiceSpecification/V3.1.1_SSP-001
