@@ -11,7 +11,7 @@ $ docker compose -f compose.dev.yml up
 ```
 
 Input files are read from `./input` and stored persistently under `./storage` on your host system. 
-The server can be accessed at http://localhost:8080/api/v3.0/ from your host system. 
+The server can be accessed at http://localhost:8080/api/v3.1/ from your host system. 
 To get a different setup, the `compose.yml` (or `compose.dev.yml`) file can be adapted using the options described in the main server [README.md](../../README.md#options).
 
 Note that `compose.dev.yml` builds the image from the `server` directory. The local `sdk` directory is passed in as an additional build context named `sdk`.
