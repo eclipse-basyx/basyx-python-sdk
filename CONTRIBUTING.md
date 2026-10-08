@@ -183,12 +183,27 @@ Note that there are more checks that run in the CI once you open a Pull Request.
 If you want to run the additional checks, please refer to the [CI definition](./.github/workflows/pr.yml).
 
 ### Testing the Server
-Currently, the automated server tests are still under development. 
-To test that the server is working, we expect to at least be able to build the docker images and run a container
-of it without error. 
+For testing the server locally, you need to install the required tools. To do so, run the following command in the 
+`/server` directory (relative to the repository root).
 
+```bash
+pip install .[dev]
+```
+
+Afterward, you are ready to run the checks locally:
+```bash
+ruff check
+mypy app test
+python -m unittest
+coverage run --source app --branch -m unittest
+coverage report -m
+```
+
+We aim to cover our code with tests by at least 80%.
+
+Additionally, you should check that the Docker image builds succeed and the containers start without error. 
 For that, you need to have Docker installed on your system. 
-In the `server` directory: 
+Run the following commands in the `server` directory: 
 ```bash
 ruff check
 docker build -t basyx-python-repository -f docker/repository/Dockerfile --build-context sdk=../sdk --build-context license=.. .
@@ -199,6 +214,10 @@ Wait until you see the line:
 ```
 INFO success: quit_on_failure entered RUNNING state
 ```
+This should help you sort out the most important bugs in your code.
+Note that there are more checks that run in the CI once you open a Pull Request.
+If you want to run the additional checks, please refer to the [CI definition](./.github/workflows/pr.yml).
+
 
 ### Testing the Compliance Tool
 For the Compliance Tool, you can install the required tools like this (from the `./compliance_tool` directory):

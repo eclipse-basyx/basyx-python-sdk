@@ -88,6 +88,13 @@ Currently, we offer:
 - [registry_standalone](example_configurations/registry_standalone/README.md): Standalone registry server
 - [discovery_standalone](example_configurations/discovery_standalone/README.md): Standalone discovery server
 
+## Testing
+
+See [`test/README.md`](test/README.md) for an overview of the server's test suite (endpoint tests, shared-logic
+tests, entrypoint tests and Docker integration tests) and how to write and run tests against it. For the exact
+commands to run the checks locally before opening a Pull Request, see
+[`CONTRIBUTING.md`](../CONTRIBUTING.md#testing-the-server).
+
 ## Running without Docker (Debugging Only)
 
 The server can also be run directly on the host system without Docker, NGINX and supervisord. Although this is not suitable for production, it may be useful for debugging.
