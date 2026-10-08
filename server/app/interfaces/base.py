@@ -184,6 +184,14 @@ class XmlResponseAlt(XmlResponse):
         super().__init__(*args, **kwargs, content_type=content_type)
 
 
+def assert_json_response(response_t: Type[APIResponse], context: str) -> None:
+    """
+    Raises NotAcceptable unless ``response_t`` is JsonResponse.
+    """
+    if response_t is not JsonResponse:
+        raise werkzeug.exceptions.NotAcceptable(f"{context} is only supported for the content type application/json!")
+
+
 class ResultToJsonEncoder(ServerAASToJsonEncoder):
     @classmethod
     def _result_to_json(cls, result: Result) -> Dict[str, object]:
@@ -490,3 +498,7 @@ def is_stripped_request(request: Request) -> bool:
     if extent is not None:
         raise werkzeug.exceptions.NotImplemented("The parameter extent is not yet implemented for this server!")
     return level == "core"
+
+
+def is_deep_request(request: Request) -> bool:
+    return not is_stripped_request(request)
