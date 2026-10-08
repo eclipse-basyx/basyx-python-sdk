@@ -1777,7 +1777,7 @@ class Extension(HasSemantics):
         # Redundant to the line above. However, this way, we make sure that we really update the _name
         self._name = name
 
-    def update_from(self, other: "Extension"):
+    def update_from(self, other: "Extension") -> None:
         """
         Internal function to update the object's attributes from a different version of the exact same object.
 
@@ -1786,10 +1786,13 @@ class Extension(HasSemantics):
 
         :param other: The object to update from
         """
+        # The name setter rejects the current name as a duplicate, so only assign a changed name
+        if self.name != other.name:
+            self.name = other.name
         # Assign value_type first so the incoming value is cast against the new type.
         self.value_type = other.value_type
         self.value = other.value
-        self.refers_to = other.refers_to
+        self.refers_to = set(other.refers_to)
         self.semantic_id = other.semantic_id
         self.supplemental_semantic_id = other.supplemental_semantic_id
 
@@ -1949,7 +1952,7 @@ class Qualifier(HasSemantics):
         # Redundant to the line above. However, this way, we make sure that we really update the _type
         self._type = type_
 
-    def update_from(self, other: "Qualifier"):
+    def update_from(self, other: "Qualifier") -> None:
         """
         Internal function to update the object's attributes from a different version of the exact same object.
 
@@ -1958,6 +1961,9 @@ class Qualifier(HasSemantics):
 
         :param other: The object to update from
         """
+        # The type setter rejects the current type as a duplicate, so only assign a changed type
+        if self.type != other.type:
+            self.type = other.type
         # Assign value_type first so the incoming value is cast against the new type.
         self.value_type = other.value_type
         self.value = other.value

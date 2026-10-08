@@ -284,9 +284,17 @@ class ReferableTest(unittest.TestCase):
     def test_update_from(self):
         example_submodel = example_aas.create_example_submodel()
         example_relel = example_submodel.get_referable("ExampleRelationshipElement")
+        example_qualifier = model.Qualifier("q", model.datatypes.String, "old")
+        example_extension = model.Extension("e", model.datatypes.String, "old")
+        example_submodel.add_qualifier(example_qualifier)
+        example_submodel.add_extension(example_extension)
 
         other_submodel = example_aas.create_example_submodel()
         other_relel = other_submodel.get_referable("ExampleRelationshipElement")
+        other_qualifier = model.Qualifier("q", model.datatypes.String, "new")
+        other_extension = model.Extension("e", model.datatypes.String, "new")
+        other_submodel.add_qualifier(other_qualifier)
+        other_submodel.add_extension(other_extension)
 
         other_submodel.category = "NewCat"
         other_relel.category = "NewRelElCat"
@@ -295,6 +303,8 @@ class ReferableTest(unittest.TestCase):
         example_submodel.update_from(other_submodel)
         self.assertEqual("NewCat", example_submodel.category)
         self.assertEqual("NewRelElCat", example_relel.category)
+        self.assertEqual("new", example_qualifier.value)
+        self.assertEqual("new", example_extension.value)
         # References to Referable objects shall remain stable
         self.assertIs(
             example_relel, example_submodel.get_referable("ExampleRelationshipElement")
@@ -305,32 +315,17 @@ class ReferableTest(unittest.TestCase):
                 "id_short", "ExampleRelationshipElement"
             ),
         )
+        # The same holds for Qualifier and Extension objects
+        self.assertIs(example_qualifier, example_submodel.get_qualifier_by_type("q"))
+        self.assertIs(example_extension, example_submodel.get_extension_by_name("e"))
         # Check Namespace & parent consistency
         self.assertIs(
             example_submodel.namespace_element_sets[0],
             example_submodel.submodel_element,
         )
         self.assertIs(example_relel.parent, example_submodel)
-
-    def test_update_from_qualifier_and_extension(self):
-        submodel = model.Submodel("https://example.org/Test_Submodel")
-        qualifier = model.Qualifier("q", model.datatypes.String, "old")
-        extension = model.Extension("e", model.datatypes.String, "old")
-        submodel.add_qualifier(qualifier)
-        submodel.add_extension(extension)
-
-        other = model.Submodel("https://example.org/Test_Submodel")
-        other.add_qualifier(model.Qualifier("q", model.datatypes.String, "new"))
-        other.add_extension(model.Extension("e", model.datatypes.String, "new"))
-
-        submodel.update_from(other)
-
-        self.assertIs(submodel.get_qualifier_by_type("q"), qualifier)
-        self.assertEqual("new", qualifier.value)
-        self.assertIs(qualifier.parent, submodel)
-        self.assertIs(submodel.get_extension_by_name("e"), extension)
-        self.assertEqual("new", extension.value)
-        self.assertIs(extension.parent, submodel)
+        self.assertIs(example_qualifier.parent, example_submodel)
+        self.assertIs(example_extension.parent, example_submodel)
 
     def test_update_commit_qualifier_extension_semantic_id(self):
         submodel = model.Submodel("https://example.org/Test_Submodel")
@@ -869,7 +864,7 @@ class ModelNamespaceTest(unittest.TestCase):
             namespace1.get_referable("Prop2")
         self.assertIsNone(prop2.parent)
 
-    def test_Namespaceset_update_from_qualifier_and_extension(self) -> None:
+        # Qualifiers and Extensions are updated the same way, matched by type and name.
         # ExampleNamespaceReferable also indexes semantic_id, so Qualifier/Extension
         # objects belong in namespaces that only key on type/name.
         qualifier_ns1 = self._namespace_class_qualifier()
@@ -924,15 +919,14 @@ class ModelNamespaceTest(unittest.TestCase):
             )
         }
         extension_ns2 = ExampleNamespaceExtension()
-        extension_ns2.set1.add(
-            model.Extension(
-                "Ext1",
-                model.datatypes.String,
-                "updated",
-                refers_to=refers_to,
-                semantic_id=self.propSemanticID,
-            )
+        extension1_new = model.Extension(
+            "Ext1",
+            model.datatypes.String,
+            "updated",
+            refers_to=refers_to,
+            semantic_id=self.propSemanticID,
         )
+        extension_ns2.set1.add(extension1_new)
         extension_ns2.set1.add(model.Extension("Ext3", model.datatypes.Int, 3))
         extension_ns1.set1.update_nss_from(extension_ns2.set1)
 
@@ -942,6 +936,7 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertEqual("updated", extension1.value)
         self.assertIs(extension1.value_type, model.datatypes.String)
         self.assertEqual(refers_to, extension1.refers_to)
+        self.assertIsNot(extension1_new.refers_to, extension1.refers_to)
         self.assertEqual(self.propSemanticID, extension1.semantic_id)
         self.assertIs(extension1.parent, extension_ns1)
         extension3 = extension_ns1.set1.get_object_by_attribute("name", "Ext3")
