@@ -102,7 +102,7 @@ def _get_ts(dct: Dict[str, object], key: str, type_: Type[T]) -> T:
     return val
 
 
-def _expect_type(object_: object, type_: Type, context: str, failsafe: bool) -> bool:
+def _expect_type(object_: object, type_: Type, context: object, failsafe: bool) -> bool:
     """
     Helper function to check type of an embedded object.
 
@@ -111,13 +111,14 @@ def _expect_type(object_: object, type_: Type, context: str, failsafe: bool) -> 
     and raise a TypeError if not. In failsafe mode, we want to log the error and prevent the object from being added
     to the parent object. A typical use of this function would look like this:
 
-      if _expect_type(element, model.SubmodelElement, str(submodel), failsafe):
+      if _expect_type(element, model.SubmodelElement, submodel, failsafe):
           submodel.submodel_element.add(element)
 
     :param object_: The object to be type-checked
     :param type_: The expected type
-    :param context: A string to add to the exception message / log message, that describes the context in that the
-                    object has been found
+    :param context: An object (typically the parent object) describing the context in that the object has been
+                    found. It is only converted to a string for the exception message / log message, if the check
+                    fails, since computing the string representation of a Referable is expensive.
     :param failsafe: Log error and return false instead of raising a TypeError
     :return: True if the object is of the expected type
     :raises TypeError: If the object is not of the expected type and the failsafe mode is not active
@@ -230,13 +231,28 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return aas_class_parsers
 
     @classmethod
+    def _get_cached_aas_class_parsers(
+        cls,
+    ) -> Dict[str, Callable[[Dict[str, object]], object]]:
+        """
+        Returns the result of :meth:`_get_aas_class_parsers`, which is computed only once per decoder class, since
+        :meth:`object_hook` needs it for every single JSON object.
+        """
+        # Look up in cls.__dict__ (not via getattr), so subclasses don't reuse the parsers of their base class
+        parsers = cls.__dict__.get("_aas_class_parsers_cache")
+        if parsers is None:
+            parsers = cls._get_aas_class_parsers()
+            setattr(cls, "_aas_class_parsers_cache", parsers)
+        return parsers
+
+    @classmethod
     def object_hook(cls, dct: Dict[str, object]) -> object:
         # Check if JSON object seems to be a deserializable AAS object (i.e. it has a modelType). Otherwise, the JSON
         #   object is returned as is, so it's possible to mix AAS objects with other data within a JSON structure.
         if "modelType" not in dct:
             return dct
 
-        AAS_CLASS_PARSERS = cls._get_aas_class_parsers()
+        AAS_CLASS_PARSERS = cls._get_cached_aas_class_parsers()
 
         # Get modelType and constructor function
         if not isinstance(dct["modelType"], str):
@@ -264,23 +280,30 @@ class AASFromJsonDecoder(json.JSONDecoder):
         try:
             return AAS_CLASS_PARSERS[model_type](dct)
         except (KeyError, TypeError, model.AASConstraintViolation) as e:
-            error_message = (
-                "Error while trying to convert JSON object into {}: {} >>> {}".format(
-                    model_type,
-                    e,
-                    pprint.pformat(dct, depth=2, width=2**14, compact=True),
-                )
-            )
             if cls.failsafe:
-                logger.error(error_message, exc_info=e)
+                # Formatting the JSON object is expensive, so we skip it, if the message would be discarded anyway
+                if logger.isEnabledFor(logging.ERROR):
+                    logger.error(
+                        cls._object_hook_error_message(model_type, e, dct), exc_info=e
+                    )
                 # In failsafe mode, we return the raw JSON object dict, if there were errors while parsing an object, so
                 #   a client application is able to handle this data. The read_json_aas_file() function and all
                 #   constructors for complex objects will skip those items by using _expect_type().
                 return dct
             else:
                 raise (type(e) if isinstance(e, (KeyError, TypeError)) else TypeError)(
-                    error_message
+                    cls._object_hook_error_message(model_type, e, dct)
                 ) from e
+
+    @staticmethod
+    def _object_hook_error_message(
+        model_type: str, e: Exception, dct: Dict[str, object]
+    ) -> str:
+        return "Error while trying to convert JSON object into {}: {} >>> {}".format(
+            model_type,
+            e,
+            pprint.pformat(dct, depth=2, width=2**14, compact=True),
+        )
 
     # ##################################################################################################
     # Utility Methods used in constructor methods to add general attributes (from abstract base classes)
@@ -680,7 +703,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and "statements" in dct:
             for element in _get_ts(dct, "statements", list):
-                if _expect_type(element, model.SubmodelElement, str(ret), cls.failsafe):
+                if _expect_type(element, model.SubmodelElement, ret, cls.failsafe):
                     ret.statement.add(element)
         return ret
 
@@ -732,7 +755,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and "submodelElements" in dct:
             for element in _get_ts(dct, "submodelElements", list):
-                if _expect_type(element, model.SubmodelElement, str(ret), cls.failsafe):
+                if _expect_type(element, model.SubmodelElement, ret, cls.failsafe):
                     ret.submodel_element.add(element)
         return ret
 
@@ -842,7 +865,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and "annotations" in dct:
             for element in _get_ts(dct, "annotations", list):
-                if _expect_type(element, model.DataElement, str(ret), cls.failsafe):
+                if _expect_type(element, model.DataElement, ret, cls.failsafe):
                     ret.annotation.add(element)
         return ret
 
@@ -854,7 +877,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and "value" in dct:
             for element in _get_ts(dct, "value", list):
-                if _expect_type(element, model.SubmodelElement, str(ret), cls.failsafe):
+                if _expect_type(element, model.SubmodelElement, ret, cls.failsafe):
                     ret.value.add(element)
         return ret
 
@@ -894,7 +917,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if not cls.stripped and "value" in dct:
             for element in _get_ts(dct, "value", list):
                 if _expect_type(
-                    element, type_value_list_element, str(ret), cls.failsafe
+                    element, type_value_list_element, ret, cls.failsafe
                 ):
                     ret.value.add(element)
         return ret
