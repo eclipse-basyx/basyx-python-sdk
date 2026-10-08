@@ -1,0 +1,10 @@
+name: basyx-python-server
+services:
+  app:
+    image: eclipsebasyx/basyx-python-discovery:latest
+    ports:
+    - "8084:80"
+    environment:
+      storage_path: /storage/discovery_store.json
+    volumes:
+      - ./storage:/storage

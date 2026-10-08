@@ -1,0 +1,11 @@
+name: basyx-python-server
+services:
+  app:
+    image: eclipsebasyx/basyx-python-repository:latest
+    ports:
+    - "8080:80"
+    volumes:
+      - ./input:/input
+      - ./storage:/storage
+    environment:
+      STORAGE_PERSISTENCY: True
