@@ -5,7 +5,7 @@
 <h1 align="center">Eclipse BaSyx Python SDK</h1>
 
 <p align="center">
-  <a href="https://github.com/eclipse-basyx/basyx-python-sdk/actions/workflows/ci.yml"><img src="https://github.com/eclipse-basyx/basyx-python-sdk/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/eclipse-basyx/basyx-python-sdk/actions/workflows/pr.yml"><img src="https://img.shields.io/github/actions/workflow/status/eclipse-basyx/basyx-python-sdk/pr.yml?branch=main&label=CI" alt="CI"></a>
   <a href="https://pypi.org/project/basyx-python-sdk/"><img src="https://img.shields.io/pypi/v/basyx-python-sdk" alt="PyPI Version"></a>
   <a href="https://anaconda.org/conda-forge/basyx-python-sdk"><img src="https://img.shields.io/conda/vn/conda-forge/basyx-python-sdk" alt="Conda Version"></a>
   <a href="https://pypi.org/project/basyx-python-sdk/"><img src="https://img.shields.io/pypi/dm/basyx-python-sdk" alt="PyPI Downloads"></a>
