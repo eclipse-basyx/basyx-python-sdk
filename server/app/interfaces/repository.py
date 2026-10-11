@@ -25,13 +25,19 @@ from werkzeug.routing import MapAdapter, Rule, Submount
 from app._config import API_BASE_PATH
 from app.adapter import (
     has_value_only_representation,
+    parse_modifiers,
     submodel_element_to_named_value_only,
     submodel_element_to_value_only,
     submodel_to_value_only,
 )
 from app.interfaces.base import PagingMetadata
 from app.model import ServiceDescription, ServiceSpecificationProfileEnum
-from app.util.converters import IdentifierToBase64URLConverter, IdShortPathConverter, base64url_decode
+from app.util.converters import (
+    ContentModifierConverter,
+    IdentifierToBase64URLConverter,
+    IdShortPathConverter,
+    base64url_decode,
+)
 
 from .base import APIResponse, HTTPApiDecoder, JsonResponse, ObjectStoreWSGIApp, T, is_stripped_request
 
@@ -132,18 +138,19 @@ class WSGIApp(ObjectStoreWSGIApp):
                                 Rule("/$value", methods=["GET"], endpoint=self.get_submodel_all_value),
                                 Rule("/$path", methods=["GET"], endpoint=self.not_implemented),
                                 Rule("/<base64url:submodel_id>", methods=["GET"], endpoint=self.get_submodel),
+                                Rule(
+                                    "/<base64url:submodel_id>/<content_modifier:content>",
+                                    methods=["GET"],
+                                    endpoint=self.get_submodel,
+                                ),
                                 Rule("/<base64url:submodel_id>", methods=["PUT"], endpoint=self.put_submodel),
                                 Rule("/<base64url:submodel_id>", methods=["DELETE"], endpoint=self.delete_submodel),
                                 Rule("/<base64url:submodel_id>", methods=["PATCH"], endpoint=self.not_implemented),
                                 Submount(
                                     "/<base64url:submodel_id>",
                                     [
-                                        Rule("/$metadata", methods=["GET"], endpoint=self.get_submodels_metadata),
                                         Rule("/$metadata", methods=["PATCH"], endpoint=self.not_implemented),
-                                        Rule("/$value", methods=["GET"], endpoint=self.get_submodels_value),
                                         Rule("/$value", methods=["PATCH"], endpoint=self.not_implemented),
-                                        Rule("/$reference", methods=["GET"], endpoint=self.get_submodels_reference),
-                                        Rule("/$path", methods=["GET"], endpoint=self.not_implemented),
                                         Rule(
                                             "/submodel-elements",
                                             methods=["GET"],
@@ -363,7 +370,11 @@ class WSGIApp(ObjectStoreWSGIApp):
                     ],
                 )
             ],
-            converters={"base64url": IdentifierToBase64URLConverter, "id_short_path": IdShortPathConverter},
+            converters={
+                "base64url": IdentifierToBase64URLConverter,
+                "content_modifier": ContentModifierConverter,
+                "id_short_path": IdShortPathConverter,
+            },
             strict_slashes=False,
         )
 
@@ -750,30 +761,9 @@ class WSGIApp(ObjectStoreWSGIApp):
         return response_t()
 
     def get_submodel(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
+        mods = parse_modifiers(request, url_args.get("content"))
         submodel = self._get_submodel(url_args)
-        return response_t(submodel, stripped=is_stripped_request(request))
-
-    def get_submodels_metadata(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
-        if "level" in request.args:
-            raise BadRequest("level cannot be used when retrieving metadata!")
-        submodel = self._get_submodel(url_args)
-        return response_t(submodel, stripped=True)
-
-    def get_submodels_value(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
-        self._assert_json_response(response_t)
-        submodel = self._get_submodel(url_args)
-        return response_t(submodel_to_value_only(submodel, not is_stripped_request(request)))
-
-    def get_submodels_reference(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
-        submodel = self._get_submodel(url_args)
-        reference = model.ModelReference.from_referable(submodel)
-        return response_t(reference, stripped=is_stripped_request(request))
+        return response_t(submodel, modifiers=mods)
 
     def put_submodel(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         submodel = self._get_submodel(url_args)
