@@ -29,19 +29,19 @@ class Content(str, Enum):
 @dataclass(frozen=True)
 class Modifiers:
     content: Content
-    deep: bool
-    with_blob: bool
+    is_deep: bool
+    is_with_blob: bool
 
 
 def parse_modifiers(request: Request, content: Optional[Content] = None) -> Modifiers:
     # content is None when URL carried no $... suffix. Default: normal
     resolved = content if content is not None else Content.NORMAL
-    deep = _parse_level(request, resolved)
-    with_blob = _parse_extent(request, resolved)
-    return Modifiers(content=resolved, deep=deep, with_blob=with_blob)
+    is_deep = _is_deep_request(request, resolved)
+    is_with_blob = _is_with_blob_request(request, resolved)
+    return Modifiers(content=resolved, is_deep=is_deep, is_with_blob=is_with_blob)
 
 
-def _parse_level(request: Request, content: Content) -> bool:
+def _is_deep_request(request: Request, content: Content) -> bool:
     raw = request.args.get("level")
     if raw is None:
         # Spec default is deep
@@ -55,7 +55,7 @@ def _parse_level(request: Request, content: Content) -> bool:
     return raw == "deep"
 
 
-def _parse_extent(request: Request, content: Content) -> bool:
+def _is_with_blob_request(request: Request, content: Content) -> bool:
     raw = request.args.get("extent")
     if raw is None:
         return False

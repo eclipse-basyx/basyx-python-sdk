@@ -264,15 +264,15 @@ def pick_encoder(mods: Modifiers) -> Type["ResultToJsonEncoder"]:
     """Pick a JSON encoder class for the given modifier combination."""
     match mods.content:
         case Content.NORMAL:
-            return StrippedResultToJsonEncoder if not mods.deep else ResultToJsonEncoder
+            return StrippedResultToJsonEncoder if not mods.is_deep else ResultToJsonEncoder
         case Content.METADATA:
             return ResultMetadataJsonEncoder
         case Content.VALUE:
-            return ResultShallowValueOnlyJsonEncoder if not mods.deep else ResultValueOnlyJsonEncoder
+            return ResultShallowValueOnlyJsonEncoder if not mods.is_deep else ResultValueOnlyJsonEncoder
         case Content.REFERENCE:
             return ResultReferenceJsonEncoder
         case Content.PATH:
-            return ResultShallowPathJsonEncoder if not mods.deep else ResultPathJsonEncoder
+            return ResultShallowPathJsonEncoder if not mods.is_deep else ResultPathJsonEncoder
 
 
 class BaseWSGIApp:
