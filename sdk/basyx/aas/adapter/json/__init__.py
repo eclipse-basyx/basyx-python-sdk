@@ -31,6 +31,7 @@ from .json_serialization import (
     object_store_to_json,
     write_aas_json_file,
 )
+from .reference_serialization import ReferenceJsonEncoder
 
 __all__ = [
     "AASFromJsonDecoder",
@@ -43,4 +44,5 @@ __all__ = [
     "StrippedAASToJsonEncoder",
     "object_store_to_json",
     "write_aas_json_file",
+    "ReferenceJsonEncoder",
 ]

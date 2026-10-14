@@ -18,6 +18,7 @@ import werkzeug.utils
 from basyx.aas import model
 from basyx.aas.adapter._generic import XML_NS_MAP
 from basyx.aas.adapter.json.path_serialization import PathJsonEncoder, ShallowPathJsonEncoder
+from basyx.aas.adapter.json.reference_serialization import ReferenceJsonEncoder
 from basyx.aas.adapter.json.value_only_serialization import AASToValueOnlyJsonEncoder
 from basyx.aas.adapter.xml import XMLConstructables, read_aas_xml_element, xml_serialization
 from basyx.aas.model import AbstractObjectStore
@@ -239,7 +240,7 @@ class ResultMetadataJsonEncoder(ResultToJsonEncoder):
     pass
 
 
-class ResultReferenceJsonEncoder(ResultToJsonEncoder):
+class ResultReferenceJsonEncoder(ResultToJsonEncoder, ReferenceJsonEncoder):
     pass
 
 
