@@ -17,7 +17,7 @@ import werkzeug.routing
 import werkzeug.utils
 from basyx.aas import model
 from basyx.aas.adapter._generic import XML_NS_MAP
-from basyx.aas.adapter.json.path_serialization import PathJsonEncoder, ShallowPathJsonEncoder
+from basyx.aas.adapter.json.path_serialization import PathJsonEncoder
 from basyx.aas.adapter.json.reference_serialization import ReferenceJsonEncoder
 from basyx.aas.adapter.json.value_only_serialization import AASToValueOnlyJsonEncoder
 from basyx.aas.adapter.xml import XMLConstructables, read_aas_xml_element, xml_serialization
@@ -126,14 +126,15 @@ class JsonResponse(APIResponse):
     def serialize(self, obj: ResponseData, paging_metadata: Optional[PagingMetadata], stripped: bool) -> str:
         # TODO: stripped is still handled here, needs to be replaced see #650
         if self._modifiers is not None:
-            encoder_cls = pick_encoder(self._modifiers)
+            encoder_cls, encoder_kwargs = pick_encoder(self._modifiers)
         else:
             encoder_cls = StrippedResultToJsonEncoder if stripped else ResultToJsonEncoder
+            encoder_kwargs = {}
         if paging_metadata is None:
             data = obj
         else:
             data = {"paging_metadata": paging_metadata, "result": obj}
-        return json.dumps(data, cls=encoder_cls, separators=(",", ":"))
+        return json.dumps(data, cls=encoder_cls, separators=(",", ":"), **encoder_kwargs)
 
 
 class XmlResponse(APIResponse):
@@ -256,23 +257,26 @@ class ResultPathJsonEncoder(ResultToJsonEncoder, PathJsonEncoder):
     pass
 
 
-class ResultShallowPathJsonEncoder(ResultToJsonEncoder, ShallowPathJsonEncoder):
-    pass
+def pick_encoder(mods: Modifiers) -> Tuple[Type["ResultToJsonEncoder"], Dict[str, Any]]:
+    """Pick a JSON encoder class + encoder-constructor kwargs for the given modifier combination.
 
-
-def pick_encoder(mods: Modifiers) -> Type["ResultToJsonEncoder"]:
-    """Pick a JSON encoder class for the given modifier combination."""
+    Encoders that take per-request axis state (e.g. ``deep``) receive it via kwargs here;
+    ``json.dumps`` forwards them into the encoder's ``__init__``.
+    """
     match mods.content:
         case Content.NORMAL:
-            return StrippedResultToJsonEncoder if not mods.is_deep else ResultToJsonEncoder
+            cls = StrippedResultToJsonEncoder if not mods.is_deep else ResultToJsonEncoder
+            return cls, {}
         case Content.METADATA:
-            return ResultMetadataJsonEncoder
+            return ResultMetadataJsonEncoder, {}
         case Content.VALUE:
-            return ResultShallowValueOnlyJsonEncoder if not mods.is_deep else ResultValueOnlyJsonEncoder
+            # TODO: AASToValueOnlyJsonEncoder needs a ``deep`` kwarg; currently always deep.
+            cls = ResultShallowValueOnlyJsonEncoder if not mods.is_deep else ResultValueOnlyJsonEncoder
+            return cls, {}
         case Content.REFERENCE:
-            return ResultReferenceJsonEncoder
+            return ResultReferenceJsonEncoder, {}
         case Content.PATH:
-            return ResultShallowPathJsonEncoder if not mods.is_deep else ResultPathJsonEncoder
+            return ResultPathJsonEncoder, {"deep": mods.is_deep}
 
 
 class BaseWSGIApp:
