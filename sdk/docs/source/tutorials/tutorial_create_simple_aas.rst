@@ -1,5 +1,5 @@
-Tutorial: Create a Simple AAS
-=============================
+Create a simple AAS
+===================
 
 .. _tutorial_create_simple_aas:
 

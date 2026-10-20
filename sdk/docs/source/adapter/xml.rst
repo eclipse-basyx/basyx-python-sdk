@@ -1,17 +1,23 @@
-xml - XML serialization and deserialization
-===========================================
+XML Serialization and Deserialization
+=====================================
+
+.. rubric:: :mod:`basyx.aas.adapter.xml`
 
 .. automodule:: basyx.aas.adapter.xml
 
 
-xml.xml_serialization - Serialization from AAS-objects to XML
-#############################################################
+Serialization from AAS-Objects to XML
+-------------------------------------
+
+.. rubric:: :mod:`basyx.aas.adapter.xml.xml_serialization`
 
 .. automodule:: basyx.aas.adapter.xml.xml_serialization
 
 
-xml.xml_deserialization - Deserialization from XML to AAS-objects
-#################################################################
+Deserialization from XML to AAS-Objects
+---------------------------------------
+
+.. rubric:: :mod:`basyx.aas.adapter.xml.xml_deserialization`
 
 .. automodule:: basyx.aas.adapter.xml.xml_deserialization
 

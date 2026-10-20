@@ -1,5 +1,7 @@
-provider - Providers for storing and retrieving AAS-objects
-===========================================================
+Providers for Storing and Retrieving AAS-Objects
+================================================
+
+.. rubric:: :mod:`basyx.aas.model.provider`
 
 .. automodule:: basyx.aas.model.provider
 
