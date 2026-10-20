@@ -20,29 +20,39 @@ The following types aliased in the :mod:`~server.app.interfaces.base` module are
 - :class:`~server.app.interfaces.base.SchemeType`
 """
 
-from typing import Callable, Type
+from typing import Callable, Optional, Type
 
 from basyx.aas.model._string_constraints import _T, check, constrain_attr
 
 
-def check_code_type(value: str, type_name: str = "CodeType") -> None:
-    return check(value, type_name, 1, 32)
+def check_code_type(
+    value: str, type_name: str = "CodeType", attribute: Optional[str] = None
+) -> None:
+    return check(value, type_name, 1, 32, attribute=attribute)
 
 
-def check_short_id_type(value: str, type_name: str = "ShortIdType") -> None:
-    return check(value, type_name, 1, 128)
+def check_short_id_type(
+    value: str, type_name: str = "ShortIdType", attribute: Optional[str] = None
+) -> None:
+    return check(value, type_name, 1, 128, attribute=attribute)
 
 
-def check_locator_type(value: str, type_name: str = "LocatorType") -> None:
-    return check(value, type_name, 1, 2048)
+def check_locator_type(
+    value: str, type_name: str = "LocatorType", attribute: Optional[str] = None
+) -> None:
+    return check(value, type_name, 1, 2048, attribute=attribute)
 
 
-def check_text_type(value: str, type_name: str = "TextType") -> None:
-    return check(value, type_name, 1, 2048)
+def check_text_type(
+    value: str, type_name: str = "TextType", attribute: Optional[str] = None
+) -> None:
+    return check(value, type_name, 1, 2048, attribute=attribute)
 
 
-def check_scheme_type(value: str, type_name: str = "SchemeType") -> None:
-    return check(value, type_name, 1, 128)
+def check_scheme_type(
+    value: str, type_name: str = "SchemeType", attribute: Optional[str] = None
+) -> None:
+    return check(value, type_name, 1, 128, attribute=attribute)
 
 
 def constrain_code_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
