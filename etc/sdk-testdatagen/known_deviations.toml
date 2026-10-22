@@ -13,4 +13,12 @@
 #
 # The test script fails if a listed known deviation does not occur (stale known deviation).
 
-# SDK only accepts an ExternalReference for EmbeddedDataSpecification/dataSpecification, examples use a ModelReference
+# Upstream testdatagen error: examples use a ModelReference for EmbeddedDataSpecification/dataSpecification
+[[JSON]]
+group = "Expected a reference of type <class 'basyx.aas.model.base.ExternalReference'>, got <class 'basyx.aas.model.base.ModelReference'>!"
+issue = "https://github.com/eclipse-aascw/aas-core-meta/issues/394"
+
+# Upstream testdatagen error: examples use a ModelReference for EmbeddedDataSpecification/dataSpecification
+[[XML]]
+group = "{https://admin-shell.io/aas/3/1}dataSpecification  is of type <class 'basyx.aas.model.base.ModelReference'>, expected <class 'basyx.aas.model.base.ExternalReference'>!"
+issue = "https://github.com/eclipse-aascw/aas-core-meta/issues/394"
