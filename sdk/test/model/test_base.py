@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: MIT
 
 import unittest
-from typing import Callable, Dict, Iterable, List, Optional, Type, TypeVar
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Type, TypeVar
 
 from basyx.aas import model
 from basyx.aas.examples.data import example_aas
@@ -393,9 +393,25 @@ class ExampleNamespaceExtension(model.HasExtension):
         self.set1 = model.NamespaceSet(self, [("name", True)], values)
 
 
+class FailingUpdateProperty(model.Property):
+    def update_from(self, other):
+        raise KeyError("update_from failed")
+
+
+class FailingUpdateQualifier(model.Qualifier):
+    def update_from(self, other):
+        raise KeyError("update_from failed")
+
+
+class FailingUpdateExtension(model.Extension):
+    def update_from(self, other):
+        raise KeyError("update_from failed")
+
+
 class ModelNamespaceTest(unittest.TestCase):
     _namespace_class = ExampleNamespaceReferable
     _namespace_class_qualifier = ExampleNamespaceQualifier
+    _namespace_class_extension = ExampleNamespaceExtension
 
     def setUp(self):
         self.propSemanticID = model.ExternalReference(
@@ -906,7 +922,7 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertFalse(qualifier_ns1.set1.contains_id("type", "type2"))
         self.assertIsNone(qualifier2.parent)
 
-        extension_ns1 = ExampleNamespaceExtension()
+        extension_ns1 = self._namespace_class_extension()
         extension1 = model.Extension("Ext1", model.datatypes.Int, 1)
         extension2 = model.Extension("Ext2", model.datatypes.Int, 2)
         extension_ns1.set1.add(extension1)
@@ -918,7 +934,7 @@ class ModelNamespaceTest(unittest.TestCase):
                 model.Submodel,
             )
         }
-        extension_ns2 = ExampleNamespaceExtension()
+        extension_ns2 = self._namespace_class_extension()
         extension1_new = model.Extension(
             "Ext1",
             model.datatypes.String,
@@ -945,6 +961,50 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertEqual(3, extension3.value)
         self.assertFalse(extension_ns1.set1.contains_id("name", "Ext2"))
         self.assertIsNone(extension2.parent)
+
+    def test_Namespaceset_update_from_key_error(self) -> None:
+        # A KeyError raised by update_from() has to reach the caller. It does not tell that the object is missing in
+        # the NamespaceSet, so nothing may be moved from the other set into this one.
+        test_cases: List[Tuple[Any, str, Any, Any]] = [
+            (
+                self._namespace_class,
+                "set2",
+                FailingUpdateProperty(
+                    "Prop1", model.datatypes.Int, 1, semantic_id=self.propSemanticID
+                ),
+                model.Property(
+                    "Prop1", model.datatypes.Int, 2, semantic_id=self.propSemanticID
+                ),
+            ),
+            (
+                self._namespace_class_qualifier,
+                "set1",
+                FailingUpdateQualifier("type1", model.datatypes.Int, 1),
+                model.Qualifier("type1", model.datatypes.Int, 2),
+            ),
+            (
+                self._namespace_class_extension,
+                "set1",
+                FailingUpdateExtension("Ext1", model.datatypes.Int, 1),
+                model.Extension("Ext1", model.datatypes.Int, 2),
+            ),
+        ]
+        for namespace_class, set_name, old_object, new_object in test_cases:
+            with self.subTest(type(new_object).__name__):
+                namespace1 = namespace_class()
+                namespace2 = namespace_class()
+                set1 = getattr(namespace1, set_name)
+                set2 = getattr(namespace2, set_name)
+                set1.add(old_object)
+                set2.add(new_object)
+
+                with self.assertRaises(KeyError) as cm:
+                    set1.update_nss_from(set2)
+                self.assertEqual("'update_from failed'", str(cm.exception))
+                self.assertEqual([old_object], list(set1))
+                self.assertIs(old_object.parent, namespace1)
+                self.assertEqual([new_object], list(set2))
+                self.assertIs(new_object.parent, namespace2)
 
     def test_qualifiable_id_short_namespace(self) -> None:
         prop1 = model.Property("Prop1", model.datatypes.Int, 1)
@@ -996,8 +1056,22 @@ class ExampleOrderedNamespace(
         self.set4 = model.NamespaceSet(self, [("type", True)])
 
 
+class ExampleOrderedNamespaceQualifier(model.Qualifiable):
+    def __init__(self, values=()):
+        super().__init__()
+        self.set1 = model.OrderedNamespaceSet(self, [("type", False)], values)
+
+
+class ExampleOrderedNamespaceExtension(model.HasExtension):
+    def __init__(self, values=()):
+        super().__init__()
+        self.set1 = model.OrderedNamespaceSet(self, [("name", True)], values)
+
+
 class ModelOrderedNamespaceTest(ModelNamespaceTest):
     _namespace_class = ExampleOrderedNamespace  # type: ignore
+    _namespace_class_qualifier = ExampleOrderedNamespaceQualifier  # type: ignore
+    _namespace_class_extension = ExampleOrderedNamespaceExtension  # type: ignore
 
     def test_OrderedNamespace(self) -> None:
         # Tests from ModelNamespaceTest are inherited, but with ExampleOrderedNamespace instead of ExampleNamespace

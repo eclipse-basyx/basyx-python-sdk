@@ -2406,6 +2406,10 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
             attribute_value if case_sensitive else attribute_value.upper(), default
         )
 
+    # Todo: The removal of objects that are missing in `other` below has known defects. An object is queued once per
+    #  attribute that both sets index, and the second removal raises a KeyError. The lookup in `other` ignores the
+    #  case sensitivity of `other`, attribute names are compared with `is` and an object that is falsy counts as
+    #  missing. Also, objects that are neither Referable, Qualifier nor Extension raise a TypeError.
     def update_nss_from(self, other: "NamespaceSet"):
         """
         Update a NamespaceSet from a given NamespaceSet.
@@ -2420,33 +2424,34 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
             try:
                 if isinstance(other_object, Referable):
                     backend, case_sensitive = self._backend["id_short"]
-                    referable = backend[
+                    existing_object = backend[
                         other_object.id_short
                         if case_sensitive
                         else other_object.id_short.upper()
                     ]
-                    referable.update_from(other_object)  # type: ignore
                 elif isinstance(other_object, Qualifier):
                     backend, case_sensitive = self._backend["type"]
-                    qualifier = backend[
+                    existing_object = backend[
                         other_object.type
                         if case_sensitive
                         else other_object.type.upper()
                     ]
-                    qualifier.update_from(other_object)  # type: ignore
                 elif isinstance(other_object, Extension):
                     backend, case_sensitive = self._backend["name"]
-                    extension = backend[
+                    existing_object = backend[
                         other_object.name
                         if case_sensitive
                         else other_object.name.upper()
                     ]
-                    extension.update_from(other_object)  # type: ignore
                 else:
                     raise TypeError("Type not implemented")
             except KeyError:
                 # other object is not in NamespaceSet
                 objects_to_add.append(other_object)
+                continue
+            # Only the lookup above tells that an object is missing. A KeyError raised by update_from() must not be
+            # mistaken for that, as the object would be removed from `other` and added to this set a second time.
+            existing_object.update_from(other_object)  # type: ignore
         for attr_name, (backend, case_sensitive) in self._backend.items():
             for attr_name_other, (
                 backend_other,
