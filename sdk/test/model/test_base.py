@@ -419,7 +419,7 @@ class ExampleNamespaceQualifier(model.Qualifiable):
 class ExampleNamespaceExtension(model.HasExtension):
     def __init__(self, values=()):
         super().__init__()
-        self.set1 = model.NamespaceSet(self, [("name", True)], values)
+        self.set1 = model.NamespaceSet(self, [("name", False)], values)
 
 
 class FailingUpdateProperty(model.Property):
@@ -860,6 +860,11 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertIn("already present", str(cm.exception))
         self.extension1.name = "Ext3"
         self.assertEqual(self.extension1.name, "Ext3")
+        # The current name is no duplicate of the object itself, and setting it again changes nothing
+        order = list(self.namespace.set3)
+        self.extension2.name = "Ext2"
+        self.assertIs(self.extension2, self.namespace.set3.get("name", "Ext2"))
+        self.assertEqual(order, list(self.namespace.set3))
 
         self.namespace.set4.add(self.qualifier1)
         self.namespace.set4.add(self.qualifier2)
@@ -868,6 +873,50 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertIn("already present", str(cm.exception))
         self.qualifier1.type = "type3"
         self.assertEqual(self.qualifier1.type, "type3")
+        order = list(self.namespace.set4)
+        self.qualifier2.type = "type2"
+        self.assertIs(self.qualifier2, self.namespace.set4.get("type", "type2"))
+        self.assertEqual(order, list(self.namespace.set4))
+
+    def test_renaming_ignoring_case(self) -> None:
+        # In a NamespaceSet that ignores the case, the old spelling of the object itself is no duplicate,
+        # but the spelling of another object still is
+        test_cases: List[Tuple[Any, Any, Any, str, str, str]] = [
+            (
+                self._namespace_class_qualifier,
+                model.Qualifier("Case", model.datatypes.Int, 1),
+                model.Qualifier("Other", model.datatypes.Int, 2),
+                "type",
+                "CASE",
+                "case",
+            ),
+            (
+                self._namespace_class_extension,
+                model.Extension("Case", model.datatypes.Int, 1),
+                model.Extension("Other", model.datatypes.Int, 2),
+                "name",
+                "CASE",
+                "case",
+            ),
+        ]
+        for namespace_class, object1, object2, attr_name, upper, lower in test_cases:
+            with self.subTest(type(object1).__name__):
+                namespace = namespace_class()
+                namespace.set1.add(object1)
+                namespace.set1.add(object2)
+
+                setattr(object1, attr_name, upper)
+                self.assertEqual(upper, getattr(object1, attr_name))
+                self.assertIs(
+                    object1, namespace.set1.get_object_by_attribute(attr_name, lower)
+                )
+                self.assertEqual(2, len(namespace.set1))
+                self.assertIs(object1.parent, namespace)
+
+                with self.assertRaises(KeyError) as cm:
+                    setattr(object2, attr_name, lower)
+                self.assertIn("already present", str(cm.exception))
+                self.assertEqual("Other", getattr(object2, attr_name))
 
     def test_Namespaceset_update_from(self) -> None:
         # Prop1 is getting its value updated by namespace2.set1
@@ -1001,6 +1050,47 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertFalse(extension_ns1.set1.contains_id("name", "Ext2"))
         self.assertIsNone(extension2.parent)
 
+    def test_Namespaceset_update_from_case_insensitive_match(self) -> None:
+        # The sets match the objects regardless of the case, so the type or name of the other object may be spelled
+        # differently. The object in this set stays the same object and takes over the spelling of the other one.
+        test_cases: List[Tuple[Any, Any, Any, str]] = [
+            (
+                self._namespace_class_qualifier,
+                model.Qualifier("type1", model.datatypes.Int, 1),
+                model.Qualifier("TYPE1", model.datatypes.Int, 99),
+                "type",
+            ),
+            (
+                self._namespace_class_extension,
+                model.Extension("Ext1", model.datatypes.Int, 1),
+                model.Extension("EXT1", model.datatypes.Int, 99),
+                "name",
+            ),
+        ]
+        for namespace_class, old_object, new_object, attr_name in test_cases:
+            with self.subTest(type(new_object).__name__):
+                namespace1 = namespace_class()
+                namespace2 = namespace_class()
+                namespace1.set1.add(old_object)
+                namespace2.set1.add(new_object)
+
+                namespace1.set1.update_nss_from(namespace2.set1)
+                self.assertEqual(
+                    getattr(new_object, attr_name), getattr(old_object, attr_name)
+                )
+                self.assertEqual(99, old_object.value)
+                self.assertEqual([old_object], list(namespace1.set1))
+                self.assertIs(old_object.parent, namespace1)
+                self.assertIs(
+                    old_object,
+                    namespace1.set1.get_object_by_attribute(
+                        attr_name, getattr(old_object, attr_name)
+                    ),
+                )
+                # The other set is left alone
+                self.assertEqual([new_object], list(namespace2.set1))
+                self.assertIs(new_object.parent, namespace2)
+
     def test_Namespaceset_update_from_key_error(self) -> None:
         # A KeyError raised by update_from() has to reach the caller. It does not tell that the object is missing in
         # the NamespaceSet, so nothing may be moved from the other set into this one.
@@ -1104,7 +1194,7 @@ class ExampleOrderedNamespaceQualifier(model.Qualifiable):
 class ExampleOrderedNamespaceExtension(model.HasExtension):
     def __init__(self, values=()):
         super().__init__()
-        self.set1 = model.OrderedNamespaceSet(self, [("name", True)], values)
+        self.set1 = model.OrderedNamespaceSet(self, [("name", False)], values)
 
 
 class ModelOrderedNamespaceTest(ModelNamespaceTest):
@@ -1708,6 +1798,48 @@ class QualifierTest(unittest.TestCase):
         )
         self.assertIs(submodel.get_qualifier_by_type("q"), qualifier)
 
+    def test_update_from_type_collision(self) -> None:
+        # The type of the other object belongs to another qualifier, which must not change anything
+        submodel = model.Submodel("urn:x-test:submodel")
+        qualifier = model.Qualifier(
+            "q1",
+            model.datatypes.String,
+            "old",
+            value_id=_global_reference("urn:x-test:value-id"),
+            kind=model.QualifierKind.CONCEPT_QUALIFIER,
+            semantic_id=_global_reference("urn:x-test:semantic-id"),
+            supplemental_semantic_id=[_global_reference("urn:x-test:supplemental")],
+        )
+        other_qualifier = model.Qualifier("q2", model.datatypes.String, "other")
+        submodel.add_qualifier(qualifier)
+        submodel.add_qualifier(other_qualifier)
+
+        with self.assertRaises(KeyError) as cm:
+            qualifier.update_from(
+                model.Qualifier(
+                    "q2",
+                    model.datatypes.Int,
+                    2,
+                    value_id=_global_reference("urn:x-test:new-value-id"),
+                    kind=model.QualifierKind.VALUE_QUALIFIER,
+                )
+            )
+        self.assertIn("already present", str(cm.exception))
+        self.assertEqual("q1", qualifier.type)
+        self.assertIs(qualifier.value_type, model.datatypes.String)
+        self.assertEqual("old", qualifier.value)
+        self.assertEqual(_global_reference("urn:x-test:value-id"), qualifier.value_id)
+        self.assertEqual(model.QualifierKind.CONCEPT_QUALIFIER, qualifier.kind)
+        self.assertEqual(
+            _global_reference("urn:x-test:semantic-id"), qualifier.semantic_id
+        )
+        self.assertEqual(
+            [_global_reference("urn:x-test:supplemental")],
+            list(qualifier.supplemental_semantic_id),
+        )
+        self.assertIs(submodel.get_qualifier_by_type("q1"), qualifier)
+        self.assertIs(submodel.get_qualifier_by_type("q2"), other_qualifier)
+
     def test_update_from_without_semantic_id(self) -> None:
         # Constraint AASd-118: The semantic_id must not be removed while there is a supplemental_semantic_id
         submodel = model.Submodel("urn:x-test:submodel")
@@ -1786,6 +1918,42 @@ class ExtensionTest(unittest.TestCase):
             other.supplemental_semantic_id, extension.supplemental_semantic_id
         )
         self.assertIs(submodel.get_extension_by_name("e"), extension)
+
+    def test_update_from_name_collision(self) -> None:
+        # The name of the other object belongs to another extension, which must not change anything
+        submodel = model.Submodel("urn:x-test:submodel")
+        refers_to = model.ModelReference(
+            (model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),),
+            model.Submodel,
+        )
+        extension = model.Extension(
+            "e1",
+            model.datatypes.String,
+            "old",
+            refers_to=[refers_to],
+            semantic_id=_global_reference("urn:x-test:semantic-id"),
+            supplemental_semantic_id=[_global_reference("urn:x-test:supplemental")],
+        )
+        other_extension = model.Extension("e2", model.datatypes.String, "other")
+        submodel.add_extension(extension)
+        submodel.add_extension(other_extension)
+
+        with self.assertRaises(KeyError) as cm:
+            extension.update_from(model.Extension("e2", model.datatypes.Int, 2))
+        self.assertIn("already present", str(cm.exception))
+        self.assertEqual("e1", extension.name)
+        self.assertIs(extension.value_type, model.datatypes.String)
+        self.assertEqual("old", extension.value)
+        self.assertEqual({refers_to}, extension.refers_to)
+        self.assertEqual(
+            _global_reference("urn:x-test:semantic-id"), extension.semantic_id
+        )
+        self.assertEqual(
+            [_global_reference("urn:x-test:supplemental")],
+            list(extension.supplemental_semantic_id),
+        )
+        self.assertIs(submodel.get_extension_by_name("e1"), extension)
+        self.assertIs(submodel.get_extension_by_name("e2"), other_extension)
 
     def test_update_from_without_semantic_id(self) -> None:
         # Constraint AASd-118: The semantic_id must not be removed while there is a supplemental_semantic_id

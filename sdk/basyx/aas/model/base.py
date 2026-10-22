@@ -1770,8 +1770,10 @@ class Extension(HasSemantics):
     def name(self, name: NameType) -> None:
         _string_constraints.check_name_type(name)
         if self.parent is not None:
+            if name == self._name:
+                return
             for set_ in self.parent.namespace_element_sets:
-                if set_.contains_id("name", name):
+                if set_.contains_id("name", name) and set_.get("name", name) is not self:
                     raise KeyError(
                         "Object with name '{}' is already present in the parent Namespace".format(
                             name
@@ -1797,9 +1799,7 @@ class Extension(HasSemantics):
 
         :param other: The object to update from
         """
-        # The name setter rejects the current name as a duplicate, so only assign a changed name
-        if self.name != other.name:
-            self.name = other.name
+        self.name = other.name
         self._update_semantic_ids_from(other)
         # Assign value_type first so the incoming value is cast against the new type.
         self.value_type = other.value_type
@@ -1944,8 +1944,10 @@ class Qualifier(HasSemantics):
     def type(self, type_: QualifierType) -> None:
         _string_constraints.check_qualifier_type(type_)
         if self.parent is not None:
+            if type_ == self._type:
+                return
             for set_ in self.parent.namespace_element_sets:
-                if set_.contains_id("type", type_):
+                if set_.contains_id("type", type_) and set_.get("type", type_) is not self:
                     raise KeyError(
                         "Object with type '{}' is already present in the parent Namespace".format(
                             type_
@@ -1971,9 +1973,7 @@ class Qualifier(HasSemantics):
 
         :param other: The object to update from
         """
-        # The type setter rejects the current type as a duplicate, so only assign a changed type
-        if self.type != other.type:
-            self.type = other.type
+        self.type = other.type
         self._update_semantic_ids_from(other)
         # Assign value_type first so the incoming value is cast against the new type.
         self.value_type = other.value_type
