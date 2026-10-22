@@ -1700,6 +1700,17 @@ class HasSemantics(metaclass=abc.ABCMeta):
     def supplemental_semantic_id(self, supplemental_semantic_id: Iterable[Reference]):
         self._supplemental_semantic_id[:] = supplemental_semantic_id
 
+    def _update_semantic_ids_from(self, other: "HasSemantics") -> None:
+        """
+        Copy the ``semantic_id`` and the ``supplemental_semantic_id`` of another object.
+
+        The old supplemental semantic IDs are cleared before the semantic ID is replaced, as the semantic ID must not
+        be removed while there are supplemental semantic IDs (Constraint AASd-118). The new ones are set last.
+        """
+        self.supplemental_semantic_id.clear()
+        self.semantic_id = other.semantic_id
+        self.supplemental_semantic_id = other.supplemental_semantic_id
+
 
 class Extension(HasSemantics):
     """
@@ -1781,20 +1792,19 @@ class Extension(HasSemantics):
         """
         Internal function to update the object's attributes from a different version of the exact same object.
 
-        This function should not be used directly. It is typically used by backend implementations (database adapters,
-        protocol clients, etc.) to update the object's data, after ``update_nss_from()`` has been called.
+        This function should not be used directly. ``NamespaceSet.update_nss_from()`` calls it for every object that is
+        present in both NamespaceSets.
 
         :param other: The object to update from
         """
         # The name setter rejects the current name as a duplicate, so only assign a changed name
         if self.name != other.name:
             self.name = other.name
+        self._update_semantic_ids_from(other)
         # Assign value_type first so the incoming value is cast against the new type.
         self.value_type = other.value_type
         self.value = other.value
         self.refers_to = set(other.refers_to)
-        self.semantic_id = other.semantic_id
-        self.supplemental_semantic_id = other.supplemental_semantic_id
 
 
 class HasKind(metaclass=abc.ABCMeta):
@@ -1956,21 +1966,20 @@ class Qualifier(HasSemantics):
         """
         Internal function to update the object's attributes from a different version of the exact same object.
 
-        This function should not be used directly. It is typically used by backend implementations (database adapters,
-        protocol clients, etc.) to update the object's data, after ``update_nss_from()`` has been called.
+        This function should not be used directly. ``NamespaceSet.update_nss_from()`` calls it for every object that is
+        present in both NamespaceSets.
 
         :param other: The object to update from
         """
         # The type setter rejects the current type as a duplicate, so only assign a changed type
         if self.type != other.type:
             self.type = other.type
+        self._update_semantic_ids_from(other)
         # Assign value_type first so the incoming value is cast against the new type.
         self.value_type = other.value_type
         self.value = other.value
         self.value_id = other.value_id
         self.kind = other.kind
-        self.semantic_id = other.semantic_id
-        self.supplemental_semantic_id = other.supplemental_semantic_id
 
 
 @_string_constraints.constrain_value_type_iec61360("value")
