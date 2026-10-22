@@ -354,6 +354,11 @@ class ReferableTest(unittest.TestCase):
 class ExampleNamespaceReferable(
     model.UniqueIdShortNamespace, model.UniqueSemanticIdNamespace, model.Identifiable
 ):
+    set1: "model.NamespaceSetAttribute[model.Referable]" = model.NamespaceSetAttribute()
+    set2: "model.NamespaceSetAttribute[model.Referable]" = model.NamespaceSetAttribute()
+    set3: "model.NamespaceSetAttribute[model.Extension]" = model.NamespaceSetAttribute()
+    set4: "model.NamespaceSetAttribute[model.Qualifier]" = model.NamespaceSetAttribute()
+
     def __init__(self, values=()):
         super().__init__()
         # The 'id' is required by Referable.__repr__() in error messages.
@@ -367,6 +372,8 @@ class ExampleNamespaceReferable(
 
 
 class ExampleNamespaceQualifier(model.Qualifiable):
+    set1: "model.NamespaceSetAttribute[model.Qualifier]" = model.NamespaceSetAttribute()
+
     def __init__(self, values=()):
         super().__init__()
         self.set1 = model.NamespaceSet(self, [("type", False)], values)
@@ -471,7 +478,7 @@ class ModelNamespaceTest(unittest.TestCase):
         namespace_set = self.namespace.set2
         number_of_sets = len(self.namespace.namespace_element_sets)
 
-        self.namespace.set2 = [self.prop2, self.prop4]  # type: ignore[assignment]
+        self.namespace.set2 = [self.prop2, self.prop4]
         self.assertIs(namespace_set, self.namespace.set2)
         self.assertEqual(number_of_sets, len(self.namespace.namespace_element_sets))
         self.assertEqual((self.prop2, self.prop4), tuple(self.namespace.set2))
@@ -480,7 +487,7 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertIs(self.namespace, self.prop4.parent)
         self.assertIs(self.prop2, self.namespace.get_referable("Prop2"))
 
-        self.namespace.set2 = []  # type: ignore[assignment]
+        self.namespace.set2 = []
         self.assertIs(namespace_set, self.namespace.set2)
         self.assertEqual(0, len(self.namespace.set2))
         self.assertIsNone(self.prop2.parent)
@@ -488,10 +495,10 @@ class ModelNamespaceTest(unittest.TestCase):
 
     def test_namespaceset_attribute_assignment_atomicity(self) -> None:
         # If an item cannot be added, the previous content of the NamespaceSet must be restored
-        self.namespace.set2 = [self.prop1, self.prop2]  # type: ignore[assignment]
+        self.namespace.set2 = [self.prop1, self.prop2]
 
         with self.assertRaises(model.AASConstraintViolation) as cm:
-            self.namespace.set2 = [self.prop4, self.prop3, self.prop7]  # type: ignore[assignment]
+            self.namespace.set2 = [self.prop4, self.prop3, self.prop7]
         self.assertEqual(
             "Object with attribute (name='id_short', value='Prop2') is already present in this set "
             "of objects (Constraint AASd-022)",
@@ -929,6 +936,15 @@ class ModelNamespaceTest(unittest.TestCase):
 class ExampleOrderedNamespace(
     model.UniqueIdShortNamespace, model.UniqueSemanticIdNamespace, model.Identifiable
 ):
+    set1: "model.OrderedNamespaceSetAttribute[model.Referable]" = (
+        model.OrderedNamespaceSetAttribute()
+    )
+    set2: "model.OrderedNamespaceSetAttribute[model.Referable]" = (
+        model.OrderedNamespaceSetAttribute()
+    )
+    set3: "model.NamespaceSetAttribute[model.Extension]" = model.NamespaceSetAttribute()
+    set4: "model.NamespaceSetAttribute[model.Qualifier]" = model.NamespaceSetAttribute()
+
     def __init__(self, values=()):
         super().__init__()
         # The 'id' is required by Referable.__repr__() in error messages.
@@ -998,7 +1014,7 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
         )
 
     def test_ordered_namespaceset_attribute_assignment_preserves_order(self) -> None:
-        self.namespace.set2 = [self.prop2, self.prop1, self.prop4]  # type: ignore[assignment]
+        self.namespace.set2 = [self.prop2, self.prop1, self.prop4]
         self.assertEqual(
             [self.prop2, self.prop1, self.prop4], list(self.namespace.set2)
         )
@@ -1089,13 +1105,13 @@ class NamespaceSetAttributeAssignmentTest(unittest.TestCase):
     def test_assignment(self) -> None:
         submodel = model.Submodel("urn:x-test:submodel")
         prop = model.Property("Prop", model.datatypes.Int)
-        submodel.submodel_element = [prop]  # type: ignore[assignment]
+        submodel.submodel_element = [prop]
         self.assertIsInstance(submodel.submodel_element, model.NamespaceSet)
         self.assertIs(prop, submodel.get_referable("Prop"))
         self.assertIs(submodel, prop.parent)
 
         qualifier = model.Qualifier("type1", model.datatypes.Int, 1)
-        submodel.qualifier = [qualifier]  # type: ignore[assignment]
+        submodel.qualifier = [qualifier]
         self.assertIs(qualifier, submodel.get_qualifier_by_type("type1"))
 
         aas = model.AssetAdministrationShell(
@@ -1103,15 +1119,13 @@ class NamespaceSetAttributeAssignmentTest(unittest.TestCase):
             "urn:x-test:aas",
         )
         extension = model.Extension("Ext1", model.datatypes.Int, 1)
-        aas.extension = [extension]  # type: ignore[assignment]
+        aas.extension = [extension]
         self.assertIs(extension, aas.get_extension_by_name("Ext1"))
 
     def test_update_from(self) -> None:
         # update_from() and therefore the ObjectStore backends rely on these attributes being NamespaceSets
         submodel = model.Submodel("urn:x-test:submodel")
-        submodel.submodel_element = [  # type: ignore[assignment]
-            model.Property("Prop", model.datatypes.Int, 1)
-        ]
+        submodel.submodel_element = [model.Property("Prop", model.datatypes.Int, 1)]
         other_submodel = model.Submodel(
             "urn:x-test:submodel",
             submodel_element=[model.Property("Prop", model.datatypes.Int, 2)],
@@ -1121,6 +1135,78 @@ class NamespaceSetAttributeAssignmentTest(unittest.TestCase):
         self.assertIsInstance(updated_prop, model.Property)
         assert isinstance(updated_prop, model.Property)
         self.assertEqual(2, updated_prop.value)
+
+    def test_assignment_of_all_protected_attributes(self) -> None:
+        # Every attribute that holds a NamespaceSet must be protected, so that none is forgotten
+        collection = model.SubmodelElementCollection("Collection")
+        collection.value = [model.Property("Prop", model.datatypes.Int)]
+        self.assertIs(collection, collection.get_referable("Prop").parent)
+
+        annotated = model.AnnotatedRelationshipElement(
+            "Annotated",
+            model.ExternalReference(
+                (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:first"),)
+            ),
+            model.ExternalReference(
+                (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:second"),)
+            ),
+        )
+        annotated.annotation = [model.Property("Annotation", model.datatypes.Int)]
+        self.assertIs(annotated, annotated.get_referable("Annotation").parent)
+
+        operation = model.Operation("Operation")
+        operation.input_variable = [model.Property("In", model.datatypes.Int)]
+        operation.output_variable = [model.Property("Out", model.datatypes.Int)]
+        operation.in_output_variable = [model.Property("InOut", model.datatypes.Int)]
+        for id_short in ("In", "Out", "InOut"):
+            self.assertIs(operation, operation.get_referable(id_short).parent)
+
+        entity = model.Entity(
+            "Entity",
+            model.EntityType.SELF_MANAGED_ENTITY,
+            global_asset_id="urn:x-test:asset",
+        )
+        entity.statement = [model.Property("Statement", model.datatypes.Int)]
+        self.assertIs(entity, entity.get_referable("Statement").parent)
+
+    def test_assignment_of_lazy_iterable_over_the_same_set(self) -> None:
+        # Filtering a NamespaceSet into itself is a common idiom, so the iterable must be consumed before the set
+        # is cleared
+        submodel = model.Submodel(
+            "urn:x-test:submodel",
+            submodel_element=[
+                model.Property("Prop1", model.datatypes.Int),
+                model.Property("Prop2", model.datatypes.Int),
+            ],
+        )
+        prop1 = submodel.get_referable("Prop1")
+        prop2 = submodel.get_referable("Prop2")
+
+        submodel.submodel_element = filter(
+            lambda element: element.id_short == "Prop1", submodel.submodel_element
+        )
+        self.assertEqual([prop1], list(submodel.submodel_element))
+        self.assertIs(submodel, prop1.parent)
+        self.assertIsNone(prop2.parent)
+
+        submodel.submodel_element = (
+            element for element in submodel.submodel_element if False
+        )
+        self.assertEqual(0, len(submodel.submodel_element))
+        self.assertIsNone(prop1.parent)
+
+    def test_initial_assignment_must_be_a_namespaceset(self) -> None:
+        # A class that never binds a NamespaceSet to the attribute must not end up with a plain iterable in it
+        class UninitializedQualifiable(model.Qualifiable):
+            def __init__(self) -> None:
+                super().__init__()
+
+        with self.assertRaises(TypeError) as cm:
+            UninitializedQualifiable().qualifier = []
+        self.assertEqual(
+            "UninitializedQualifiable.qualifier must be initialized with a NamespaceSet, got list",
+            str(cm.exception),
+        )
 
 
 class ExternalReferenceTest(unittest.TestCase):
