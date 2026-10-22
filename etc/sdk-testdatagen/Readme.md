@@ -23,9 +23,10 @@ Call the Python script with `python etc/sdk-testdatagen/deserialization_tests.py
 | `--examples` | Yes      | Path to the directory containing the example files as described in  [Prerequisites](#prerequisites) (usually this is the `/schemas` directory in a cloned `aas-specs-metamodel` respository.) |
 | `--output`   | No       | Directory path where error reports are written                                                                                                                                                |
 | `--summary`  | No       | File path for generated markdown summary (useful in CI as Github step summary)                                                                                                                |
+| `--known-deviations` | No | File path of the known deviations file (default: `known_deviations.toml` in this directory), see [Known Deviations](#known-deviations)                                                    |
 
 ### Test Results
-The script distinguishes 4 different results of a test. For all non-succeeding tests, an output report is written to the
+The script distinguishes 5 different results of a test. For all non-succeeding tests, an output report is written to the
 `--output` directory containing the content of the example file that failed, as well as the resulting stack trace.
 Reports are sorted into subdirectories by format (`json`, `xml`) and by their error message
 (e.g. `Value_is_not_a_valid_XSD_date_string`), and named after the subpath of the example file in the `generated`
@@ -38,9 +39,34 @@ directory (e.g. `Extension_OverValueExamples_Date_fuzzed_05.json.txt`).
     of implementation and standard. Output reports are grouped in a `NotImplementedError` subdir.
  - `UNEXPECTED_ERROR`: During deserialization any other exception occurred. It is caught so that the remaining examples
     are still tested. Output reports are grouped by exception type in an `UnexpectedError` subdir.
+ - `KNOWN_DEVIATION`: The error group of the test is listed in the known deviations file. This overrides the results
+    `FAILED`, `NOT_IMPLEMENTED` and `UNEXPECTED_ERROR`. Output reports are grouped in a `KnownDeviation` subdir.
 
-The script exits with code `1` if at least one test has the result `FAILED` or `UNEXPECTED_ERROR`, otherwise with `0`.
-`NOT_IMPLEMENTED` results do not make the script fail.
+The script exits with code `1` if at least one test has the result `FAILED` or `UNEXPECTED_ERROR`, if no example files
+are found for a format, or if a known deviation is stale (see below). Otherwise, it exits with `0`.
+`NOT_IMPLEMENTED` and `KNOWN_DEVIATION` results do not make the script fail.
+
+### Known Deviations
+Error groups that are known deviations of the implementation from the standard are listed in
+`known_deviations.toml`. Each entry corresponds to one row of the error groups table in the summary and is listed
+separately per format:
+
+```toml
+# Python's datetime does not support negative years
+[[XML]]
+group = "Negative dates are not supported: Python stdlib datetime requires year >= 1. Report at ..."
+issue = "https://github.com/eclipse-basyx/basyx-python-sdk/issues/<number>"
+```
+
+ - `group`: The exact message of the error group, as shown in the "Group" column of the summary. Messages that contain
+    the fuzzed value need one entry per value.
+ - `issue`: A link to the issue that describes the deviation in detail. It is required.
+
+The reason for the deviation should be briefly stated in a comment above the entry. Other keys are not allowed, and
+the script exits with code `1` before running any test if the file is invalid.
+
+A known deviation whose group does not occur in any test is *stale*. Stale known deviations are listed in the summary
+and make the script fail, so that the file is updated when a deviation is resolved.
 
 ## Usage in GitHub CI
 For convenient usage in the GitHub CI a composite action is provided in `.github/actions/sdk-test-testdatagen/action.yml`.

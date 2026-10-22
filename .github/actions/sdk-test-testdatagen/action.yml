@@ -24,6 +24,7 @@ runs:
         python etc/sdk-testdatagen/deserialization_tests.py \
           --examples aas-specs-metamodel/schemas \
           --output sdk-testdatagen-output \
+          --known-deviations etc/sdk-testdatagen/known_deviations.toml \
           --summary $GITHUB_STEP_SUMMARY
 
     - name: Upload test output

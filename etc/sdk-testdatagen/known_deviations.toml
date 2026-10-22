@@ -1,0 +1,16 @@
+# Known deviations of the BaSyx Python SDK from the AAS specification, see `Readme.md` in this directory.
+#
+# Each entry marks one error group (as shown in the "Group" column of the summary) of a format as known deviation.
+# Entries are listed separately per format in `[[JSON]]` and `[[XML]]` tables, which have exactly two keys:
+#  - `group`: the exact message of the error group
+#  - `issue`: a link to the issue that describes the deviation in detail
+# Briefly state the reason for the deviation in a comment above each entry, for example:
+#
+# # Python's datetime does not support negative years
+# [[XML]]
+# group = "Negative dates are not supported: Python stdlib datetime requires year >= 1. Report at ..."
+# issue = "https://github.com/eclipse-basyx/basyx-python-sdk/issues/<number>"
+#
+# The test script fails if a listed known deviation does not occur (stale known deviation).
+
+# SDK only accepts an ExternalReference for EmbeddedDataSpecification/dataSpecification, examples use a ModelReference
