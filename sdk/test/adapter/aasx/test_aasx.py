@@ -11,6 +11,7 @@ import os
 import tempfile
 import unittest
 import warnings
+import zipfile
 from pathlib import Path
 
 import pyecma376_2
@@ -227,6 +228,58 @@ class AASXWriterTest(unittest.TestCase):
             with self.assertNoLogs(level="WARNING"):
                 with aasx.AASXWriter(tmpdir_path / "tmp.aasx") as writer:
                     writer.write_all_aas_objects("/aasx/data.xml", data, file_store)
+
+    def test_writing_conflicting_file_twice(self) -> None:
+        def create_store(
+            identifier: str, content: bytes
+        ) -> tuple[
+            model.DictIdentifiableStore[model.Identifiable],
+            aasx.DictSupplementaryFileContainer,
+        ]:
+            submodel = model.Submodel(
+                id_=identifier,
+                submodel_element=[
+                    model.File(
+                        id_short="ExampleFile",
+                        content_type="application/pdf",
+                        value="/aasx/manual.pdf",
+                    )
+                ],
+            )
+            files = aasx.DictSupplementaryFileContainer()
+            files.add_file("/aasx/manual.pdf", io.BytesIO(content), "application/pdf")
+            return model.DictIdentifiableStore([submodel]), files
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            with self.assertLogs(level="ERROR") as log:
+                with aasx.AASXWriter(
+                    tmpdir_path / "failsafe.aasx", failsafe=True
+                ) as writer:
+                    writer.write_all_aas_objects(
+                        "/aasx/a.xml", *create_store("urn:sm:1", b"AAA")
+                    )
+                    writer.write_all_aas_objects(
+                        "/aasx/b.xml", *create_store("urn:sm:2", b"BBB")
+                    )
+
+            self.assertTrue(
+                any("twice with different contents" in entry for entry in log.output)
+            )
+            with zipfile.ZipFile(tmpdir_path / "failsafe.aasx") as archive:
+                self.assertEqual(archive.namelist().count("aasx/manual.pdf"), 1)
+                self.assertEqual(archive.read("aasx/manual.pdf"), b"AAA")
+
+            with self.assertRaisesRegex(ValueError, "twice with different contents"):
+                with aasx.AASXWriter(
+                    tmpdir_path / "strict.aasx", failsafe=False
+                ) as writer:
+                    writer.write_all_aas_objects(
+                        "/aasx/a.xml", *create_store("urn:sm:1", b"AAA")
+                    )
+                    writer.write_all_aas_objects(
+                        "/aasx/b.xml", *create_store("urn:sm:2", b"BBB")
+                    )
 
     def test_write_non_aas(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
