@@ -782,6 +782,7 @@ class AASXWriter:
                         f"Trying to write supplementary file {file_name} to AASX "
                         f"twice with different contents"
                     )
+                    continue
                 else:
                     raise ValueError(
                         f"Trying to write supplementary file {file_name} to AASX twice with"
