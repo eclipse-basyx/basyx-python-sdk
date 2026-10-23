@@ -17,6 +17,9 @@ import werkzeug.routing
 import werkzeug.utils
 from basyx.aas import model
 from basyx.aas.adapter._generic import XML_NS_MAP
+from basyx.aas.adapter.json.path_serialization import PathJsonEncoder
+from basyx.aas.adapter.json.reference_serialization import ReferenceJsonEncoder
+from basyx.aas.adapter.json.value_only_serialization import AASToValueOnlyJsonEncoder
 from basyx.aas.adapter.xml import XMLConstructables, read_aas_xml_element, xml_serialization
 from basyx.aas.model import AbstractObjectStore
 from basyx.aas.model.datatypes import NonNegativeInteger
@@ -26,7 +29,13 @@ from werkzeug.exceptions import BadRequest, NotFound
 from werkzeug.routing import MapAdapter
 
 import app.model
-from app.adapter import ServerAASToJsonEncoder, ServerStrictAASFromJsonDecoder, ServerStrictStrippedAASFromJsonDecoder
+from app.adapter import (
+    Content,
+    Modifiers,
+    ServerAASToJsonEncoder,
+    ServerStrictAASFromJsonDecoder,
+    ServerStrictStrippedAASFromJsonDecoder,
+)
 from app.model import AssetAdministrationShellDescriptor, AssetLink, SubmodelDescriptor
 from app.util.converters import base64url_decode
 
@@ -110,17 +119,22 @@ class APIResponse(abc.ABC, Response):
 
 
 class JsonResponse(APIResponse):
-    def __init__(self, *args, content_type="application/json", **kwargs):
+    def __init__(self, *args, modifiers: Optional[Modifiers] = None, content_type="application/json", **kwargs):
+        self._modifiers = modifiers
         super().__init__(*args, **kwargs, content_type=content_type)
 
     def serialize(self, obj: ResponseData, paging_metadata: Optional[PagingMetadata], stripped: bool) -> str:
+        # TODO: stripped is still handled here, needs to be replaced see #650
+        if self._modifiers is not None:
+            encoder_cls, encoder_kwargs = pick_encoder(self._modifiers)
+        else:
+            encoder_cls = StrippedResultToJsonEncoder if stripped else ResultToJsonEncoder
+            encoder_kwargs = {}
         if paging_metadata is None:
             data = obj
         else:
             data = {"paging_metadata": paging_metadata, "result": obj}
-        return json.dumps(
-            data, cls=StrippedResultToJsonEncoder if stripped else ResultToJsonEncoder, separators=(",", ":")
-        )
+        return json.dumps(data, cls=encoder_cls, separators=(",", ":"), **encoder_kwargs)
 
 
 class XmlResponse(APIResponse):
@@ -219,6 +233,50 @@ class ResultToJsonEncoder(ServerAASToJsonEncoder):
 
 class StrippedResultToJsonEncoder(ResultToJsonEncoder):
     stripped = True
+
+
+# TODO need to be added
+
+class ResultMetadataJsonEncoder(ResultToJsonEncoder):
+    pass
+
+
+class ResultReferenceJsonEncoder(ResultToJsonEncoder, ReferenceJsonEncoder):
+    pass
+
+
+class ResultValueOnlyJsonEncoder(ResultToJsonEncoder, AASToValueOnlyJsonEncoder):
+    pass
+
+
+class ResultShallowValueOnlyJsonEncoder(ResultValueOnlyJsonEncoder):
+    pass
+
+
+class ResultPathJsonEncoder(ResultToJsonEncoder, PathJsonEncoder):
+    pass
+
+
+def pick_encoder(mods: Modifiers) -> Tuple[Type["ResultToJsonEncoder"], Dict[str, Any]]:
+    """Pick a JSON encoder class + encoder-constructor kwargs for the given modifier combination.
+
+    Encoders that take per-request axis state (e.g. ``deep``) receive it via kwargs here;
+    ``json.dumps`` forwards them into the encoder's ``__init__``.
+    """
+    match mods.content:
+        case Content.NORMAL:
+            cls = StrippedResultToJsonEncoder if not mods.is_deep else ResultToJsonEncoder
+            return cls, {}
+        case Content.METADATA:
+            return ResultMetadataJsonEncoder, {}
+        case Content.VALUE:
+            # TODO: AASToValueOnlyJsonEncoder needs a ``deep`` kwarg; currently always deep.
+            cls = ResultShallowValueOnlyJsonEncoder if not mods.is_deep else ResultValueOnlyJsonEncoder
+            return cls, {}
+        case Content.REFERENCE:
+            return ResultReferenceJsonEncoder, {}
+        case Content.PATH:
+            return ResultPathJsonEncoder, {"deep": mods.is_deep}
 
 
 class BaseWSGIApp:

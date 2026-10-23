@@ -31,6 +31,10 @@ from .json_serialization import (
     object_store_to_json,
     write_aas_json_file,
 )
+from .metadata_serialization import MetadataJsonEncoder
+from .path_serialization import PathJsonEncoder
+from .reference_serialization import ReferenceJsonEncoder
+from .value_only_serialization import AASToValueOnlyJsonEncoder
 
 __all__ = [
     "AASFromJsonDecoder",
@@ -43,4 +47,8 @@ __all__ = [
     "StrippedAASToJsonEncoder",
     "object_store_to_json",
     "write_aas_json_file",
+    "PathJsonEncoder",
+    "AASToValueOnlyJsonEncoder",
+    "MetadataJsonEncoder",
+    "ReferenceJsonEncoder",
 ]
