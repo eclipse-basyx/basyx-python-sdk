@@ -575,6 +575,75 @@ _NSO = TypeVar(
 )
 
 
+class NamespaceSetAttribute(Generic[_NSO]):
+    """
+    Descriptor for the attributes of a :class:`~basyx.aas.model.base.Namespace` that hold a
+    :class:`~basyx.aas.model.base.NamespaceSet`, e.g. ``Submodel.submodel_element``.
+
+    The corresponding ``__init__`` parameters accept any ``Iterable``, so assigning an iterable to the attribute
+    is the obvious thing to write. A plain assignment would rebind the attribute and thereby silently shadow the
+    NamespaceSet: the set would stay registered in ``Namespace.namespace_element_sets``, so its objects would
+    remain reachable via ``get_referable()`` and friends while being invisible in the attribute, uniqueness
+    constraints would no longer be checked and the ``parent`` of the assigned objects would never be set.
+
+    This descriptor therefore redirects such an assignment to
+    :meth:`~basyx.aas.model.base.NamespaceSet.assign`, which replaces the *content* of the existing set::
+
+        submodel.submodel_element = [my_property]  # replaces the content of the set
+        aas.extension = []                         # clears the set
+
+    The first assignment, done by the ``__init__`` of the owning class, binds the NamespaceSet itself. Classes
+    outside of this package can use this descriptor for their own NamespaceSet attributes in the same way.
+    """
+
+    _name: str
+    _storage_name: str
+
+    def __set_name__(self, owner: type, name: str) -> None:
+        self._name = name
+        self._storage_name = f"_{name}_namespace_set"
+        self.__doc__ = (
+            f"A :class:`~basyx.aas.model.base.NamespaceSet` holding the {name} of this element. Assigning an "
+            "iterable replaces its content, see "
+            ":class:`~basyx.aas.model.base.NamespaceSetAttribute`."
+        )
+
+    def __get__(
+        self, obj: Optional["Namespace"], objtype: Optional[type] = None
+    ) -> "NamespaceSet[_NSO]":
+        if obj is None:
+            # Class attribute access, e.g. by Sphinx autodoc
+            return self  # type: ignore[return-value]
+        return getattr(obj, self._storage_name)
+
+    def __set__(self, obj: "Namespace", value: Iterable[_NSO]) -> None:
+        current: Optional["NamespaceSet[_NSO]"] = getattr(obj, self._storage_name, None)
+        if current is None:
+            if not isinstance(value, NamespaceSet):
+                raise TypeError(
+                    f"{type(obj).__name__}.{self._name} must be initialized with a NamespaceSet, "
+                    f"got {type(value).__name__}"
+                )
+            setattr(obj, self._storage_name, value)
+        elif current is not value:
+            current.assign(value)
+
+
+class OrderedNamespaceSetAttribute(NamespaceSetAttribute[_NSO]):
+    """
+    Descriptor for the attributes of a :class:`~basyx.aas.model.base.Namespace` that hold an
+    :class:`~basyx.aas.model.base.OrderedNamespaceSet`, see
+    :class:`~basyx.aas.model.base.NamespaceSetAttribute`. It only narrows the type of the attribute, the behavior
+    is identical.
+    """
+
+    if TYPE_CHECKING:
+
+        def __get__(
+            self, obj: Optional["Namespace"], objtype: Optional[type] = None
+        ) -> "OrderedNamespaceSet[_NSO]": ...
+
+
 class Namespace(metaclass=abc.ABCMeta):
     """
     Abstract baseclass for all objects which form a Namespace to hold  objects and resolve them by their
@@ -651,11 +720,12 @@ class HasExtension(Namespace, metaclass=abc.ABCMeta):
     :ivar extension: A :class:`~.NamespaceSet` of :class:`Extensions <.Extension>` of the element.
     """
 
+    extension: "NamespaceSetAttribute[Extension]" = NamespaceSetAttribute()
+
     @abc.abstractmethod
     def __init__(self) -> None:
         super().__init__()
         self.namespace_element_sets: List[NamespaceSet] = []
-        self.extension: NamespaceSet[Extension]
 
     def get_extension_by_name(self, name: str) -> "Extension":
         """
@@ -1824,11 +1894,12 @@ class Qualifiable(Namespace, metaclass=abc.ABCMeta):
                      qualifiable element.
     """
 
+    qualifier: "NamespaceSetAttribute[Qualifier]" = NamespaceSetAttribute()
+
     @abc.abstractmethod
     def __init__(self) -> None:
         super().__init__()
         self.namespace_element_sets: List[NamespaceSet] = []
-        self.qualifier: NamespaceSet[Qualifier]
 
     def get_qualifier_by_type(self, qualifier_type: QualifierType) -> "Qualifier":
         """
@@ -2350,6 +2421,31 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
                 self._execute_item_del_hook(value)
         for attr_name, (backend, case_sensitive) in self._backend.items():
             backend.clear()
+
+    def assign(self, items: Iterable[_NSO]) -> None:
+        """
+        Replace all objects of this set with the given ones, atomically.
+
+        This is the implementation of assignments to NamespaceSet attributes, see ``Namespace.__setattr__()``.
+        If adding one of the new items fails, the previous content of the set is restored.
+
+        :param items: The objects this set should contain afterwards
+        :raises AASConstraintViolation: If the given items violate a uniqueness constraint of this namespace
+        :raises ValueError: If one of the given items already belongs to another namespace
+        """
+        # items may be a lazy iterable over this very set, e.g. filter(..., submodel.submodel_element), so it has
+        # to be consumed before the set is cleared
+        new_items: List[_NSO] = list(items)
+        previous: List[_NSO] = list(self)
+        self.clear()
+        try:
+            for item in new_items:
+                self.add(item)
+        except Exception:
+            self.clear()
+            for item in previous:
+                self.add(item)
+            raise
 
     def get_object_by_attribute(
         self, attribute_name: str, attribute_value: ATTRIBUTE_TYPES
