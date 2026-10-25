@@ -4,288 +4,551 @@
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
+import decimal
 import json
+import math
 import unittest
 
 from basyx.aas import model
-from basyx.aas.adapter.json.value_only_serialization import AASToValueOnlyJsonEncoder
+from basyx.aas.adapter.json.value_only_serialization import ValueOnlyJsonEncoder
+from basyx.aas.examples.data import example_aas, example_aas_mandatory_attributes
+
+EXAMPLE_SUBMODEL_ID = "http://example.org/Test_Submodel"
 
 
-class TestValueOnlyEncoder(unittest.TestCase):
-    def test_omits_empty(self):
-        sm = model.Submodel(id_="http://example.org/TestingSM", id_short="TestingSM")
+class TestValueOnlyJsonEncoder(unittest.TestCase):
+    def setUp(self):
+        self.submodel = example_aas.create_example_submodel()
 
-        prop1 = model.Property(id_short="TestProperty1", value_type=model.datatypes.String, value="TestValue1")
-        prop2 = model.Property(id_short="TestProperty2", value_type=model.datatypes.Boolean, value=True)
-        collection1 = model.SubmodelElementCollection(id_short="TestCollection", value=[prop1, prop2])
+    # ------------------------------------------------------------------ Submodel
 
-        prop3 = model.Property(id_short="TestProperty3", value_type=model.datatypes.String)
-        mlp = model.MultiLanguageProperty(id_short="TestMLP")
-        rng1 = model.Range(id_short="TestRange", value_type=model.datatypes.Int)
-        file = model.File(id_short="TestFile", content_type="application/pdf")
-        blob = model.Blob(id_short="TestBlob")
-        ref = model.ReferenceElement(id_short="TestRef")
-        rel = model.RelationshipElement(id_short="TestRelationship")
-        entity = model.Entity(id_short="TestEntity", entity_type=model.EntityType.CO_MANAGED_ENTITY)
+    def test_submodel_ok(self):
+        submodel = example_aas.create_example_asset_identification_submodel()
 
-        sm_list = model.SubmodelElementList(
-            id_short="EmptyList",
-            type_value_list_element=model.Property,
-            value_type_list_element=model.datatypes.String,
-            value=[prop3],
-        )
-        collection2 = model.SubmodelElementCollection(
-            id_short="EmptyCollection", value=[mlp, rng1, file, blob, ref, rel, entity]
-        )
-
-        sm.submodel_element.add(collection1)
-        sm.submodel_element.add(collection2)
-        sm.submodel_element.add(sm_list)
-
-        sm_str = json.dumps(sm, cls=AASToValueOnlyJsonEncoder)
-
-        sm_dict = json.loads(sm_str)
-        self.assertIsInstance(sm_dict, dict)
-        self.assertNotIn("EmptyList", sm_dict)
-        self.assertNotIn("EmptyCollection", sm_dict)
-
-    def test_property(self):
-        prop = model.Property(id_short="TestProperty", value_type=model.datatypes.Int, value=5000)
-
-        out_str = json.dumps(prop, cls=AASToValueOnlyJsonEncoder)
+        out_str = json.dumps(submodel, cls=ValueOnlyJsonEncoder)
         parsed_output = json.loads(out_str)
 
-        self.assertEqual(5000, parsed_output)
+        self.assertEqual({"ManufacturerName": "ACPLT", "InstanceId": "978-8234-234-342"}, parsed_output)
 
-    def test_submodel_element_collection(self):
-        prop1 = model.Property(
-            id_short="ProductClassificationSystem", value_type=model.datatypes.String, value="ECLASS"
-        )
-        prop2 = model.Property(id_short="ProductOwnership", value_type=model.datatypes.Boolean, value=True)
-        collection = model.SubmodelElementCollection(id_short="TestCollection", value=[prop1, prop2])
-
-        out_str = json.dumps(collection, cls=AASToValueOnlyJsonEncoder)
+    def test_submodel_omits_operation_and_capability_ok(self):
+        out_str = json.dumps(self.submodel, cls=ValueOnlyJsonEncoder)
         parsed_output = json.loads(out_str)
 
-        self.assertIsInstance(parsed_output, dict)
-        self.assertEqual({"ProductClassificationSystem", "ProductOwnership"}, set(parsed_output.keys()))
-        self.assertEqual("ECLASS", parsed_output["ProductClassificationSystem"])
-        self.assertEqual(True, parsed_output["ProductOwnership"])
+        self.assertCountEqual([
+            "ExampleRelationshipElement",
+            "ExampleAnnotatedRelationshipElement",
+            "ExampleBasicEventElement",
+            "ExampleSubmodelCollection",
+        ], parsed_output.keys())
 
-    def test_submodel_element_list(self):
-        prop1 = model.Property(id_short="Prop1", value_type=model.datatypes.String, value="Martha")
-        prop2 = model.Property(id_short="Prop2", value_type=model.datatypes.String, value="Jonathan")
-        prop3 = model.Property(id_short="Prop3", value_type=model.datatypes.String, value="Clark")
-        sme_list = model.SubmodelElementList(
-            id_short="Authors",
-            type_value_list_element=model.Property,
-            value_type_list_element=model.datatypes.String,
-            value=[prop1, prop2, prop3],
-        )
+    def test_submodel_omits_elements_without_value_ok(self):
+        submodel = model.Submodel("https://example.org/Submodel", submodel_element=[
+            model.Property("FilledProperty", model.datatypes.String, "exampleValue"),
+            model.Property("EmptyProperty", model.datatypes.String),
+            model.MultiLanguageProperty("EmptyMultiLanguageProperty"),
+            model.Range("EmptyRange", model.datatypes.Int),
+            model.File("EmptyFile", "application/pdf"),
+            model.ReferenceElement("EmptyReferenceElement"),
+            model.RelationshipElement("EmptyRelationshipElement"),
+        ])
 
-        out_str = json.dumps(sme_list, cls=AASToValueOnlyJsonEncoder)
+        out_str = json.dumps(submodel, cls=ValueOnlyJsonEncoder)
         parsed_output = json.loads(out_str)
 
-        self.assertIsInstance(parsed_output, list)
-        self.assertEqual(["Martha", "Jonathan", "Clark"], parsed_output)
+        self.assertEqual({"FilledProperty": "exampleValue"}, parsed_output)
 
-    def test_submodel_element_list_preserves_order(self):
-        prop1 = model.Property(id_short="Prop1", value_type=model.datatypes.String, value="Martha")
-        prop2 = model.Property(id_short="Prop2", value_type=model.datatypes.String)
-        prop3 = model.Property(id_short="Prop3", value_type=model.datatypes.String, value="Clark")
-        sme_list = model.SubmodelElementList(
-            id_short="Authors",
-            type_value_list_element=model.Property,
-            value_type_list_element=model.datatypes.String,
-            value=[prop1, prop2, prop3],
-        )
+    def test_submodel_omits_containers_of_omitted_elements_ok(self):
+        submodel = model.Submodel("https://example.org/Submodel", submodel_element=[
+            model.Property("FilledProperty", model.datatypes.String, "exampleValue"),
+            model.SubmodelElementCollection("CollectionOfOperations", [model.Operation("Operation")]),
+            model.SubmodelElementList("ListOfOperations", model.Operation, [model.Operation(None)]),
+        ])
 
-        out_str = json.dumps(sme_list, cls=AASToValueOnlyJsonEncoder)
+        out_str = json.dumps(submodel, cls=ValueOnlyJsonEncoder)
         parsed_output = json.loads(out_str)
 
-        self.assertIsInstance(parsed_output, list)
-        self.assertEqual(["Martha", None, "Clark"], parsed_output)
+        self.assertEqual({"FilledProperty": "exampleValue"}, parsed_output)
 
-    def test_multi_language_property(self):
-        mlp = model.MultiLanguageProperty(
-            id_short="MLP",
-            value=model.MultiLanguageTextType(
-                {"de": "Das ist ein deutscher Bezeichner", "en": "That's an English label"}
-            ),
-        )
+    def test_empty_submodel_ok(self):
+        submodel = example_aas_mandatory_attributes.create_example_empty_submodel()
 
-        out_str = json.dumps(mlp, cls=AASToValueOnlyJsonEncoder)
+        out_str = json.dumps(submodel, cls=ValueOnlyJsonEncoder)
         parsed_output = json.loads(out_str)
 
-        self.assertIsInstance(parsed_output, list)
-        self.assertEqual(2, len(parsed_output))
-        self.assertIn({"de": "Das ist ein deutscher Bezeichner"}, parsed_output)
-        self.assertIn({"en": "That's an English label"}, parsed_output)
+        self.assertEqual({}, parsed_output)
 
-    def test_range(self):
-        rng = model.Range(id_short="TorqueRange", value_type=model.datatypes.Int, min=3, max=15)
+    # ------------------------------------------------------------------ SubmodelElementCollection / -List
 
-        out_str = json.dumps(rng, cls=AASToValueOnlyJsonEncoder)
+    def test_submodel_element_collection_ok(self):
+        smc = self.submodel.get_referable("ExampleSubmodelCollection")
+
+        out_str = json.dumps(smc, cls=ValueOnlyJsonEncoder)
         parsed_output = json.loads(out_str)
 
-        self.assertIsInstance(parsed_output, dict)
-        self.assertEqual({"min", "max"}, parsed_output.keys())
-        self.assertEqual(3, parsed_output["min"])
-        self.assertEqual(15, parsed_output["max"])
+        self.assertCountEqual([
+            "ExampleBlob",
+            "ExampleFile",
+            "ExampleFileURI",
+            "ExampleMultiLanguageProperty",
+            "ExampleRange",
+            "ExampleReferenceElement",
+            "ExampleSubmodelList",
+        ], parsed_output.keys())
+        self.assertEqual({"min": 0, "max": 100}, parsed_output["ExampleRange"])
+        self.assertEqual(["exampleValue", "exampleValue"], parsed_output["ExampleSubmodelList"])
 
-    def test_reference_element(self):
-        ref = model.ReferenceElement(
-            id_short="MaxRotationSpeedReference",
-            value=model.ExternalReference(
-                key=(model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE, value="0173-1#02-BAA120#008"),)
-            ),
-        )
+    def test_submodel_element_list_ok(self):
+        sml = self.submodel.get_referable("ExampleSubmodelCollection.ExampleSubmodelList")
 
-        out_str = json.dumps(ref, cls=AASToValueOnlyJsonEncoder)
+        out_str = json.dumps(sml, cls=ValueOnlyJsonEncoder)
         parsed_output = json.loads(out_str)
 
-        self.assertIsInstance(parsed_output, dict)
-        self.assertEqual({"type", "keys"}, parsed_output.keys())
-        self.assertIsInstance(parsed_output["keys"], list)
-        self.assertEqual(1, len(parsed_output["keys"]))
-        self.assertEqual({"type", "value"}, parsed_output["keys"][0].keys())
-        self.assertEqual("GlobalReference", parsed_output["keys"][0]["type"])
-        self.assertEqual("0173-1#02-BAA120#008", parsed_output["keys"][0]["value"])
+        self.assertEqual(["exampleValue", "exampleValue"], parsed_output)
 
-    def test_file(self):
-        file = model.File(
-            id_short="Document", content_type="application/pdf", value="https://example.org/SafetyInstructions.pdf"
-        )
+    def test_submodel_element_list_keeps_index_of_element_without_value_ok(self):
+        sml = model.SubmodelElementList("List", model.Property, [
+            model.Property(None, model.datatypes.String, "first"),
+            model.Property(None, model.datatypes.String),
+            model.Property(None, model.datatypes.String, "third"),
+        ], value_type_list_element=model.datatypes.String)
 
-        out_str = json.dumps(file, cls=AASToValueOnlyJsonEncoder)
+        out_str = json.dumps(sml, cls=ValueOnlyJsonEncoder)
         parsed_output = json.loads(out_str)
 
-        self.assertIsInstance(parsed_output, dict)
-        self.assertEqual({"contentType", "value"}, parsed_output.keys())
-        self.assertEqual("application/pdf", parsed_output["contentType"])
-        self.assertEqual("https://example.org/SafetyInstructions.pdf", parsed_output["value"])
+        self.assertEqual(["first", None, "third"], parsed_output)
 
-    def test_file_without_value(self):
-        file = model.File(id_short="Document", content_type="application/pdf")
+    def test_empty_submodel_element_list_ok(self):
+        submodel = example_aas_mandatory_attributes.create_example_submodel()
+        sml = submodel.get_referable("ExampleSubmodelList2")
 
-        out_str = json.dumps(file, cls=AASToValueOnlyJsonEncoder)
+        out_str = json.dumps(sml, cls=ValueOnlyJsonEncoder)
         parsed_output = json.loads(out_str)
 
-        self.assertIsInstance(parsed_output, dict)
-        self.assertEqual({"contentType"}, parsed_output.keys())
-        self.assertEqual("application/pdf", parsed_output["contentType"])
+        self.assertEqual([], parsed_output)
 
-    def test_blob(self):
-        blob = model.Blob(id_short="Logo", content_type="application/octet-stream", value=b"\x00\x01BaSyx")
+    # ------------------------------------------------------------------ Property data type to value mapping
 
-        out_str = json.dumps(blob, cls=AASToValueOnlyJsonEncoder)
+    def test_property_ok(self):
+        submodel = example_aas.create_example_asset_identification_submodel()
+        prop = submodel.get_referable("ManufacturerName")
+
+        out_str = json.dumps(prop, cls=ValueOnlyJsonEncoder)
         parsed_output = json.loads(out_str)
 
-        self.assertIsInstance(parsed_output, dict)
-        self.assertEqual({"contentType", "value"}, parsed_output.keys())
-        self.assertEqual("application/octet-stream", parsed_output["contentType"])
-        self.assertEqual("AAFCYVN5eA==", parsed_output["value"])
+        self.assertEqual("ACPLT", parsed_output)
 
-    def test_relationship_element(self):
-        rel = model.RelationshipElement(
-            id_short="CurrentFlowsFrom",
-            first=model.ModelReference(
-                type_=model.Property,
-                key=(
-                    model.Key(type_=model.KeyTypes.SUBMODEL, value="http://customer.com/demo/aas/1/1/1234859590"),
-                    model.Key(type_=model.KeyTypes.PROPERTY, value="PlusPole"),
-                ),
-            ),
-            second=model.ModelReference(
-                type_=model.Property,
-                key=(
-                    model.Key(type_=model.KeyTypes.SUBMODEL, value="http://customer.com/demo/aas/1/0/1234859123490"),
-                    model.Key(type_=model.KeyTypes.PROPERTY, value="MinusPole"),
-                ),
-            ),
-        )
+    def test_property_without_value_ok(self):
+        prop = model.Property("EmptyProperty", model.datatypes.String)
 
-        out_str = json.dumps(rel, cls=AASToValueOnlyJsonEncoder)
+        out_str = json.dumps(prop, cls=ValueOnlyJsonEncoder)
         parsed_output = json.loads(out_str)
 
-        self.assertIsInstance(parsed_output, dict)
-        self.assertEqual({"first", "second"}, parsed_output.keys())
-        self.assertEqual("PlusPole", parsed_output["first"]["keys"][1]["value"])
-        self.assertEqual("MinusPole", parsed_output["second"]["keys"][1]["value"])
+        self.assertIsNone(parsed_output)
 
-    def test_annotated_relationship_element(self):
-        anrel = model.AnnotatedRelationshipElement(
-            id_short="CurrentFlowsFrom",
-            first=model.ModelReference(
-                type_=model.Property,
-                key=(
-                    model.Key(type_=model.KeyTypes.SUBMODEL, value="http://customer.com/demo/aas/1/1/1234859590"),
-                    model.Key(type_=model.KeyTypes.PROPERTY, value="PlusPole"),
-                ),
-            ),
-            second=model.ModelReference(
-                type_=model.Property,
-                key=(
-                    model.Key(type_=model.KeyTypes.SUBMODEL, value="http://customer.com/demo/aas/1/0/1234859123490"),
-                    model.Key(type_=model.KeyTypes.PROPERTY, value="MinusPole"),
-                ),
-            ),
-            annotation=[
-                model.Property(
-                    id_short="AppliedRule", value_type=model.datatypes.String, value="TechnicalCurrentFlowDirection"
-                )
+    def test_property_boolean_types_ok(self):
+        smc = model.SubmodelElementCollection("Booleans", [
+            model.Property("True", model.datatypes.Boolean, True),
+            model.Property("False", model.datatypes.Boolean, False),
+        ])
+
+        out_str = json.dumps(smc, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({"True": True, "False": False}, parsed_output)
+
+    def test_property_number_types_ok(self):
+        smc = model.SubmodelElementCollection("Numbers", [
+            model.Property("Int", model.datatypes.Int, -1),
+            model.Property("Long", model.datatypes.Long, 9223372036854775807),
+            model.Property("UnsignedLong", model.datatypes.UnsignedLong, 18446744073709551615),
+            model.Property("Zero", model.datatypes.NonNegativeInteger, 0),
+            # xs:integer is unbounded, this value cannot be represented as a float
+            model.Property("HugeInteger", model.datatypes.Integer, 10**400),
+            model.Property("Decimal", model.datatypes.Decimal, decimal.Decimal("-1.23")),
+            model.Property("Double", model.datatypes.Double, 234.567e8),
+            model.Property("Float", model.datatypes.Float, 1.5),
+        ])
+
+        out_str = json.dumps(smc, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({
+            "Int": -1,
+            "Long": 9223372036854775807,
+            "UnsignedLong": 18446744073709551615,
+            "Zero": 0,
+            "HugeInteger": 10**400,
+            "Decimal": -1.23,
+            "Double": 234.567e8,
+            "Float": 1.5,
+        }, parsed_output)
+
+    def test_property_non_finite_double_ok(self):
+        # JSON has no representation for NaN, INF and -INF, so the XSD representation is used instead
+        smc = model.SubmodelElementCollection("NonFinite", [
+            model.Property("NaN", model.datatypes.Double, math.nan),
+            model.Property("Inf", model.datatypes.Double, math.inf),
+            model.Property("NegativeInf", model.datatypes.Double, -math.inf),
+        ])
+
+        out_str = json.dumps(smc, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({"NaN": "NaN", "Inf": "INF", "NegativeInf": "-INF"}, parsed_output)
+
+    def test_property_string_types_ok(self):
+        smc = model.SubmodelElementCollection("Strings", [
+            model.Property("String", model.datatypes.String, "Hello world"),
+            model.Property("EmptyString", model.datatypes.String, ""),
+            model.Property("Date", model.datatypes.Date, model.datatypes.Date(2000, 1, 1)),
+            model.Property("Time", model.datatypes.Time, model.datatypes.Time(14, 23)),
+            model.Property("DateTime", model.datatypes.DateTime, model.datatypes.DateTime(2000, 1, 1, 14, 23)),
+            model.Property("GYear", model.datatypes.GYear, model.datatypes.GYear(2000)),
+            model.Property("Duration", model.datatypes.Duration, model.datatypes.Duration(days=30)),
+            model.Property("HexBinary", model.datatypes.HexBinary, model.datatypes.HexBinary(b"kumowashere")),
+            model.Property("Base64Binary", model.datatypes.Base64Binary,
+                           model.datatypes.Base64Binary(b"Hello, World!")),
+            model.Property("AnyURI", model.datatypes.AnyURI, model.datatypes.AnyURI("urn:example:company:1.0.0")),
+        ])
+
+        out_str = json.dumps(smc, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({
+            "String": "Hello world",
+            "EmptyString": "",
+            "Date": "2000-01-01",
+            "Time": "14:23:00",
+            "DateTime": "2000-01-01T14:23:00",
+            "GYear": "2000",
+            "Duration": "P30D",
+            "HexBinary": "6b756d6f77617368657265",
+            "Base64Binary": "SGVsbG8sIFdvcmxkIQ==",
+            "AnyURI": "urn:example:company:1.0.0",
+        }, parsed_output)
+
+    # ------------------------------------------------------------------ other SubmodelElements
+
+    def test_multi_language_property_ok(self):
+        mlp = self.submodel.get_referable("ExampleSubmodelCollection.ExampleMultiLanguageProperty")
+
+        out_str = json.dumps(mlp, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertCountEqual([
+            {"de": "Beispielwert für ein MultiLanguageProperty-Element"},
+            {"en-US": "Example value of a MultiLanguageProperty element"},
+        ], parsed_output)
+
+    def test_multi_language_property_without_value_ok(self):
+        mlp = model.MultiLanguageProperty("EmptyMultiLanguageProperty")
+
+        out_str = json.dumps(mlp, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual([], parsed_output)
+
+    def test_range_ok(self):
+        range_element = self.submodel.get_referable("ExampleSubmodelCollection.ExampleRange")
+
+        out_str = json.dumps(range_element, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({"min": 0, "max": 100}, parsed_output)
+
+    def test_blob_ok(self):
+        blob = self.submodel.get_referable("ExampleSubmodelCollection.ExampleBlob")
+
+        out_str = json.dumps(blob, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        # the value is base64 encoded b"\x01\x02\x03\x04\x05"
+        self.assertEqual({"contentType": "application/pdf", "value": "AQIDBAU="}, parsed_output)
+
+    def test_file_ok(self):
+        file = self.submodel.get_referable("ExampleSubmodelCollection.ExampleFile")
+
+        out_str = json.dumps(file, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({"contentType": "application/pdf", "value": "/TestFile.pdf"}, parsed_output)
+
+    def test_reference_element_ok(self):
+        reference_element = self.submodel.get_referable("ExampleSubmodelCollection.ExampleReferenceElement")
+
+        out_str = json.dumps(reference_element, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({
+            "type": "ModelReference",
+            "keys": [
+                {"type": "Submodel", "value": EXAMPLE_SUBMODEL_ID},
+                {"type": "Property", "value": "ExampleProperty"},
             ],
-        )
+        }, parsed_output)
 
-        out_str = json.dumps(anrel, cls=AASToValueOnlyJsonEncoder)
+    def test_relationship_element_ok(self):
+        relationship_element = self.submodel.get_referable("ExampleRelationshipElement")
+
+        out_str = json.dumps(relationship_element, cls=ValueOnlyJsonEncoder)
         parsed_output = json.loads(out_str)
 
-        self.assertIsInstance(parsed_output, dict)
-        self.assertEqual({"first", "second", "annotations"}, parsed_output.keys())
-        self.assertEqual("PlusPole", parsed_output["first"]["keys"][1]["value"])
-        self.assertEqual("MinusPole", parsed_output["second"]["keys"][1]["value"])
-        self.assertIsInstance(parsed_output["annotations"], dict)
-        self.assertEqual(1, len(parsed_output["annotations"]))
-        self.assertEqual("TechnicalCurrentFlowDirection", parsed_output["annotations"]["AppliedRule"])
+        self.assertEqual({
+            "first": {
+                "type": "ModelReference",
+                "keys": [
+                    {"type": "Submodel", "value": EXAMPLE_SUBMODEL_ID},
+                    {"type": "Property", "value": "ExampleProperty"},
+                ],
+            },
+            "second": {
+                "type": "ModelReference",
+                "keys": [
+                    {"type": "Submodel", "value": EXAMPLE_SUBMODEL_ID},
+                    {"type": "Property", "value": "ExampleProperty2"},
+                ],
+            },
+        }, parsed_output)
 
-    def test_entity(self):
-        entity = model.Entity(
-            id_short="MySubAssetEntity",
-            entity_type=model.EntityType.SELF_MANAGED_ENTITY,
-            global_asset_id="http://customer.com/demo/asset/1/1/MySubAsset",
-            specific_asset_id=[
-                model.SpecificAssetId(name="SpecificAsset", value="http://customer.com/demo/asset/2/2/TestAsset")
-            ],
-            statement=[
-                model.Property(id_short="MaxRotationSpeed", value_type=model.datatypes.Int, value=5000)
-            ]
-        )
+    def test_annotated_relationship_element_ok(self):
+        are = self.submodel.get_referable("ExampleAnnotatedRelationshipElement")
 
-        out_str = json.dumps(entity, cls=AASToValueOnlyJsonEncoder)
+        out_str = json.dumps(are, cls=ValueOnlyJsonEncoder)
         parsed_output = json.loads(out_str)
 
-        self.assertIsInstance(parsed_output, dict)
-        self.assertEqual({"entityType", "globalAssetId", "specificAssetIds", "statements"}, parsed_output.keys())
-        self.assertEqual(5000, parsed_output["statements"]["MaxRotationSpeed"])
-        self.assertEqual("http://customer.com/demo/asset/1/1/MySubAsset", parsed_output["globalAssetId"])
+        self.assertEqual({
+            "first": {
+                "type": "ModelReference",
+                "keys": [
+                    {"type": "Submodel", "value": EXAMPLE_SUBMODEL_ID},
+                    {"type": "Property", "value": "ExampleProperty"},
+                ],
+            },
+            "second": {
+                "type": "ModelReference",
+                "keys": [
+                    {"type": "Submodel", "value": EXAMPLE_SUBMODEL_ID},
+                    {"type": "Property", "value": "ExampleProperty2"},
+                ],
+            },
+            "annotations": {
+                "ExampleAnnotatedProperty": "exampleValue",
+                "ExampleAnnotatedRange": {"min": 1, "max": 5},
+            },
+        }, parsed_output)
 
-    def test_basic_event_element(self):
-        event = model.BasicEventElement(
-            id_short="MyBasicEvent",
-            observed=model.ModelReference(
-                type_=model.Property,
-                key=(
-                    model.Key(type_=model.KeyTypes.SUBMODEL, value="http://customer.com/demo/aas/1/1/1234859590"),
-                    model.Key(type_=model.KeyTypes.PROPERTY, value="MaxRotation"),
-                )
-            ),
-            direction=model.Direction.INPUT,
-            state=model.StateOfEvent.ON
-        )
+    def test_annotated_relationship_element_without_annotation_ok(self):
+        submodel = example_aas_mandatory_attributes.create_example_submodel()
+        are = submodel.get_referable("ExampleAnnotatedRelationshipElement")
 
-        out_str = json.dumps(event, cls=AASToValueOnlyJsonEncoder)
+        out_str = json.dumps(are, cls=ValueOnlyJsonEncoder)
         parsed_output = json.loads(out_str)
 
-        self.assertIsInstance(parsed_output, dict)
-        self.assertEqual({"observed"}, parsed_output.keys())
-        self.assertEqual("MaxRotation", parsed_output["observed"]["keys"][1]["value"])
+        self.assertCountEqual(["first", "second"], parsed_output.keys())
+
+    def test_entity_ok(self):
+        submodel = example_aas.create_example_bill_of_material_submodel()
+        entity = submodel.get_referable("ExampleEntity")
+
+        out_str = json.dumps(entity, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({
+            "statements": {
+                "ExampleProperty": "exampleValue",
+                "ExampleProperty2": "exampleValue2",
+            },
+            "entityType": "SelfManagedEntity",
+            "globalAssetId": "http://example.org/TestAsset/",
+            "specificAssetIds": [{
+                "name": "TestKey",
+                "value": "TestValue",
+                "externalSubjectId": {
+                    "type": "ExternalReference",
+                    "keys": [{"type": "GlobalReference", "value": "http://example.org/SpecificAssetId/"}],
+                },
+            }],
+        }, parsed_output)
+
+    def test_entity_without_statements_ok(self):
+        submodel = example_aas.create_example_bill_of_material_submodel()
+        entity = submodel.get_referable("ExampleEntity2")
+
+        out_str = json.dumps(entity, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertNotIn("statements", parsed_output)
+
+    def test_submodel_keeps_co_managed_entity_with_statements_ok(self):
+        submodel = model.Submodel("https://example.org/Submodel", submodel_element=[
+            model.Entity("CoManagedEntity", model.EntityType.CO_MANAGED_ENTITY, statement=[
+                model.Property("Statement", model.datatypes.String, "exampleValue"),
+            ]),
+        ])
+
+        out_str = json.dumps(submodel, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({
+            "CoManagedEntity": {
+                "statements": {"Statement": "exampleValue"},
+                "entityType": "CoManagedEntity",
+            },
+        }, parsed_output)
+
+    def test_basic_event_element_ok(self):
+        basic_event_element = self.submodel.get_referable("ExampleBasicEventElement")
+
+        out_str = json.dumps(basic_event_element, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({
+            "observed": {
+                "type": "ModelReference",
+                "keys": [
+                    {"type": "Submodel", "value": EXAMPLE_SUBMODEL_ID},
+                    {"type": "Property", "value": "ExampleProperty"},
+                ],
+            },
+        }, parsed_output)
+
+    def test_operation_fail(self):
+        operation = self.submodel.get_referable("ExampleOperation")
+
+        with self.assertRaises(TypeError):
+            json.dumps(operation, cls=ValueOnlyJsonEncoder)
+
+    def test_capability_fail(self):
+        capability = self.submodel.get_referable("ExampleCapability")
+
+        with self.assertRaises(TypeError):
+            json.dumps(capability, cls=ValueOnlyJsonEncoder)
+
+class TestValueOnlyJsonEncoderCore(unittest.TestCase):
+
+    def setUp(self):
+        self.submodel = example_aas.create_example_submodel()
+
+    def test_deep_is_default_ok(self):
+        deep_output = json.loads(json.dumps(self.submodel, cls=ValueOnlyJsonEncoder, deep=True))
+
+        out_str = json.dumps(self.submodel, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual(deep_output, parsed_output)
+
+    def test_submodel_core_empties_submodel_element_collection_ok(self):
+        out_str = json.dumps(self.submodel, cls=ValueOnlyJsonEncoder, deep=False)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({}, parsed_output["ExampleSubmodelCollection"])
+
+    def test_submodel_element_collection_core_empties_submodel_element_list_ok(self):
+        smc = self.submodel.get_referable("ExampleSubmodelCollection")
+
+        out_str = json.dumps(smc, cls=ValueOnlyJsonEncoder, deep=False)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual([], parsed_output["ExampleSubmodelList"])
+        self.assertEqual({"min": 0, "max": 100}, parsed_output["ExampleRange"])
+
+    def test_submodel_core_keeps_leaf_values_ok(self):
+        submodel = example_aas.create_example_asset_identification_submodel()
+
+        out_str = json.dumps(submodel, cls=ValueOnlyJsonEncoder, deep=False)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({"ManufacturerName": "ACPLT", "InstanceId": "978-8234-234-342"}, parsed_output)
+
+    def test_submodel_element_list_core_empties_submodel_element_collections_ok(self):
+        submodel = example_aas_mandatory_attributes.create_example_submodel()
+        sml = submodel.get_referable("ExampleSubmodelList")
+
+        out_str = json.dumps(sml, cls=ValueOnlyJsonEncoder, deep=False)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual([{}, {}], parsed_output)
+
+    def test_submodel_core_empties_submodel_element_list_ok(self):
+        submodel = example_aas_mandatory_attributes.create_example_submodel()
+
+        out_str = json.dumps(submodel, cls=ValueOnlyJsonEncoder, deep=False)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual([], parsed_output["ExampleSubmodelList"])
+
+    def test_submodel_core_omits_entity_statements_ok(self):
+        submodel = example_aas.create_example_bill_of_material_submodel()
+        deep_output = json.loads(json.dumps(submodel, cls=ValueOnlyJsonEncoder))
+        expected = deep_output["ExampleEntity"]
+        expected.pop("statements")
+
+        out_str = json.dumps(submodel, cls=ValueOnlyJsonEncoder, deep=False)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual(expected, parsed_output["ExampleEntity"])
+
+    def test_entity_core_keeps_statements_ok(self):
+        submodel = example_aas.create_example_bill_of_material_submodel()
+        entity = submodel.get_referable("ExampleEntity")
+
+        out_str = json.dumps(entity, cls=ValueOnlyJsonEncoder, deep=False)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({"ExampleProperty": "exampleValue", "ExampleProperty2": "exampleValue2"},
+                         parsed_output["statements"])
+
+    def test_entity_core_empties_statement_submodel_element_collection_ok(self):
+        collection = model.SubmodelElementCollection(
+            "ExampleCollection",
+            value=[model.Property("ExampleProperty", model.datatypes.String, value="exampleValue")],
+        )
+        entity = model.Entity("ExampleEntity", model.EntityType.CO_MANAGED_ENTITY, statement=[collection])
+
+        out_str = json.dumps(entity, cls=ValueOnlyJsonEncoder, deep=False)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({"ExampleCollection": {}}, parsed_output["statements"])
+
+    def test_submodel_core_omits_annotated_relationship_element_annotations_ok(self):
+        deep_output = json.loads(json.dumps(self.submodel, cls=ValueOnlyJsonEncoder))
+        expected = deep_output["ExampleAnnotatedRelationshipElement"]
+        expected.pop("annotations")
+
+        out_str = json.dumps(self.submodel, cls=ValueOnlyJsonEncoder, deep=False)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual(expected, parsed_output["ExampleAnnotatedRelationshipElement"])
+
+    def test_annotated_relationship_element_core_keeps_annotations_ok(self):
+        are = self.submodel.get_referable("ExampleAnnotatedRelationshipElement")
+        deep_output = json.loads(json.dumps(are, cls=ValueOnlyJsonEncoder))
+
+        out_str = json.dumps(are, cls=ValueOnlyJsonEncoder, deep=False)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual(deep_output, parsed_output)
+
+    def test_leaf_element_core_ok(self):
+        range_element = self.submodel.get_referable("ExampleSubmodelCollection.ExampleRange")
+
+        out_str = json.dumps(range_element, cls=ValueOnlyJsonEncoder, deep=False)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({"min": 0, "max": 100}, parsed_output)
+
+    def test_submodel_core_keeps_containers_of_omitted_elements_ok(self):
+        submodel = model.Submodel("https://example.org/Submodel", submodel_element=[
+            model.Property("FilledProperty", model.datatypes.String, "exampleValue"),
+            model.SubmodelElementCollection("CollectionOfOperations", [model.Operation("Operation")]),
+            model.SubmodelElementList("ListOfOperations", model.Operation, [model.Operation(None)]),
+        ])
+
+        out_str = json.dumps(submodel, cls=ValueOnlyJsonEncoder, deep=False)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({
+            "FilledProperty": "exampleValue",
+            "CollectionOfOperations": {},
+            "ListOfOperations": [],
+        }, parsed_output)

@@ -17,9 +17,7 @@ import werkzeug.routing
 import werkzeug.utils
 from basyx.aas import model
 from basyx.aas.adapter._generic import XML_NS_MAP
-from basyx.aas.adapter.json.path_serialization import PathJsonEncoder
-from basyx.aas.adapter.json.reference_serialization import ReferenceJsonEncoder
-from basyx.aas.adapter.json.value_only_serialization import AASToValueOnlyJsonEncoder
+from basyx.aas.adapter.json import MetadataJsonEncoder, PathJsonEncoder, ReferenceJsonEncoder, ValueOnlyJsonEncoder
 from basyx.aas.adapter.xml import XMLConstructables, read_aas_xml_element, xml_serialization
 from basyx.aas.model import AbstractObjectStore
 from basyx.aas.model.datatypes import NonNegativeInteger
@@ -237,7 +235,7 @@ class StrippedResultToJsonEncoder(ResultToJsonEncoder):
 
 # TODO need to be added
 
-class ResultMetadataJsonEncoder(ResultToJsonEncoder):
+class ResultMetadataJsonEncoder(ResultToJsonEncoder, MetadataJsonEncoder):
     pass
 
 
@@ -245,11 +243,7 @@ class ResultReferenceJsonEncoder(ResultToJsonEncoder, ReferenceJsonEncoder):
     pass
 
 
-class ResultValueOnlyJsonEncoder(ResultToJsonEncoder, AASToValueOnlyJsonEncoder):
-    pass
-
-
-class ResultShallowValueOnlyJsonEncoder(ResultValueOnlyJsonEncoder):
+class ResultValueOnlyJsonEncoder(ResultToJsonEncoder, ValueOnlyJsonEncoder):
     pass
 
 
@@ -265,14 +259,11 @@ def pick_encoder(mods: Modifiers) -> Tuple[Type["ResultToJsonEncoder"], Dict[str
     """
     match mods.content:
         case Content.NORMAL:
-            cls = StrippedResultToJsonEncoder if not mods.is_deep else ResultToJsonEncoder
-            return cls, {}
+            return ResultToJsonEncoder, {"deep": mods.is_deep}
         case Content.METADATA:
             return ResultMetadataJsonEncoder, {}
         case Content.VALUE:
-            # TODO: AASToValueOnlyJsonEncoder needs a ``deep`` kwarg; currently always deep.
-            cls = ResultShallowValueOnlyJsonEncoder if not mods.is_deep else ResultValueOnlyJsonEncoder
-            return cls, {}
+            return ResultValueOnlyJsonEncoder, {"deep": mods.is_deep}
         case Content.REFERENCE:
             return ResultReferenceJsonEncoder, {}
         case Content.PATH:

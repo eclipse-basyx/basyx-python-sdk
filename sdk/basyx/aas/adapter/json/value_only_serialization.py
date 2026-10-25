@@ -13,8 +13,30 @@ from basyx.aas.adapter import _generic
 from basyx.aas.adapter.json import AASToJsonEncoder
 
 TYPES_WITHOUT_VALUE_ONLY = (model.Capability, model.Operation)
+CONTAINER_TYPES = (model.SubmodelElementCollection, model.SubmodelElementList)
 
-class AASToValueOnlyJsonEncoder(AASToJsonEncoder):
+
+class ValueOnlyJsonEncoder(AASToJsonEncoder):
+    """
+    Custom JSONEncoder that serializes BaSyx Python SDK objects into the JSON format "ValueOnly" as defined by the
+    specification.
+
+    .. note::
+
+        The specification contradicts itself at some points. In these cases the following assumptions were made:
+
+        * ``annotations`` of an AnnotatedRelationshipElement and ``statements`` of an Entity are serialized as JSON
+          object with the idShorts as names, as defined in the schema and the Entity example, instead of an array,
+          as stated in the text.
+        * ``specificAssetIds`` of an Entity are serialized as array of SpecificAssetIds in format "Normal", as stated
+          in the text, instead of objects with string values only, as defined in the schema.
+        * ``globalAssetId`` of an Entity is serialized as string, as defined in the schema and the metamodel, instead
+          of a Reference, as shown in the Entity example.
+
+    :param deep: If True (default), all children of the serialized object are included on all sublevels. If False,
+                 only the serialized object and its direct children are included without their values. Compare to
+                 serialization level ``core``.
+    """
 
     @classmethod
     def _get_aas_class_serializers(cls) -> dict[type, Callable]:
@@ -44,6 +66,22 @@ class AASToValueOnlyJsonEncoder(AASToJsonEncoder):
         return serializers
 
     @classmethod
+    def _get_aas_class_no_children_serializers(cls) -> dict[type, Callable]:
+        serializers = super()._get_aas_class_no_children_serializers()
+
+        serializers.update(
+            {
+                model.Submodel: cls._submodel_to_value_only_no_children,
+                model.SubmodelElementList: cls._submodel_element_list_to_value_only_no_children,
+                model.SubmodelElementCollection: cls._submodel_element_collection_to_value_only_no_children,
+                model.AnnotatedRelationshipElement: cls._annotated_relationship_element_to_value_only_no_children,
+                model.Entity: cls._entity_to_value_only_no_children,
+            }
+        )
+
+        return serializers
+
+    @classmethod
     def _has_value(cls, obj: model.SubmodelElement) -> bool:
         if isinstance(obj, TYPES_WITHOUT_VALUE_ONLY):
             return False
@@ -62,8 +100,9 @@ class AASToValueOnlyJsonEncoder(AASToJsonEncoder):
         if isinstance(obj, model.RelationshipElement):
             return obj.first is not None or obj.second is not None
         if isinstance(obj, model.Entity):
-            return obj.global_asset_id is not None or bool(obj.specific_asset_id)
-        if isinstance(obj, (model.SubmodelElementList, model.SubmodelElementCollection)):
+            return (obj.global_asset_id is not None or bool(obj.specific_asset_id)
+                    or any(cls._has_value(statement) for statement in obj.statement))
+        if isinstance(obj, CONTAINER_TYPES):
             return any(cls._has_value(element) for element in obj.value)
         return True
 
@@ -176,4 +215,73 @@ class AASToValueOnlyJsonEncoder(AASToJsonEncoder):
     @classmethod
     def _basic_event_element_to_value_only(cls, obj: model.BasicEventElement) -> dict[str, object]:
         data: dict[str, object] = {"observed": obj.observed}
+        return data
+
+    # #############################################################
+    # transformation functions to serialize with deep=False
+    # #############################################################
+
+    @classmethod
+    def _remove_children(cls, obj: object) -> object:
+        # The ValueOnly representation of SubmodelElementCollections and SubmodelElementLists consists only of their
+        # children
+        if isinstance(obj, model.SubmodelElementCollection):
+            return {}
+        if isinstance(obj, model.SubmodelElementList):
+            return []
+        return super()._remove_children(obj)
+
+    @classmethod
+    def _remove_children_of_elements(cls, data: dict[str, object]) -> dict[str, object]:
+        return {id_short: cls._remove_children(element) for id_short, element in data.items()}
+
+    @classmethod
+    def _submodel_to_value_only_no_children(cls, obj: model.Submodel) -> dict[str, object]:
+        data = cls._get_aas_class_serializers()[model.Submodel](obj)
+        # Direct child SubmodelElementCollections and SubmodelElementLists are always serialized with an empty value,
+        # even if they contain no elements with a value
+        for element in obj.submodel_element:
+            if isinstance(element, CONTAINER_TYPES) and element.id_short is not None:
+                data.setdefault(element.id_short, element)
+        return cls._remove_children_of_elements(data)
+
+    @classmethod
+    def _submodel_element_list_to_value_only_no_children(cls, obj: model.SubmodelElementList) -> list[object]:
+        data = cls._get_aas_class_serializers()[model.SubmodelElementList](obj)
+        return [cls._remove_children(element) for element in data]
+
+    @classmethod
+    def _submodel_element_collection_to_value_only_no_children(
+            cls, obj: model.SubmodelElementCollection
+    ) -> dict[str, object]:
+        data = cls._get_aas_class_serializers()[model.SubmodelElementCollection](obj)
+        # Direct child SubmodelElementCollections and SubmodelElementLists are always serialized with an empty value,
+        # even if they contain no elements with a value
+        for element in obj.value:
+            if isinstance(element, CONTAINER_TYPES) and element.id_short is not None:
+                data.setdefault(element.id_short, element)
+        return cls._remove_children_of_elements(data)
+
+    @classmethod
+    def _annotated_relationship_element_to_value_only_no_children(
+            cls, obj: model.AnnotatedRelationshipElement
+    ) -> dict[str, object]:
+        data = cls._get_aas_class_serializers()[model.AnnotatedRelationshipElement](obj)
+        annotations = data.get("annotations")
+        if isinstance(annotations, dict):
+            # No checking for child SubmodelElementCollections and SubmodelElementLists neccessary
+            data["annotations"] = cls._remove_children_of_elements(annotations)
+        return data
+
+    @classmethod
+    def _entity_to_value_only_no_children(cls, obj: model.Entity) -> dict[str, object]:
+        data = cls._get_aas_class_serializers()[model.Entity](obj)
+        statements = data.get("statements")
+        if isinstance(statements, dict):
+            # Direct child SubmodelElementCollections and SubmodelElementLists are always serialized with an empty
+            # value, even if they contain no elements with a value
+            for element in obj.statement:
+                if isinstance(element, CONTAINER_TYPES) and element.id_short is not None:
+                    statements.setdefault(element.id_short, element)
+            data["statements"] = cls._remove_children_of_elements(statements)
         return data

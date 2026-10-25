@@ -13,6 +13,8 @@ The module provides a custom JSONEncoder classes :class:`AASToJsonEncoder` and :
 to be used with the Python standard :mod:`json` module. While the former serializes objects as defined in the
 specification, the latter serializes stripped objects, excluding some attributes
 (see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91).
+Additionally, :class:`CoreAASToJsonEncoder` serializes objects with the serialization level ``core`` of the AAS API
+specification, only including the serialized object and its direct children.
 Each class contains a custom :meth:`~.AASToJsonEncoder.default` function which converts BaSyx Python SDK objects to
 simple python types for an automatic JSON serialization.
 To simplify the usage of this module, the :meth:`write_aas_json_file` and :meth:`object_store_to_json` are provided.
@@ -64,12 +66,22 @@ class AASToJsonEncoder(json.JSONEncoder):
 
         json_string = json.dumps(data, cls=AASToJsonEncoder)
 
+    To extend the encoder, override the respective ``_<class>_to_json()`` methods or the mapping returned by
+    ``_get_aas_class_serializers()``. Override ``_get_aas_class_no_children_serializers()`` to adapt ``deep=False``.
+
     :cvar stripped: If True, the JSON objects will be serialized in a stripped manner, excluding some attributes.
                     Defaults to ``False``.
                     See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
+    :param deep: If True (default), all children of the serialized object are included on all sublevels. If False,
+                only the serialized object and its direct children are included, while the children of these are
+                omitted. This corresponds to the serialization level ``core`` of the AAS API specification.
     """
 
     stripped = False
+
+    def __init__(self, *args, deep: bool = True, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.deep = deep
 
     @classmethod
     def _get_aas_class_serializers(cls) -> Dict[Type, Callable]:
@@ -105,6 +117,28 @@ class AASToJsonEncoder(json.JSONEncoder):
         }
         return mapping
 
+    @classmethod
+    def _get_aas_class_no_children_serializers(cls) -> Dict[Type, Callable]:
+        mapping: Dict[Type, Callable] = {
+            model.AnnotatedRelationshipElement: cls._annotated_relationship_element_to_json_no_children,
+            model.Entity: cls._entity_to_json_no_children,
+            model.Submodel: cls._submodel_to_json_no_children,
+            model.SubmodelElementCollection: cls._submodel_element_collection_to_json_no_children,
+            model.SubmodelElementList: cls._submodel_element_list_to_json_no_children,
+        }
+        return mapping
+
+    @classmethod
+    def _get_aas_class_children_keys(cls) -> Dict[Type, str]:
+        mapping: Dict[Type, str] = {
+            model.AnnotatedRelationshipElement: "annotations",
+            model.Entity: "statements",
+            model.Submodel: "submodelElements",
+            model.SubmodelElementCollection: "value",
+            model.SubmodelElementList: "value",
+        }
+        return mapping
+
     def default(self, obj: object) -> object:
         """
         The overwritten ``default`` method for :class:`json.JSONEncoder`
@@ -112,6 +146,12 @@ class AASToJsonEncoder(json.JSONEncoder):
         :param obj: The object to serialize to json
         :return: The serialized object
         """
+        if not self.deep:
+            no_children_mapping = self._get_aas_class_no_children_serializers()
+            for typ in no_children_mapping:
+                if isinstance(obj, typ):
+                    no_children_mapping_method = no_children_mapping[typ]
+                    return no_children_mapping_method(obj)
         mapping = self._get_aas_class_serializers()
         for typ in mapping:
             if isinstance(obj, typ):
@@ -748,6 +788,105 @@ class AASToJsonEncoder(json.JSONEncoder):
             data["minInterval"] = model.datatypes.xsd_repr(obj.min_interval)
         if obj.max_interval is not None:
             data["maxInterval"] = model.datatypes.xsd_repr(obj.max_interval)
+        return data
+
+    # #############################################################
+    # transformation functions to serialize with deep=False
+    # #############################################################
+
+    @classmethod
+    def _remove_children(cls, obj: object) -> object:
+        """
+        Serialization of a child element without its own children
+
+        :param obj: The child element to serialize
+        :return: dict with the serialized attributes of the child element without its children or the child element
+                 itself, if it cannot contain children
+        """
+        mapping = cls._get_aas_class_serializers()
+        children_keys = cls._get_aas_class_children_keys()
+        for typ in children_keys:
+            if isinstance(obj, typ):
+                data = mapping[typ](obj)
+                data.pop(children_keys[typ], None)
+                return data
+        return obj
+
+    @classmethod
+    def _submodel_to_json_no_children(cls, obj: model.Submodel) -> Dict[str, object]:
+        """
+        serialization of an object from class Submodel to json, omitting the children of its submodel elements
+
+        :param obj: object of class Submodel
+        :return: dict with the serialized attributes of this object
+        """
+        data = cls._get_aas_class_serializers()[model.Submodel](obj)
+        children = data.get("submodelElements")
+        if isinstance(children, list):
+            data["submodelElements"] = [cls._remove_children(child) for child in children]
+        return data
+
+    @classmethod
+    def _submodel_element_collection_to_json_no_children(
+        cls, obj: model.SubmodelElementCollection
+    ) -> Dict[str, object]:
+        """
+        serialization of an object from class SubmodelElementCollection to json, omitting the children of its value
+
+        :param obj: object of class SubmodelElementCollection
+        :return: dict with the serialized attributes of this object
+        """
+        data = cls._get_aas_class_serializers()[model.SubmodelElementCollection](obj)
+        children = data.get("value")
+        if isinstance(children, list):
+            data["value"] = [cls._remove_children(child) for child in children]
+        return data
+
+    @classmethod
+    def _submodel_element_list_to_json_no_children(
+        cls, obj: model.SubmodelElementList
+    ) -> Dict[str, object]:
+        """
+        serialization of an object from class SubmodelElementList to json, omitting the children of its value
+
+        :param obj: object of class SubmodelElementList
+        :return: dict with the serialized attributes of this object
+        """
+        data = cls._get_aas_class_serializers()[model.SubmodelElementList](obj)
+        children = data.get("value")
+        if isinstance(children, list):
+            data["value"] = [cls._remove_children(child) for child in children]
+        return data
+
+    @classmethod
+    def _annotated_relationship_element_to_json_no_children(
+        cls, obj: model.AnnotatedRelationshipElement
+    ) -> Dict[str, object]:
+        """
+        serialization of an object from class AnnotatedRelationshipElement to json, omitting the children of its
+        annotations
+
+        :param obj: object of class AnnotatedRelationshipElement
+        :return: dict with the serialized attributes of this object
+        """
+        data = cls._get_aas_class_serializers()[model.AnnotatedRelationshipElement](obj)
+        children = data.get("annotations")
+        if isinstance(children, list):
+            data["annotations"] = [cls._remove_children(child) for child in children]
+        return data
+
+    @classmethod
+    def _entity_to_json_no_children(cls, obj: model.Entity) -> Dict[str, object]:
+        """
+        serialization of an object from class Entity to json, omitting the children of its statements
+
+        :param obj: object of class Entity
+        :return: dict with the serialized attributes of this object
+        """
+        data = cls._get_aas_class_serializers()[model.Entity](obj)
+        children = data.get("statements")
+        if isinstance(children, list):
+            data["statements"] = [cls._remove_children(child) for child in children]
         return data
 
 
