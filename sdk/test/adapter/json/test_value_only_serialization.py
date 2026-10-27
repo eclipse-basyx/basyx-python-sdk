@@ -10,7 +10,7 @@ import math
 import unittest
 
 from basyx.aas import model
-from basyx.aas.adapter.json.value_only_serialization import ValueOnlyJsonEncoder
+from basyx.aas.adapter.json import ValueOnlyJsonEncoder
 from basyx.aas.examples.data import example_aas, example_aas_mandatory_attributes
 
 EXAMPLE_SUBMODEL_ID = "http://example.org/Test_Submodel"

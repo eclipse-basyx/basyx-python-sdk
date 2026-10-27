@@ -8,7 +8,7 @@ import json
 import unittest
 
 from basyx.aas import model
-from basyx.aas.adapter.json.reference_serialization import ReferenceJsonEncoder
+from basyx.aas.adapter.json import ReferenceJsonEncoder
 from basyx.aas.examples.data import example_aas
 
 
