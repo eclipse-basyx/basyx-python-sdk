@@ -8,7 +8,8 @@
 from typing import Iterable, List
 
 from basyx.aas import model
-from basyx.aas.adapter.json import AASToJsonEncoder
+
+from ..json_serialization import AASToJsonEncoder
 
 
 class PathJsonEncoder(AASToJsonEncoder):

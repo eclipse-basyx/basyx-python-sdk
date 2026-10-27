@@ -10,7 +10,8 @@ from typing import Callable, Iterable, Union
 
 from basyx.aas import model
 from basyx.aas.adapter import _generic
-from basyx.aas.adapter.json import AASToJsonEncoder
+
+from ..json_serialization import AASToJsonEncoder
 
 TYPES_WITHOUT_VALUE_ONLY = (model.Capability, model.Operation)
 CONTAINER_TYPES = (model.SubmodelElementCollection, model.SubmodelElementList)

@@ -7,7 +7,8 @@
 from typing import Callable, Dict, Type
 
 from basyx.aas import model
-from basyx.aas.adapter.json import AASToJsonEncoder
+
+from ..json_serialization import AASToJsonEncoder
 
 
 class ReferenceJsonEncoder(AASToJsonEncoder):
