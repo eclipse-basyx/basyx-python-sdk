@@ -13,8 +13,6 @@ The module provides a custom JSONEncoder classes :class:`AASToJsonEncoder` and :
 to be used with the Python standard :mod:`json` module. While the former serializes objects as defined in the
 specification, the latter serializes stripped objects, excluding some attributes
 (see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91).
-Additionally, :class:`CoreAASToJsonEncoder` serializes objects with the serialization level ``core`` of the AAS API
-specification, only including the serialized object and its direct children.
 Each class contains a custom :meth:`~.AASToJsonEncoder.default` function which converts BaSyx Python SDK objects to
 simple python types for an automatic JSON serialization.
 To simplify the usage of this module, the :meth:`write_aas_json_file` and :meth:`object_store_to_json` are provided.

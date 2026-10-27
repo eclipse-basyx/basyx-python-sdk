@@ -11,7 +11,6 @@ from basyx.aas import model
 
 from ..json_serialization import AASToJsonEncoder
 
-
 # Types for which the $path content modifier returns the idShort of the requested element and a list
 # of idShort paths to its child elements (AAS API Part 2).
 _PATH_SUPPORTED_TYPES: Tuple[type, ...] = (
@@ -26,9 +25,10 @@ _PATH_SUPPORTED_TYPES: Tuple[type, ...] = (
 class PathJsonEncoder(AASToJsonEncoder):
     """
     Custom JSONEncoder that serializes selected AAS objects as the list of idShortPaths reachable
-    from them (``$path`` content modifier). Supported inputs are :class:`~basyx.aas.model.Submodel`,
-    :class:`~basyx.aas.model.SubmodelElementCollection`, :class:`~basyx.aas.model.SubmodelElementList`,
-    :class:`~basyx.aas.model.AnnotatedRelationshipElement`, and :class:`~basyx.aas.model.Entity`.
+    from them (``$path`` content modifier). Supported inputs are :class:`~basyx.aas.model.submodel.Submodel`,
+    :class:`~basyx.aas.model.submodel.SubmodelElementCollection`,
+    :class:`~basyx.aas.model.submodel.SubmodelElementList`,
+    :class:`~basyx.aas.model.submodel.AnnotatedRelationshipElement`, and :class:`~basyx.aas.model.submodel.Entity`.
     Any other type raises :class:`TypeError`.
 
     :param deep: If True (default), all descendants on all sublevels are included. If False, only

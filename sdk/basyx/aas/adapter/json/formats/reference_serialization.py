@@ -13,8 +13,8 @@ from ..json_serialization import AASToJsonEncoder
 
 class ReferenceJsonEncoder(AASToJsonEncoder):
     """
-    Custom JSONEncoder that serializes :class:`~basyx.aas.model.Referable` objects, which are contained
-    in an :class:`~basyx.aas.model.Identifiable`, as their :class:`~basyx.aas.model.ModelReference`.
+    Custom JSONEncoder that serializes :class:`~basyx.aas.model.base.Referable` objects, which are contained
+    in an :class:`~basyx.aas.model.base.Identifiable`, as their :class:`~basyx.aas.model.base.ModelReference`.
     """
 
     @classmethod
