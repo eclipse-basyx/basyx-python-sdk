@@ -99,6 +99,13 @@ the further steps via the comments.
 
 ### Merging Pull Requests
 
+Only the maintainers accept and merge pull requests.
+
+We welcome contributions that were written with the help of AI. In that case, name the
+model and its version at the end of the pull request description, e.g. `Claude Opus 5.5`.
+If we believe that a contribution was made with AI and this is not stated, we reject
+the pull request entirely.
+
 Pull requests are merged with *Squash and merge*: All commits of your branch become
 a single commit on `develop`.
 The title and description of the pull request become the title and message of this
@@ -309,9 +316,9 @@ itself.
 Then you can run the checks via:
 ```bash
 ruff check
-mypy basyx test
+mypy aas_compliance_tool test
 python -m unittest
-coverage run --source basyx --branch -m unittest
+coverage run --source aas_compliance_tool --branch -m unittest
 coverage report -m
 ```
 
