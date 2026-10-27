@@ -72,12 +72,16 @@ class AASToJsonEncoder(json.JSONEncoder):
     :cvar stripped: If True, the JSON objects will be serialized in a stripped manner, excluding some attributes.
                     Defaults to ``False``.
                     See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
+    :cvar with_blob_value: If True, objects of type :class:`~basyx.aas.model.submodel.Blob` will be serialized
+                           containing their value in base64 encoding. Otherwise, the ``value`` key is omitted.
+                           Default to ``True``.
     :param deep: If True (default), all children of the serialized object are included on all sublevels. If False,
                 only the serialized object and its direct children are included, while the children of these are
                 omitted. This corresponds to the serialization level ``core`` of the AAS API specification.
     """
 
     stripped = False
+    with_blob_value = True
 
     def __init__(self, *args, deep: bool = True, **kwargs):
         super().__init__(*args, **kwargs)
@@ -565,7 +569,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         data = cls._abstract_classes_to_json(obj)
         if obj.content_type is not None:
             data["contentType"] = obj.content_type
-        if obj.value is not None:
+        if cls.with_blob_value and obj.value is not None:
             data["value"] = base64.b64encode(obj.value).decode()
         return data
 

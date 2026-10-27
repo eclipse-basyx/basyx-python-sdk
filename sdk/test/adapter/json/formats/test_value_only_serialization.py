@@ -552,3 +552,57 @@ class TestValueOnlyJsonEncoderCore(unittest.TestCase):
             "CollectionOfOperations": {},
             "ListOfOperations": [],
         }, parsed_output)
+
+
+class WithoutBlobValueValueOnlyJsonEncoder(ValueOnlyJsonEncoder):
+    with_blob_value = False
+
+
+class TestValueOnlyJsonEncoderBlobValue(unittest.TestCase):
+    def setUp(self):
+        self.submodel = example_aas.create_example_submodel()
+        self.blob = self.submodel.get_referable("ExampleSubmodelCollection.ExampleBlob")
+
+    def test_with_blob_value_is_default_ok(self):
+        out_str = json.dumps(self.blob, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertTrue(ValueOnlyJsonEncoder.with_blob_value)
+        # the value is base64 encoded b"\x01\x02\x03\x04\x05"
+        self.assertEqual({"contentType": "application/pdf", "value": "AQIDBAU="}, parsed_output)
+
+    def test_without_blob_value_omits_value_ok(self):
+        out_str = json.dumps(self.blob, cls=WithoutBlobValueValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({"contentType": "application/pdf"}, parsed_output)
+
+    def test_without_blob_value_keeps_nested_blob_ok(self):
+        out_str = json.dumps(self.submodel, cls=WithoutBlobValueValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({"contentType": "application/pdf"}, parsed_output["ExampleSubmodelCollection"]["ExampleBlob"])
+
+    def test_without_blob_value_core_omits_blob_value_ok(self):
+        smc = self.submodel.get_referable("ExampleSubmodelCollection")
+
+        out_str = json.dumps(smc, cls=WithoutBlobValueValueOnlyJsonEncoder, deep=False)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({"contentType": "application/pdf"}, parsed_output["ExampleBlob"])
+
+    def test_with_blob_value_empty_value_ok(self):
+        blob = model.Blob("EmptyBlob", "application/octet-stream", value=b"")
+
+        out_str = json.dumps(blob, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({"contentType": "application/octet-stream", "value": ""}, parsed_output)
+
+    def test_with_blob_value_without_value_ok(self):
+        blob = model.Blob("BlobWithoutValue", "application/octet-stream")
+
+        out_str = json.dumps(blob, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual({"contentType": "application/octet-stream"}, parsed_output)
