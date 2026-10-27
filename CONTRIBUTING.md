@@ -57,6 +57,10 @@ committing.
 
 ### Workflow
 
+The default branch of Eclipse-BaSyx-Python is `develop`.
+All contributions go there, so every pull request must target `develop`.
+The `main` branch only receives releases.
+
 After this, the workflow to submit contributions to Eclipse-BaSyx-Python is pretty
 standard, as the picture (based
 on [this blog-post by Tomas Beuzen](https://www.tomasbeuzen.com/post/git-fork-branch-pull/))
@@ -71,14 +75,15 @@ below shows:
 git remote add upstream https://github.com/eclipse-basyx/basyx-python-sdk
 ```
 
-3. Pull the branch you want to contribute to:
+3. Pull the `develop` branch:
 
 ```bash
-git pull upstream <branch_name>
+git pull upstream develop
 ```
 
 Now, you can create a new local branch in which you can create your changes and actually
-do your changes. When you're done with that, continue with:
+do your changes. The name of the branch does not matter much. When you're done with that,
+continue with:
 
 4. Push the new branch to your fork:
 
@@ -87,18 +92,46 @@ git push origin <your_new_branch>
 ```
 
 5. Create a [Pull Request](https://github.com/eclipse-basyx/basyx-python-sdk/pulls) from
-   your fork `<your_new_branch>` to the Eclipse-BaSyx-Python `<branch_name>`
+   your fork `<your_new_branch>` to the Eclipse-BaSyx-Python `develop` branch
 
 The Eclipse-BaSyx-Python maintainers will then review the pull request and communicate
 the further steps via the comments.
+
+### Merging Pull Requests
+
+Pull requests are merged with *Squash and merge*: All commits of your branch become
+a single commit on `develop`.
+The title and description of the pull request become the title and message of this
+commit, and GitHub appends the PR number to the title, e.g. `(#123)`.
+
+The release notes are written from the commit history of `develop`.
+Therefore, the title and description of your pull request are very important and must
+follow the [guidelines below](#commit-and-pull-request-messages).
+The individual commits on your branch are lost in the squash, so their messages matter
+less.
+The maintainers may edit the title and description before they merge.
+
+The only exception are releases: The release pull request from `develop` to `main` is
+merged with a merge commit.
+Afterwards, `main` is merged back into `develop`, so that the release tag is also part
+of the history of `develop`.
 
 ## Commit and Pull Request Messages
 
 In order to effectively communicate, there are some conventions to respect when writing
 commit messages and pull requests.
 
-Similarly to when creating an issue, the commit title, as well as the PR title should 
-be as short as possible, ideally 72 characters or fewer using imperative language.
+Commit messages and pull request messages are essentially the same thing: The title and
+description of your pull request become the squash commit on `develop`
+(see [Merging Pull Requests](#merging-pull-requests)).
+If you write a good commit message, GitHub fills it in as the PR title and description
+automatically, so you only need to write it once.
+
+### Title
+
+The title should be as short as possible, ideally 50 characters or fewer.
+Only exceed this if truly necessary.
+Use imperative language and no period at the end.
 If a specific module is affected, please mention it at the beginning of the title.
 
 Here are some examples:
@@ -109,18 +142,63 @@ compliance_tool: Fix fail to check aasx package without thumbnail
 adapter.aasx: Fix `Property.value` `0` converted into `NoneType`
 ```
 
+### Message
+
 The following guidelines are for the commit or PR message text:
 
-- No imperative, full text, bullet points where necessary
-- Max. 72 characters per line
-- There should be always 2 things in a Commit/PR message:
-    - Currently, the situation is this
-    - Motivate, why is it now different?
-- Don't describe what has been done, as this can be looked up in the code
-- Write as long as necessary, as short as possible
-- Where sensible, reference the specification, ideally
-  via `https://link/to.pdf#Page=123`
-- Optionally, where applicable reference respective issues: `Fixes #123`
+- Max. 72 characters per line (except for link definitions, see below)
+- No imperative, full sentences, bullet points where helpful
+- Every message should convey these three things:
+    1. Previous state: What was the situation before this change?
+    2. Motivation: Why do we change it now? Sometimes, this is already clear from the
+       previous state.
+    3. What changed: A high-level description of the approach. The details can be
+       looked up in the code.
+- Write as short as possible, while still being complete
+- Use backticks for class names, method names, file names, or any other identifiers
+- Reference issues and pull requests inline as `#123`
+- Where sensible, reference the specification via its HTML version, e.g.
+  `https://industrialdigitaltwin.io/aas-specifications/IDTA-01001/v3.2/index.html`
+- If a URL is too long for a line, use a reference-style link: Write `[some text]`
+  inline and add the link definition `[some text]: https://...` at the very end
+- If applicable, close the respective issues with `Fixes #123` after the message
+  text and before any link definitions
+
+Here are two examples:
+
+```
+Increase `adapter.aasx` test coverage
+
+Previously the test coverage in the `basyx.aas.adapter.aasx` package
+was suboptimal. The `AASXWriter` class was tested end-to-end in
+combination with `AASXReader` but special cases, that lead to
+exceptions were not covered. Additionally the `load_directory(...)`
+method of the `basyx.aas.adapter` package was untested.
+
+With these changes additional tests are added which cover the code
+parts that are mentioned above.
+
+Fixes #127
+```
+
+```
+Revert "[V3] Fix missing literal in `FragmentKeys` (#337)"
+
+Previously, we thought that we missed the literal `Referable` in
+`FragmentKeys`. In #337, we introduced that literal, together with all
+the logical problems and paradoxes that come with it.
+
+However, as it turns out, it was a bug in the specification, rather
+than our mistake. Therefore, we revert the changes of commit
+f41646aa4baa5807cefeb4c3bb95f7937d001b50 here.
+
+See [aas-core-works/aas-core3.0-python#37] for the discussion, as it
+was discovered there.
+
+Fixes #322
+
+[aas-core-works/aas-core3.0-python#37]: https://github.com/aas-core-works/aas-core3.0-python/issues/37
+```
 
 ## Code Quality
 
