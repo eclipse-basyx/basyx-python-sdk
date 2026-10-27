@@ -5,17 +5,31 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Iterable, List
+from typing import Iterable, List, Tuple
 
 from basyx.aas import model
 
 from ..json_serialization import AASToJsonEncoder
 
 
+# Types for which the $path content modifier returns the idShort of the requested element and a list
+# of idShort paths to its child elements (AAS API Part 2).
+_PATH_SUPPORTED_TYPES: Tuple[type, ...] = (
+    model.Submodel,
+    model.SubmodelElementCollection,
+    model.SubmodelElementList,
+    model.AnnotatedRelationshipElement,
+    model.Entity,
+)
+
+
 class PathJsonEncoder(AASToJsonEncoder):
     """
-    Custom JSONEncoder that serializes :class:`~basyx.aas.model.Referable` objects as the list of
-    idShortPaths reachable from them (``$path`` content modifier).
+    Custom JSONEncoder that serializes selected AAS objects as the list of idShortPaths reachable
+    from them (``$path`` content modifier). Supported inputs are :class:`~basyx.aas.model.Submodel`,
+    :class:`~basyx.aas.model.SubmodelElementCollection`, :class:`~basyx.aas.model.SubmodelElementList`,
+    :class:`~basyx.aas.model.AnnotatedRelationshipElement`, and :class:`~basyx.aas.model.Entity`.
+    Any other type raises :class:`TypeError`.
 
     :param deep: If True (default), all descendants on all sublevels are included. If False, only
                  the requested element and its direct children are included. Compare to
@@ -27,9 +41,12 @@ class PathJsonEncoder(AASToJsonEncoder):
         self.deep = deep
 
     def default(self, obj: object) -> object:
-        if isinstance(obj, model.Referable):
+        if isinstance(obj, _PATH_SUPPORTED_TYPES):
             return self._referable_to_path(obj)
-        return super().default(obj)
+        raise TypeError(
+            f"Object of type {type(obj).__name__} has no $path representation; "
+            f"supported types are: {', '.join(t.__name__ for t in _PATH_SUPPORTED_TYPES)}."
+        )
 
     def _referable_to_path(self, obj: model.Referable) -> List[str]:
         if isinstance(obj, model.Submodel):
@@ -37,6 +54,8 @@ class PathJsonEncoder(AASToJsonEncoder):
             paths: List[str] = []
             self._append_children(paths, obj.submodel_element, prefix=[])
             return paths
+        # For the remaining supported types the idShort of the requested element is the root of
+        # every returned idShortPath. If it is missing, no path can be computed from this element.
         if obj.id_short is None:
             raise ValueError(f"{obj!r} has no idShort, so no idShortPath can be computed for it!")
         prefix = [obj.id_short]
@@ -49,13 +68,16 @@ class PathJsonEncoder(AASToJsonEncoder):
             self._append_children(paths, obj.statement, prefix)
         elif isinstance(obj, model.AnnotatedRelationshipElement):
             self._append_children(paths, obj.annotation, prefix)
-        # Other Referables are leaves with no further idShortPaths beyond self.
         return paths
 
     def _append_children(
         self, paths: List[str], children: Iterable[model.SubmodelElement], prefix: List[str]
     ) -> None:
         for child in children:
+            if child.id_short is None:
+                raise ValueError(
+                    f"{child!r} has no idShort, so no idShortPath can be computed for it!"
+                )
             child_prefix = prefix + [child.id_short]
             paths.append(model.Referable.build_id_short_path(child_prefix))
             if self.deep:

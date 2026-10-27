@@ -234,36 +234,22 @@ class TestPathJsonEncoder(unittest.TestCase):
 
         self.assertEqual(["ExampleAnnotatedRelationshipElement"], parsed_output)
 
-    def test_operation_variables_not_included_ok(self):
+    def test_operation_fail(self):
         operation = self.submodel.get_referable("ExampleOperation")
 
-        out_str = json.dumps(operation, cls=PathJsonEncoder)
-        parsed_output = json.loads(out_str)
+        with self.assertRaises(TypeError):
+            json.dumps(operation, cls=PathJsonEncoder)
 
-        self.assertEqual(["ExampleOperation"], parsed_output)
-
-    def test_leaf_element_ok(self):
+    def test_leaf_data_element_fail(self):
         range_element = self.submodel.get_referable("ExampleSubmodelCollection.ExampleRange")
 
-        out_str = json.dumps(range_element, cls=PathJsonEncoder)
-        parsed_output = json.loads(out_str)
+        with self.assertRaises(TypeError):
+            json.dumps(range_element, cls=PathJsonEncoder)
 
-        self.assertEqual(["ExampleRange"], parsed_output)
+    def test_property_fail(self):
+        prop = model.Property("Prop", model.datatypes.String)
 
-    def test_submodel_element_list_child_fail(self):
-        submodel = example_aas_mandatory_attributes.create_example_submodel()
-        sml = submodel.get_referable("ExampleSubmodelList")
-        if not isinstance(sml, model.SubmodelElementList):
-            self.fail("Expected `ExampleSubmodelList` to be of type `SubmodelElementList`.")
-        sml_child = sml.value[0]
-
-        with self.assertRaises(ValueError):
-            json.dumps(sml_child, cls=PathJsonEncoder)
-
-    def test_element_without_id_short_fail(self):
-        prop = model.Property(None, model.datatypes.String)
-
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             json.dumps(prop, cls=PathJsonEncoder)
 
     def test_unsupported_type_fail(self):
