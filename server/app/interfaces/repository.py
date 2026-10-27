@@ -23,11 +23,20 @@ from werkzeug.exceptions import BadRequest, Conflict, NotFound
 from werkzeug.routing import MapAdapter, Rule, Submount
 
 from app._config import API_BASE_PATH
+from app.adapter.path_serialization import compute_id_short_paths
 from app.interfaces.base import PagingMetadata
 from app.model import ServiceDescription, ServiceSpecificationProfileEnum
 from app.util.converters import IdentifierToBase64URLConverter, IdShortPathConverter, base64url_decode
 
-from .base import APIResponse, HTTPApiDecoder, ObjectStoreWSGIApp, T, is_stripped_request
+from .base import (
+    APIResponse,
+    HTTPApiDecoder,
+    ObjectStoreWSGIApp,
+    T,
+    assert_json_response,
+    is_deep_request,
+    is_stripped_request,
+)
 
 SUPPORTED_PROFILES: ServiceDescription = ServiceDescription(
     [
@@ -124,7 +133,7 @@ class WSGIApp(ObjectStoreWSGIApp):
                                 Rule("/$metadata", methods=["GET"], endpoint=self.get_submodel_all_metadata),
                                 Rule("/$reference", methods=["GET"], endpoint=self.get_submodel_all_reference),
                                 Rule("/$value", methods=["GET"], endpoint=self.not_implemented),
-                                Rule("/$path", methods=["GET"], endpoint=self.not_implemented),
+                                Rule("/$path", methods=["GET"], endpoint=self.get_submodel_all_path),
                                 Rule("/<base64url:submodel_id>", methods=["GET"], endpoint=self.get_submodel),
                                 Rule("/<base64url:submodel_id>", methods=["PUT"], endpoint=self.put_submodel),
                                 Rule("/<base64url:submodel_id>", methods=["DELETE"], endpoint=self.delete_submodel),
@@ -137,7 +146,7 @@ class WSGIApp(ObjectStoreWSGIApp):
                                         Rule("/$value", methods=["GET"], endpoint=self.not_implemented),
                                         Rule("/$value", methods=["PATCH"], endpoint=self.not_implemented),
                                         Rule("/$reference", methods=["GET"], endpoint=self.get_submodels_reference),
-                                        Rule("/$path", methods=["GET"], endpoint=self.not_implemented),
+                                        Rule("/$path", methods=["GET"], endpoint=self.get_submodels_path),
                                         Rule(
                                             "/submodel-elements",
                                             methods=["GET"],
@@ -162,7 +171,11 @@ class WSGIApp(ObjectStoreWSGIApp):
                                                     endpoint=self.get_submodel_submodel_elements_reference,
                                                 ),
                                                 Rule("/$value", methods=["GET"], endpoint=self.not_implemented),
-                                                Rule("/$path", methods=["GET"], endpoint=self.not_implemented),
+                                                Rule(
+                                                    "/$path",
+                                                    methods=["GET"],
+                                                    endpoint=self.get_submodel_submodel_elements_path,
+                                                ),
                                                 Rule(
                                                     "/<id_short_path:id_shorts>",
                                                     methods=["GET"],
@@ -210,7 +223,11 @@ class WSGIApp(ObjectStoreWSGIApp):
                                                         Rule(
                                                             "/$value", methods=["PATCH"], endpoint=self.not_implemented
                                                         ),
-                                                        Rule("/$path", methods=["GET"], endpoint=self.not_implemented),
+                                                        Rule(
+                                                            "/$path",
+                                                            methods=["GET"],
+                                                            endpoint=self.get_submodel_submodel_elements_id_short_path_path,
+                                                        ),
                                                         Rule(
                                                             "/attachment",
                                                             methods=["GET"],
@@ -406,6 +423,11 @@ class WSGIApp(ObjectStoreWSGIApp):
         if not isinstance(obj, model.UniqueIdShortNamespace):
             raise BadRequest(f"{obj!r} is not a namespace, can't locate {needle}!")
         return obj
+
+    @staticmethod
+    def _assert_path_supported(response_t: Type[APIResponse]) -> None:
+        # The "Path" content modifier (idShortPath serialization) is only defined for JSON in the specification.
+        assert_json_response(response_t, "The content modifier $path")
 
     @classmethod
     def _namespace_submodel_element_op(
@@ -697,6 +719,16 @@ class WSGIApp(ObjectStoreWSGIApp):
         ]
         return response_t(references, paging_metadata=paging_metadata, stripped=is_stripped_request(request))
 
+    def get_submodel_all_path(
+        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
+    ) -> Response:
+        self._assert_path_supported(response_t)
+        submodels, paging_metadata = self._get_submodels(request)
+        paths = [compute_id_short_paths(submodel,
+                                        is_deep_request(request),
+                                        include_self=False) for submodel in submodels]
+        return response_t(paths, paging_metadata=paging_metadata)
+
     # --------- SUBMODEL ROUTES ---------
 
     def delete_submodel(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
@@ -721,6 +753,14 @@ class WSGIApp(ObjectStoreWSGIApp):
         submodel = self._get_submodel(url_args)
         reference = model.ModelReference.from_referable(submodel)
         return response_t(reference, stripped=is_stripped_request(request))
+
+    def get_submodels_path(
+        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
+    ) -> Response:
+        self._assert_path_supported(response_t)
+        submodel = self._get_submodel(url_args)
+        paths = compute_id_short_paths(submodel, is_deep_request(request), include_self=False)
+        return response_t(paths)
 
     def put_submodel(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         submodel = self._get_submodel(url_args)
@@ -753,6 +793,18 @@ class WSGIApp(ObjectStoreWSGIApp):
         ]
         return response_t(references, paging_metadata=paging_metadata, stripped=is_stripped_request(request))
 
+    def get_submodel_submodel_elements_path(
+        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
+    ) -> Response:
+        self._assert_path_supported(response_t)
+        submodel_elements, paging_metadata = self._get_submodel_submodel_elements(request, url_args)
+        paths = [
+            compute_id_short_paths(element,
+                                   is_deep_request(request),
+                                   include_self=True) for element in submodel_elements
+        ]
+        return response_t(paths, paging_metadata=paging_metadata)
+
     def get_submodel_submodel_elements_id_short_path(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
@@ -775,6 +827,14 @@ class WSGIApp(ObjectStoreWSGIApp):
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         reference = model.ModelReference.from_referable(submodel_element)
         return response_t(reference, stripped=is_stripped_request(request))
+
+    def get_submodel_submodel_elements_id_short_path_path(
+        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
+    ) -> Response:
+        self._assert_path_supported(response_t)
+        submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
+        paths = compute_id_short_paths(submodel_element, is_deep_request(request), include_self=True)
+        return response_t(paths)
 
     def post_submodel_submodel_elements_id_short_path(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], map_adapter: MapAdapter
