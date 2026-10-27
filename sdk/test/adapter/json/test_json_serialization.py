@@ -314,3 +314,46 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
         )
 
         self._checkNormalAndStripped({"submodels"}, aas)
+
+
+class WithoutBlobValueAASToJsonEncoder(AASToJsonEncoder):
+    with_blob_value = False
+
+
+class TestAASToJsonEncoderBlobValue(unittest.TestCase):
+    def setUp(self):
+        self.submodel = example_aas.create_example_submodel()
+        self.blob = self.submodel.get_referable("ExampleSubmodelCollection.ExampleBlob")
+
+    def test_with_blob_value_is_default_ok(self):
+        out_str = json.dumps(self.blob, cls=AASToJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertTrue(AASToJsonEncoder.with_blob_value)
+        # the value is base64 encoded b"\x01\x02\x03\x04\x05"
+        self.assertEqual("AQIDBAU=", parsed_output["value"])
+
+    def test_without_blob_value_omits_value_ok(self):
+        expected = json.loads(json.dumps(self.blob, cls=AASToJsonEncoder))
+        expected.pop("value")
+
+        out_str = json.dumps(self.blob, cls=WithoutBlobValueAASToJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual(expected, parsed_output)
+
+    def test_with_blob_value_empty_value_ok(self):
+        blob = model.Blob("EmptyBlob", "application/octet-stream", value=b"")
+
+        out_str = json.dumps(blob, cls=AASToJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual("", parsed_output["value"])
+
+    def test_with_blob_value_without_value_ok(self):
+        blob = model.Blob("BlobWithoutValue", "application/octet-stream")
+
+        out_str = json.dumps(blob, cls=AASToJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertNotIn("value", parsed_output)

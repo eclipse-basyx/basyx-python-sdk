@@ -34,9 +34,8 @@ class ValueOnlyJsonEncoder(AASToJsonEncoder):
         * ``globalAssetId`` of an Entity is serialized as string, as defined in the schema and the metamodel, instead
           of a Reference, as shown in the Entity example.
 
-    :param deep: If True (default), all children of the serialized object are included on all sublevels. If False,
-                 only the serialized object and its direct children are included without their values. Compare to
-                 serialization level ``core``.
+    :cvar with_blob_value: Inherited from :class:`~basyx.aas.adapter.json.json_serialization.AASToJsonEncoder`.
+    :param deep: Inherited from :class:`~basyx.aas.adapter.json.json_serialization.AASToJsonEncoder`.
     """
 
     @classmethod
@@ -51,8 +50,8 @@ class ValueOnlyJsonEncoder(AASToJsonEncoder):
                 model.Property: cls._property_to_value_only,
                 model.MultiLanguageProperty: cls._multi_language_property_to_value_only,
                 model.Range: cls._range_to_value_only,
-                model.File: cls._file_or_blob_to_value_only,
-                model.Blob: cls._file_or_blob_to_value_only,
+                model.File: cls._file_to_value_only,
+                model.Blob: cls._blob_to_value_only,
                 model.ReferenceElement: cls._reference_element_to_value_only,
                 model.RelationshipElement: cls._relationship_element_to_value_only,
                 model.AnnotatedRelationshipElement: cls._annotated_relationship_element_to_value_only,
@@ -171,11 +170,19 @@ class ValueOnlyJsonEncoder(AASToJsonEncoder):
         return data
 
     @classmethod
-    def _file_or_blob_to_value_only(cls, obj: Union[model.Blob, model.File]) -> dict[str, object]:
+    def _file_to_value_only(cls, obj: model.File) -> dict[str, object]:
         data: dict[str, object] = {}
         data["contentType"] = obj.content_type
         if obj.value is not None:
-            data["value"] = base64.b64encode(obj.value).decode() if isinstance(obj, model.Blob) else obj.value
+                data["value"] = obj.value
+        return data
+
+    @classmethod
+    def _blob_to_value_only(cls, obj: model.Blob) -> dict[str, object]:
+        data: dict[str, object] = {}
+        data["contentType"] = obj.content_type
+        if cls.with_blob_value and obj.value is not None:
+            data["value"] = base64.b64encode(obj.value).decode()
         return data
 
     @classmethod
