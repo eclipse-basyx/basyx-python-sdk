@@ -14,6 +14,8 @@ from basyx.aas import model
 from basyx.aas.adapter.json import (
     AASToJsonEncoder,
     StrippedAASToJsonEncoder,
+    object_store_to_json,
+    read_aas_json_file,
     write_aas_json_file,
 )
 from basyx.aas.examples.data import (
@@ -357,3 +359,154 @@ class TestAASToJsonEncoderBlobValue(unittest.TestCase):
         parsed_output = json.loads(out_str)
 
         self.assertNotIn("value", parsed_output)
+
+
+def _external_reference(*values: str) -> model.ExternalReference:
+    return model.ExternalReference(
+        tuple(model.Key(model.KeyTypes.GLOBAL_REFERENCE, value) for value in values)
+    )
+
+
+def _submodel_reference(identifier: str) -> model.ModelReference:
+    return model.ModelReference(
+        (model.Key(model.KeyTypes.SUBMODEL, identifier),), model.Submodel
+    )
+
+
+class TestAASToJsonEncoderOrder(unittest.TestCase):
+    """
+    Collections that are unordered according to the specification must be serialized in a canonical order, so that
+    equal objects always produce identical JSON strings, independent of insertion order and hash randomization.
+    The elements are always inserted in reverse order of the expected output.
+    """
+
+    def test_extensions_sorted_by_name_ok(self) -> None:
+        submodel = model.Submodel(
+            "urn:sm",
+            extension=[model.Extension(name) for name in ["e2", "e1", "e0"]],
+        )
+
+        data = json.loads(json.dumps(submodel, cls=AASToJsonEncoder))
+
+        self.assertEqual(["e0", "e1", "e2"], [e["name"] for e in data["extensions"]])
+
+    def test_embedded_data_specifications_sorted_by_data_specification_ok(self) -> None:
+        content = model.DataSpecificationIEC61360(
+            model.PreferredNameTypeIEC61360({"en": "name"})
+        )
+        submodel = model.Submodel(
+            "urn:sm",
+            embedded_data_specifications=[
+                model.EmbeddedDataSpecification(_external_reference(value), content)
+                for value in ["urn:ds2", "urn:ds1", "urn:ds0"]
+            ],
+        )
+
+        data = json.loads(json.dumps(submodel, cls=AASToJsonEncoder))
+
+        self.assertEqual(
+            ["urn:ds0", "urn:ds1", "urn:ds2"],
+            [
+                spec["dataSpecification"]["keys"][0]["value"]
+                for spec in data["embeddedDataSpecifications"]
+            ],
+        )
+
+
+    def test_lang_string_sets_sorted_by_language_ok(self) -> None:
+        prop = model.Property(
+            "prop",
+            model.datatypes.String,
+            display_name=model.MultiLanguageNameType({"fr": "n", "en": "n", "de": "n"}),
+            description=model.MultiLanguageTextType({"fr": "t", "en": "t", "de": "t"}),
+        )
+
+        data = json.loads(json.dumps(prop, cls=AASToJsonEncoder))
+
+        self.assertEqual(
+            ["de", "en", "fr"], [s["language"] for s in data["displayName"]]
+        )
+        self.assertEqual(
+            ["de", "en", "fr"], [s["language"] for s in data["description"]]
+        )
+
+    def test_qualifiers_sorted_by_type_ok(self) -> None:
+        submodel = model.Submodel(
+            "urn:sm",
+            qualifier=[
+                model.Qualifier(type_, model.datatypes.String)
+                for type_ in ["q2", "q1", "q0"]
+            ],
+        )
+
+        data = json.loads(json.dumps(submodel, cls=AASToJsonEncoder))
+
+        self.assertEqual(["q0", "q1", "q2"], [q["type"] for q in data["qualifiers"]])
+
+    def test_entity_specific_asset_ids_sorted_ok(self) -> None:
+        entity = model.Entity(
+            "entity",
+            model.EntityType.SELF_MANAGED_ENTITY,
+            specific_asset_id=[
+                model.SpecificAssetId(name, "v") for name in ["n2", "n1", "n0"]
+            ],
+        )
+
+        data = json.loads(json.dumps(entity, cls=AASToJsonEncoder))
+
+        self.assertEqual(
+            ["n0", "n1", "n2"], [s["name"] for s in data["specificAssetIds"]]
+        )
+
+    def test_asset_administration_shell_submodels_sorted_ok(self) -> None:
+        aas = model.AssetAdministrationShell(
+            model.AssetInformation(global_asset_id="urn:asset"),
+            "urn:aas",
+            submodel={_submodel_reference(i) for i in ["urn:sm2", "urn:sm1", "urn:sm0"]},
+        )
+
+        data = json.loads(json.dumps(aas, cls=AASToJsonEncoder))
+
+        self.assertEqual(
+            ["urn:sm0", "urn:sm1", "urn:sm2"],
+            [ref["keys"][0]["value"] for ref in data["submodels"]],
+        )
+
+    def test_submodel_elements_sorted_by_id_short_ok(self) -> None:
+        submodel = model.Submodel(
+            "urn:sm",
+            submodel_element=[
+                model.Property(id_short, model.datatypes.String)
+                for id_short in ["p2", "p1", "p0"]
+            ],
+        )
+
+        data = json.loads(json.dumps(submodel, cls=AASToJsonEncoder))
+
+        self.assertEqual(
+            ["p0", "p1", "p2"], [e["idShort"] for e in data["submodelElements"]]
+        )
+
+    def test_submodel_element_collection_sorted_by_id_short_ok(self) -> None:
+        collection = model.SubmodelElementCollection(
+            "smc",
+            value=[
+                model.Property(id_short, model.datatypes.String)
+                for id_short in ["p2", "p1", "p0"]
+            ],
+        )
+
+        data = json.loads(json.dumps(collection, cls=AASToJsonEncoder))
+
+        self.assertEqual(["p0", "p1", "p2"], [e["idShort"] for e in data["value"]])
+
+    def test_object_store_identifiables_sorted_by_id_ok(self) -> None:
+        store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore(
+            [model.Submodel(identifier) for identifier in ["urn:sm2", "urn:sm1", "urn:sm0"]]
+        )
+
+        data = json.loads(object_store_to_json(store))
+
+        self.assertEqual(
+            ["urn:sm0", "urn:sm1", "urn:sm2"], [sm["id"] for sm in data["submodels"]]
+        )

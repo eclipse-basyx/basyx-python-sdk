@@ -269,3 +269,43 @@ class TestPathJsonEncoder(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             json.dumps(concept_description, cls=PathJsonEncoder)
+
+
+class TestPathJsonEncoderOrder(unittest.TestCase):
+    def test_submodel_children_sorted_by_id_short_ok(self):
+        submodel = model.Submodel("https://example.org/Submodel", submodel_element=[
+            model.SubmodelElementCollection("b", [
+                model.Property("d", model.datatypes.String),
+                model.Property("c", model.datatypes.String),
+            ]),
+            model.Property("a", model.datatypes.String),
+        ])
+
+        out_str = json.dumps(submodel, cls=PathJsonEncoder)
+
+        self.assertEqual('["a", "b", "b.c", "b.d"]', out_str)
+
+    def test_annotations_sorted_by_id_short_ok(self):
+        relationship = model.AnnotatedRelationshipElement(
+            "Relationship",
+            first=model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "first"),)),
+            second=model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "second"),)),
+            annotation=[
+                model.Property("b", model.datatypes.String),
+                model.Property("a", model.datatypes.String),
+            ],
+        )
+
+        out_str = json.dumps(relationship, cls=PathJsonEncoder)
+
+        self.assertEqual('["Relationship", "Relationship.a", "Relationship.b"]', out_str)
+
+    def test_entity_statements_sorted_by_id_short_ok(self):
+        entity = model.Entity("Entity", model.EntityType.CO_MANAGED_ENTITY, statement=[
+            model.Property("b", model.datatypes.String),
+            model.Property("a", model.datatypes.String),
+        ])
+
+        out_str = json.dumps(entity, cls=PathJsonEncoder)
+
+        self.assertEqual('["Entity", "Entity.a", "Entity.b"]', out_str)

@@ -8,6 +8,7 @@
 from typing import Iterable, List, Tuple
 
 from basyx.aas import model
+from basyx.aas.adapter import _ordering
 
 from ..json_serialization import AASToJsonEncoder
 
@@ -30,6 +31,9 @@ class PathJsonEncoder(AASToJsonEncoder):
     :class:`~basyx.aas.model.submodel.SubmodelElementList`,
     :class:`~basyx.aas.model.submodel.AnnotatedRelationshipElement`, and :class:`~basyx.aas.model.submodel.Entity`.
     Any other type raises :class:`TypeError`.
+
+    The idShortPaths of children are listed in a canonical order: Elements of a SubmodelElementList in the order of
+    the list, all other children sorted by their idShort.
 
     :param deep: If True (default), all descendants on all sublevels are included. If False, only
                  the requested element and its direct children are included. Compare to
@@ -73,7 +77,7 @@ class PathJsonEncoder(AASToJsonEncoder):
     def _append_children(
         self, paths: List[str], children: Iterable[model.SubmodelElement], prefix: List[str]
     ) -> None:
-        for child in children:
+        for child in sorted(children, key=_ordering.referable_sort_key):
             if child.id_short is None:
                 raise ValueError(
                     f"{child!r} has no idShort, so no idShortPath can be computed for it!"

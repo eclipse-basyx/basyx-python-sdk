@@ -9,7 +9,7 @@ import math
 from typing import Callable, Iterable, Union
 
 from basyx.aas import model
-from basyx.aas.adapter import _generic
+from basyx.aas.adapter import _ordering, _generic
 
 from ..json_serialization import AASToJsonEncoder
 
@@ -33,6 +33,10 @@ class ValueOnlyJsonEncoder(AASToJsonEncoder):
           in the text, instead of objects with string values only, as defined in the schema.
         * ``globalAssetId`` of an Entity is serialized as string, as defined in the schema and the metamodel, instead
           of a Reference, as shown in the Entity example.
+
+    Like in :class:`~basyx.aas.adapter.json.json_serialization.AASToJsonEncoder`, unordered collections are serialized
+    in a canonical order: The JSON objects with idShorts as names are sorted by idShort and the ``specificAssetIds``
+    of an Entity are sorted by all their attributes. The value of a SubmodelElementList keeps its order.
 
     :cvar with_blob_value: Inherited from :class:`~basyx.aas.adapter.json.json_serialization.AASToJsonEncoder`.
     :param deep: Inherited from :class:`~basyx.aas.adapter.json.json_serialization.AASToJsonEncoder`.
@@ -108,13 +112,7 @@ class ValueOnlyJsonEncoder(AASToJsonEncoder):
 
     @classmethod
     def _submodel_to_value_only(cls, obj: model.Submodel) -> dict[str, object]:
-        data: dict[str, object] = {}
-
-        for element in obj.submodel_element:
-            if cls._has_value(element):
-                data[element.id_short] = element
-
-        return data
+        return cls._submodel_element_iterable_to_value_only(obj.submodel_element)
 
     @classmethod
     def _submodel_element_list_to_value_only(
@@ -126,7 +124,7 @@ class ValueOnlyJsonEncoder(AASToJsonEncoder):
     def _submodel_element_iterable_to_value_only(cls, it: Iterable[model.SubmodelElement]) -> dict[str, object]:
         return {
             element.id_short: element
-            for element in it
+            for element in sorted(it, key=_ordering.referable_sort_key)
             if cls._has_value(element) and element.id_short is not None
         }
 
@@ -215,7 +213,7 @@ class ValueOnlyJsonEncoder(AASToJsonEncoder):
         if obj.global_asset_id:
             data["globalAssetId"] = obj.global_asset_id
         if obj.specific_asset_id:
-            data["specificAssetIds"] = list(obj.specific_asset_id)
+            data["specificAssetIds"] = sorted(obj.specific_asset_id, key=_ordering.specific_asset_id_sort_key)
         if obj.entity_type:
             data["entityType"] = _generic.ENTITY_TYPES[obj.entity_type]
         return data
@@ -241,7 +239,9 @@ class ValueOnlyJsonEncoder(AASToJsonEncoder):
 
     @classmethod
     def _remove_children_of_elements(cls, data: dict[str, object]) -> dict[str, object]:
-        return {id_short: cls._remove_children(element) for id_short, element in data.items()}
+        # Sorted again by idShort, since the callers append SubmodelElementCollections and SubmodelElementLists
+        # without a value at the end
+        return {id_short: cls._remove_children(element) for id_short, element in sorted(data.items())}
 
     @classmethod
     def _submodel_to_value_only_no_children(cls, obj: model.Submodel) -> dict[str, object]:
@@ -277,7 +277,7 @@ class ValueOnlyJsonEncoder(AASToJsonEncoder):
         data = cls._get_aas_class_serializers()[model.AnnotatedRelationshipElement](obj)
         annotations = data.get("annotations")
         if isinstance(annotations, dict):
-            # No checking for child SubmodelElementCollections and SubmodelElementLists neccessary
+            # No checking for child SubmodelElementCollections and SubmodelElementLists necessary
             data["annotations"] = cls._remove_children_of_elements(annotations)
         return data
 

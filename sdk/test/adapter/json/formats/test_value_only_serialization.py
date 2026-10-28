@@ -606,3 +606,89 @@ class TestValueOnlyJsonEncoderBlobValue(unittest.TestCase):
         parsed_output = json.loads(out_str)
 
         self.assertEqual({"contentType": "application/octet-stream"}, parsed_output)
+
+
+class TestValueOnlyJsonEncoderOrder(unittest.TestCase):
+    def test_submodel_elements_sorted_by_id_short_ok(self):
+        submodel = model.Submodel("https://example.org/Submodel", submodel_element=[
+            model.Property("c", model.datatypes.String, "c"),
+            model.Property("a", model.datatypes.String, "a"),
+            model.Property("b", model.datatypes.String, "b"),
+        ])
+
+        out_str = json.dumps(submodel, cls=ValueOnlyJsonEncoder)
+
+        self.assertEqual('{"a": "a", "b": "b", "c": "c"}', out_str)
+
+    def test_submodel_element_collection_value_sorted_by_id_short_ok(self):
+        collection = model.SubmodelElementCollection("Collection", [
+            model.Property("b", model.datatypes.String, "b"),
+            model.Property("a", model.datatypes.String, "a"),
+        ])
+
+        out_str = json.dumps(collection, cls=ValueOnlyJsonEncoder)
+
+        self.assertEqual('{"a": "a", "b": "b"}', out_str)
+
+    def test_annotations_sorted_by_id_short_ok(self):
+        relationship = model.AnnotatedRelationshipElement(
+            "Relationship",
+            first=model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "first"),)),
+            second=model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "second"),)),
+            annotation=[
+                model.Property("b", model.datatypes.String, "b"),
+                model.Property("a", model.datatypes.String, "a"),
+            ],
+        )
+
+        out_str = json.dumps(relationship, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual(["a", "b"], list(parsed_output["annotations"]))
+
+    def test_entity_statements_sorted_by_id_short_ok(self):
+        entity = model.Entity("Entity", model.EntityType.CO_MANAGED_ENTITY, statement=[
+            model.Property("b", model.datatypes.String, "b"),
+            model.Property("a", model.datatypes.String, "a"),
+        ])
+
+        out_str = json.dumps(entity, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual(["a", "b"], list(parsed_output["statements"]))
+
+    def test_entity_specific_asset_ids_sorted_ok(self):
+        entity = model.Entity("Entity", model.EntityType.SELF_MANAGED_ENTITY, specific_asset_id=[
+            model.SpecificAssetId("b", "1"),
+            model.SpecificAssetId("a", "2"),
+            model.SpecificAssetId("a", "1"),
+        ])
+
+        out_str = json.dumps(entity, cls=ValueOnlyJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual(
+            [("a", "1"), ("a", "2"), ("b", "1")],
+            [(asset_id["name"], asset_id["value"]) for asset_id in parsed_output["specificAssetIds"]],
+        )
+
+    def test_submodel_core_containers_without_value_sorted_by_id_short_ok(self):
+        submodel = model.Submodel("https://example.org/Submodel", submodel_element=[
+            model.SubmodelElementCollection("a", [model.Operation("Operation")]),
+            model.Property("b", model.datatypes.String, "b"),
+        ])
+
+        out_str = json.dumps(submodel, cls=ValueOnlyJsonEncoder, deep=False)
+
+        self.assertEqual('{"a": {}, "b": "b"}', out_str)
+
+    def test_entity_core_containers_without_value_sorted_by_id_short_ok(self):
+        entity = model.Entity("Entity", model.EntityType.CO_MANAGED_ENTITY, statement=[
+            model.SubmodelElementCollection("a", [model.Operation("Operation")]),
+            model.Property("b", model.datatypes.String, "b"),
+        ])
+
+        out_str = json.dumps(entity, cls=ValueOnlyJsonEncoder, deep=False)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual(["a", "b"], list(parsed_output["statements"]))

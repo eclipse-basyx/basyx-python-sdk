@@ -35,18 +35,16 @@ from typing import (
     Callable,
     ContextManager,
     Dict,
-    Iterable,
     List,
     Optional,
     TextIO,
-    Tuple,
     Type,
     get_args,
 )
 
 from basyx.aas import model
 
-from .. import _generic
+from .. import _generic, _ordering
 from .._generic import JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES
 
 
@@ -66,6 +64,11 @@ class AASToJsonEncoder(json.JSONEncoder):
 
     To extend the encoder, override the respective ``_<class>_to_json()`` methods or the mapping returned by
     ``_get_aas_class_serializers()``. Override ``_get_aas_class_no_children_serializers()`` to adapt ``deep=False``.
+
+    Collections which are unordered according to the specification (every multi-valued attribute not marked
+    ``<<ordered>>``) are serialized in a canonical order, so that equal objects always result in identical JSON
+    strings. Only the keys of a :class:`~basyx.aas.model.base.Reference` and the value of a
+    :class:`~basyx.aas.model.submodel.SubmodelElementList` keep their order.
 
     :cvar stripped: If True, the JSON objects will be serialized in a stripped manner, excluding some attributes.
                     Defaults to ``False``.
@@ -172,7 +175,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         data: Dict[str, object] = {}
         if isinstance(obj, model.HasExtension) and not cls.stripped:
             if obj.extension:
-                data["extensions"] = list(obj.extension)
+                data["extensions"] = sorted(obj.extension, key=_ordering.extension_sort_key)
         if isinstance(obj, model.HasDataSpecification) and not cls.stripped:
             if obj.embedded_data_specifications:
                 data["embeddedDataSpecifications"] = [
@@ -180,7 +183,10 @@ class AASToJsonEncoder(json.JSONEncoder):
                         "dataSpecification": spec.data_specification,
                         "dataSpecificationContent": spec.data_specification_content,
                     }
-                    for spec in obj.embedded_data_specifications
+                    for spec in sorted(
+                        obj.embedded_data_specifications,
+                        key=lambda s: _ordering.embedded_data_specification_sort_key(s),
+                    )
                 ]
 
         if isinstance(obj, model.Referable):
@@ -209,13 +215,15 @@ class AASToJsonEncoder(json.JSONEncoder):
             if obj.semantic_id:
                 data["semanticId"] = obj.semantic_id
             if obj.supplemental_semantic_id:
-                data["supplementalSemanticIds"] = list(obj.supplemental_semantic_id)
+                data["supplementalSemanticIds"] = sorted(
+                    obj.supplemental_semantic_id, key=_ordering.reference_sort_key
+                )
         if isinstance(obj, model.HasKind):
             if obj.kind is model.ModellingKind.TEMPLATE:
                 data["kind"] = _generic.MODELLING_KIND[obj.kind]
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
             if obj.qualifier:
-                data["qualifiers"] = list(obj.qualifier)
+                data["qualifiers"] = sorted(obj.qualifier, key=_ordering.qualifier_sort_key)
         return data
 
     # #############################################################
@@ -226,7 +234,7 @@ class AASToJsonEncoder(json.JSONEncoder):
     def _lang_string_set_to_json(
         cls, obj: model.LangStringSet
     ) -> List[Dict[str, object]]:
-        return [{"language": k, "text": v} for k, v in obj.items()]
+        return [{"language": k, "text": v} for k, v in sorted(obj.items())]
 
     @classmethod
     def _key_to_json(cls, obj: model.Key) -> Dict[str, object]:
@@ -325,7 +333,7 @@ class AASToJsonEncoder(json.JSONEncoder):
                 model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
             )
         if obj.refers_to:
-            data["refersTo"] = list(obj.refers_to)
+            data["refersTo"] = sorted(obj.refers_to, key=_ordering.reference_sort_key)
         if obj.value_type:
             data["valueType"] = model.datatypes.XSD_TYPE_NAMES[obj.value_type]
         data["name"] = obj.name
@@ -355,7 +363,11 @@ class AASToJsonEncoder(json.JSONEncoder):
         :param obj: object of class ValueList
         :return: dict with the serialized attributes of this object
         """
-        return {"valueReferencePairs": list(obj)}
+        return {
+            "valueReferencePairs": sorted(
+                obj, key=_ordering.value_reference_pair_sort_key
+            )
+        }
 
     # ############################################################
     # transformation functions to serialize classes from model.aas
@@ -393,7 +405,9 @@ class AASToJsonEncoder(json.JSONEncoder):
         if obj.global_asset_id:
             data["globalAssetId"] = obj.global_asset_id
         if obj.specific_asset_id:
-            data["specificAssetIds"] = list(obj.specific_asset_id)
+            data["specificAssetIds"] = sorted(
+                obj.specific_asset_id, key=_ordering.specific_asset_id_sort_key
+            )
         if obj.asset_type:
             data["assetType"] = obj.asset_type
         if obj.default_thumbnail:
@@ -412,7 +426,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         """
         data = cls._abstract_classes_to_json(obj)
         if obj.is_case_of:
-            data["isCaseOf"] = list(obj.is_case_of)
+            data["isCaseOf"] = sorted(obj.is_case_of, key=_ordering.reference_sort_key)
         return data
 
     @classmethod
@@ -473,7 +487,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         if obj.asset_information:
             data["assetInformation"] = obj.asset_information
         if not cls.stripped and obj.submodel:
-            data["submodels"] = list(obj.submodel)
+            data["submodels"] = sorted(obj.submodel, key=_ordering.reference_sort_key)
         return data
 
     # #################################################################
@@ -492,7 +506,9 @@ class AASToJsonEncoder(json.JSONEncoder):
         """
         data = cls._abstract_classes_to_json(obj)
         if not cls.stripped and obj.submodel_element != set():
-            data["submodelElements"] = list(obj.submodel_element)
+            data["submodelElements"] = sorted(
+                obj.submodel_element, key=_ordering.referable_sort_key
+            )
         return data
 
     @classmethod
@@ -627,7 +643,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         """
         data = cls._abstract_classes_to_json(obj)
         if not cls.stripped and len(obj.value) > 0:
-            data["value"] = list(obj.value)
+            data["value"] = sorted(obj.value, key=_ordering.referable_sort_key)
         return data
 
     @classmethod
@@ -686,7 +702,9 @@ class AASToJsonEncoder(json.JSONEncoder):
         """
         data = cls._relationship_element_to_json(obj)
         if not cls.stripped and obj.annotation:
-            data["annotations"] = list(obj.annotation)
+            data["annotations"] = sorted(
+                obj.annotation, key=_ordering.referable_sort_key
+            )
         return data
 
     @classmethod
@@ -720,7 +738,10 @@ class AASToJsonEncoder(json.JSONEncoder):
             ("inoutputVariables", obj.in_output_variable),
         ):
             if nss:
-                data[tag] = [cls._operation_variable_to_json(obj) for obj in nss]
+                data[tag] = [
+                    cls._operation_variable_to_json(variable)
+                    for variable in sorted(nss, key=_ordering.referable_sort_key)
+                ]
         return data
 
     @classmethod
@@ -745,13 +766,15 @@ class AASToJsonEncoder(json.JSONEncoder):
         """
         data = cls._abstract_classes_to_json(obj)
         if not cls.stripped and obj.statement:
-            data["statements"] = list(obj.statement)
+            data["statements"] = sorted(obj.statement, key=_ordering.referable_sort_key)
         if obj.entity_type is not None:
             data["entityType"] = _generic.ENTITY_TYPES[obj.entity_type]
         if obj.global_asset_id is not None:
             data["globalAssetId"] = obj.global_asset_id
         if obj.specific_asset_id:
-            data["specificAssetIds"] = list(obj.specific_asset_id)
+            data["specificAssetIds"] = sorted(
+                obj.specific_asset_id, key=_ordering.specific_asset_id_sort_key
+            )
         return data
 
     @classmethod
@@ -917,35 +940,30 @@ def _select_encoder(
     return AASToJsonEncoder if not stripped else StrippedAASToJsonEncoder
 
 
-def _create_dict(
-    data: model.AbstractObjectStore,
-    keys_to_types: Iterable[Tuple[str, Type]] = JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES,
-) -> Dict[str, List[model.Identifiable]]:
+def _create_dict(data: model.AbstractObjectStore) -> Dict[str, List[model.Identifiable]]:
     """
     Categorizes objects from an AbstractObjectStore into a dictionary based on their types.
 
     This function iterates over the objects in the provided AbstractObjectStore and groups them into lists
-    based on their types, as defined in the `keys_to_types` mapping. The resulting dictionary contains
-    keys corresponding to the names in `keys_to_types` and values as lists of objects of the respective types.
+    based on their types, as defined in ``JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES``. The resulting dictionary contains
+    the top-level keys of the JSON format and values as lists of objects of the respective types.
+    The keys are ordered as in ``JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES`` and each list is sorted by the id of the objects,
+    so that the order does not depend on the iteration order of the AbstractObjectStore.
 
     :param data: An AbstractObjectStore containing objects to be categorized.
-    :param keys_to_types: An iterable of tuples where each tuple contains:
-                          - A string key representing the category name.
-                          - A type to match objects against.
     :return: A dictionary where keys are category names and values are lists of objects of the corresponding types.
     """
-    objects: Dict[str, List[model.Identifiable]] = {}
+    objects: Dict[str, List[model.Identifiable]] = {name: [] for name, _ in JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES}
 
     for obj in data:
         # Iterate through the mapping of category names to expected types
-        for name, expected_type in keys_to_types:
+        for name, expected_type in JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES:
             # Check if the object matches the expected type
             if isinstance(obj, expected_type):
                 # Add the object to the appropriate category in the dictionary
-                objects.setdefault(name, [])
                 objects[name].append(obj)
                 break  # Exit the inner loop once a match is found
-    return objects
+    return {name: sorted(objs, key=_ordering.identifiable_sort_key) for name, objs in objects.items() if objs}
 
 
 def object_store_to_json(
