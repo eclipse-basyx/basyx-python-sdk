@@ -12,6 +12,7 @@ import unittest
 from typing import Optional
 from unittest import mock
 
+from app.adapter import Content
 from app.interfaces import base
 from basyx.aas import model
 from basyx.aas.adapter._generic import XML_NS_MAP
@@ -265,3 +266,30 @@ class TestXmlResponse(unittest.TestCase):
         self.assertEqual("Error", messages[0].findtext("messageType"))
         isodatetime = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}$")
         self.assertIsNotNone(isodatetime.match(messages[0].findtext("timestamp") or ""))
+
+class TestJsonReferenceResponse(unittest.TestCase):
+
+    def test_paginated_list(self):
+        # Test that Reference Serialization and Result Serialization is combined correctly
+        response = base.JsonResponse(
+            [
+                model.Submodel(id_="https://example.org/Example_Submodel"),
+                model.Submodel(id_="https://example.org/Second_Submodel"),
+            ],
+            modifiers=base.Modifiers(Content.REFERENCE, True, False),
+            paging_metadata=base.PagingMetadata(cursor="asdf"),
+        )
+
+        self.assertEqual("application/json", response.content_type)
+        self.assertEqual(200, response.status_code)
+
+        parsed_body = json.loads(response.get_data(as_text=True))
+        if not isinstance(parsed_body, dict):
+            self.fail("Response is no JSON dict")
+        self.assertEqual({"paging_metadata", "result"}, parsed_body.keys())
+
+        result = parsed_body["result"]
+        self.assertIsInstance(result, list)
+        for ref in result:
+            self.assertEqual({"keys", "type"}, ref.keys())
+            self.assertGreater(len(ref["keys"]), 0)
