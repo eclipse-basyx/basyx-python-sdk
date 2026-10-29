@@ -380,6 +380,41 @@ class TestAASToJsonEncoderOrder(unittest.TestCase):
     The elements are always inserted in reverse order of the expected output.
     """
 
+    def test_referables_start_with_modelType_ok(self) -> None:
+        referables = [
+            model.AssetAdministrationShell(
+                model.AssetInformation(global_asset_id="urn:asset"), "urn:aas"
+            ),
+            model.Submodel("urn:sm"),
+            model.ConceptDescription("urn:cd"),
+            model.Property("prop", model.datatypes.String),
+            model.MultiLanguageProperty("mlp"),
+            model.Range("range", model.datatypes.Int),
+            model.Blob("blob", "application/octet-stream"),
+            model.File("file", "text/plain"),
+            model.ReferenceElement("ref"),
+            model.SubmodelElementCollection("smc"),
+            model.SubmodelElementList("sml", model.Capability),
+            model.RelationshipElement("rel"),
+            model.AnnotatedRelationshipElement("arel"),
+            model.Operation("op"),
+            model.Capability("cap"),
+            model.Entity("entity", model.EntityType.CO_MANAGED_ENTITY),
+            model.BasicEventElement(
+                "event",
+                _submodel_reference("urn:sm"),
+                model.Direction.OUTPUT,
+                model.StateOfEvent.ON,
+            ),
+        ]
+
+        data = [json.loads(json.dumps(r, cls=AASToJsonEncoder)) for r in referables]
+
+        self.assertEqual(
+            [(type(r).__name__, "modelType") for r in referables],
+            [(type(r).__name__, next(iter(d))) for r, d in zip(referables, data)],
+        )
+
     def test_extensions_sorted_by_name_ok(self) -> None:
         submodel = model.Submodel(
             "urn:sm",

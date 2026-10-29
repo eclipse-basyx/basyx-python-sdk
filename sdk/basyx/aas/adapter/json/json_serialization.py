@@ -173,9 +173,29 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of the abstract classes this object inherits from
         """
         data: Dict[str, object] = {}
+        if isinstance(obj, model.Referable):
+            try:
+                ref_type = model.resolve_referable_class_in_key_types(obj)
+            except StopIteration as e:
+                raise TypeError(
+                    "Object of type {} is Referable but does not inherit from a known AAS type".format(
+                        obj.__class__.__name__
+                    )
+                ) from e
+            data["modelType"] = ref_type.__name__
+            if obj.id_short and not isinstance(obj.parent, model.SubmodelElementList):
+                data["idShort"] = obj.id_short
+            if obj.display_name:
+                data["displayName"] = obj.display_name
+            if obj.category:
+                data["category"] = obj.category
+            if obj.description:
+                data["description"] = obj.description
+
         if isinstance(obj, model.HasExtension) and not cls.stripped:
             if obj.extension:
                 data["extensions"] = sorted(obj.extension, key=_ordering.extension_sort_key)
+
         if isinstance(obj, model.HasDataSpecification) and not cls.stripped:
             if obj.embedded_data_specifications:
                 data["embeddedDataSpecifications"] = [
@@ -189,24 +209,6 @@ class AASToJsonEncoder(json.JSONEncoder):
                     )
                 ]
 
-        if isinstance(obj, model.Referable):
-            if obj.id_short and not isinstance(obj.parent, model.SubmodelElementList):
-                data["idShort"] = obj.id_short
-            if obj.display_name:
-                data["displayName"] = obj.display_name
-            if obj.category:
-                data["category"] = obj.category
-            if obj.description:
-                data["description"] = obj.description
-            try:
-                ref_type = model.resolve_referable_class_in_key_types(obj)
-            except StopIteration as e:
-                raise TypeError(
-                    "Object of type {} is Referable but does not inherit from a known AAS type".format(
-                        obj.__class__.__name__
-                    )
-                ) from e
-            data["modelType"] = ref_type.__name__
         if isinstance(obj, model.Identifiable):
             data["id"] = obj.id
             if obj.administration:
@@ -218,12 +220,15 @@ class AASToJsonEncoder(json.JSONEncoder):
                 data["supplementalSemanticIds"] = sorted(
                     obj.supplemental_semantic_id, key=_ordering.reference_sort_key
                 )
+
         if isinstance(obj, model.HasKind):
             if obj.kind is model.ModellingKind.TEMPLATE:
                 data["kind"] = _generic.MODELLING_KIND[obj.kind]
+
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
             if obj.qualifier:
                 data["qualifiers"] = sorted(obj.qualifier, key=_ordering.qualifier_sort_key)
+
         return data
 
     # #############################################################
