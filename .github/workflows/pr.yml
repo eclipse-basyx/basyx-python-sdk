@@ -425,6 +425,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+        with:
+          # TODO(#592): revisit when the sdk<->server version pinning is fixed.
+          # Need tags so setuptools_scm builds the local sdk as >=1.0.0, else the loose
+          # `basyx-python-sdk>=1.0.0` pin lets pip replace it with the PyPI release.
+          fetch-depth: 0
 
       - uses: ./.github/actions/load-versions
 
@@ -459,7 +464,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install ../sdk
-          python -m pip install .
+          python -m pip install .[dev]
       - name: Run Docker integration tests
         # Each profile has its own test module
         working-directory: ./server
