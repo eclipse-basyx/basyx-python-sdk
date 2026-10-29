@@ -1708,6 +1708,17 @@ class HasSemantics(metaclass=abc.ABCMeta):
     def supplemental_semantic_id(self, supplemental_semantic_id: Iterable[Reference]):
         self._supplemental_semantic_id[:] = supplemental_semantic_id
 
+    def _update_semantic_ids_from(self, other: "HasSemantics") -> None:
+        """
+        Copy the ``semantic_id`` and the ``supplemental_semantic_id`` of another object.
+
+        The old supplemental semantic IDs are cleared before the semantic ID is replaced, as the semantic ID must not
+        be removed while there are supplemental semantic IDs (Constraint AASd-118). The new ones are set last.
+        """
+        self.supplemental_semantic_id.clear()
+        self.semantic_id = other.semantic_id
+        self.supplemental_semantic_id = other.supplemental_semantic_id
+
 
 class Extension(HasSemantics):
     """
@@ -1769,8 +1780,10 @@ class Extension(HasSemantics):
             name, attribute=f"{type(self).__name__}.name"
         )
         if self.parent is not None:
+            if name == self._name:
+                return
             for set_ in self.parent.namespace_element_sets:
-                if set_.contains_id("name", name):
+                if set_.contains_id("name", name) and set_.get("name", name) is not self:
                     raise KeyError(
                         "Object with name '{}' is already present in the parent Namespace".format(
                             name
@@ -1786,6 +1799,22 @@ class Extension(HasSemantics):
                 set_.add(self)
         # Redundant to the line above. However, this way, we make sure that we really update the _name
         self._name = name
+
+    def update_from(self, other: "Extension") -> None:
+        """
+        Internal function to update the object's attributes from a different version of the exact same object.
+
+        This function should not be used directly. ``NamespaceSet.update_nss_from()`` calls it for every object that is
+        present in both NamespaceSets.
+
+        :param other: The object to update from
+        """
+        self.name = other.name
+        self._update_semantic_ids_from(other)
+        # Assign value_type first so the incoming value is cast against the new type.
+        self.value_type = other.value_type
+        self.value = other.value
+        self.refers_to = set(other.refers_to)
 
 
 class HasKind(metaclass=abc.ABCMeta):
@@ -1927,8 +1956,10 @@ class Qualifier(HasSemantics):
             type_, attribute=f"{type(self).__name__}.type"
         )
         if self.parent is not None:
+            if type_ == self._type:
+                return
             for set_ in self.parent.namespace_element_sets:
-                if set_.contains_id("type", type_):
+                if set_.contains_id("type", type_) and set_.get("type", type_) is not self:
                     raise KeyError(
                         "Object with type '{}' is already present in the parent Namespace".format(
                             type_
@@ -1944,6 +1975,23 @@ class Qualifier(HasSemantics):
                 set_.add(self)
         # Redundant to the line above. However, this way, we make sure that we really update the _type
         self._type = type_
+
+    def update_from(self, other: "Qualifier") -> None:
+        """
+        Internal function to update the object's attributes from a different version of the exact same object.
+
+        This function should not be used directly. ``NamespaceSet.update_nss_from()`` calls it for every object that is
+        present in both NamespaceSets.
+
+        :param other: The object to update from
+        """
+        self.type = other.type
+        self._update_semantic_ids_from(other)
+        # Assign value_type first so the incoming value is cast against the new type.
+        self.value_type = other.value_type
+        self.value = other.value
+        self.value_id = other.value_id
+        self.kind = other.kind
 
 
 @_string_constraints.constrain_value_type_iec61360("value")
@@ -2379,7 +2427,10 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
             attribute_value if case_sensitive else attribute_value.upper(), default
         )
 
-    # Todo: Implement function including tests
+    # Todo: The removal of objects that are missing in `other` below has known defects. An object is queued once per
+    #  attribute that both sets index, and the second removal raises a KeyError. The lookup in `other` ignores the
+    #  case sensitivity of `other`, attribute names are compared with `is` and an object that is falsy counts as
+    #  missing. Also, objects that are neither Referable, Qualifier nor Extension raise a TypeError.
     def update_nss_from(self, other: "NamespaceSet"):
         """
         Update a NamespaceSet from a given NamespaceSet.
@@ -2394,33 +2445,34 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
             try:
                 if isinstance(other_object, Referable):
                     backend, case_sensitive = self._backend["id_short"]
-                    referable = backend[
+                    existing_object = backend[
                         other_object.id_short
                         if case_sensitive
                         else other_object.id_short.upper()
                     ]
-                    referable.update_from(other_object)  # type: ignore
                 elif isinstance(other_object, Qualifier):
                     backend, case_sensitive = self._backend["type"]
-                    qualifier = backend[  # noqa: F841 qualifier currently unused
+                    existing_object = backend[
                         other_object.type
                         if case_sensitive
                         else other_object.type.upper()
                     ]
-                    # qualifier.update_from(other_object) # TODO: What should happend here? Remove noqa when done
                 elif isinstance(other_object, Extension):
                     backend, case_sensitive = self._backend["name"]
-                    extension = backend[  # noqa: F841 extension currently unused
+                    existing_object = backend[
                         other_object.name
                         if case_sensitive
                         else other_object.name.upper()
                     ]
-                    # extension.update_from(other_object) # TODO: What should happend here? Remove noqa when done
                 else:
                     raise TypeError("Type not implemented")
             except KeyError:
                 # other object is not in NamespaceSet
                 objects_to_add.append(other_object)
+                continue
+            # Only the lookup above tells that an object is missing. A KeyError raised by update_from() must not be
+            # mistaken for that, as the object would be removed from `other` and added to this set a second time.
+            existing_object.update_from(other_object)  # type: ignore
         for attr_name, (backend, case_sensitive) in self._backend.items():
             for attr_name_other, (
                 backend_other,
