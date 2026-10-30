@@ -328,7 +328,7 @@ def qualifier_to_xml(
             NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]
         )
     )
-    if obj.value:
+    if obj.value is not None:
         et_qualifier.append(_value_to_xml(obj.value, obj.value_type))
     if obj.value_id:
         et_qualifier.append(reference_to_xml(obj.value_id, NS_AAS + "valueId"))
@@ -354,7 +354,7 @@ def extension_to_xml(
                 text=model.datatypes.XSD_TYPE_NAMES[obj.value_type],
             )
         )
-    if obj.value:
+    if obj.value is not None:
         et_extension.append(_value_to_xml(obj.value, obj.value_type))  # type: ignore # (value_type could be None)
     if len(obj.refers_to) > 0:
         refers_to = _generate_element(NS_AAS + "refersTo")
