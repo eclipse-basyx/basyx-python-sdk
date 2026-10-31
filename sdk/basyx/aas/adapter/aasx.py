@@ -383,6 +383,8 @@ class AASXReader:
         :param file_path: The file path or URI reference of the supplementary file to be extracted
         :param file_store: The SupplementaryFileContainer to add the extracted supplementary files to
         :return: The stored file name as returned by *file_store*, or ``None`` if the reference was skipped.
+        :raises KeyError: If the referenced part is not contained in the AASX package and failsafe mode is
+            not active.
         """
         # Only absolute-path references and relative-path URI references (see RFC 3986, sec. 4.2) are considered
         # to refer to files within the AASX package. Thus, we must skip all other types of URIs (esp. absolute
@@ -397,7 +399,18 @@ class AASXReader:
         logger.debug(
             f"Reading supplementary file {absolute_name} from AASX package ..."
         )
-        with self.reader.open_part(absolute_name) as p:
+        try:
+            part_stream = self.reader.open_part(absolute_name)
+        except KeyError as e:
+            if self.failsafe:
+                logger.warning(
+                    f"Could not find supplementary file {absolute_name} in AASX package. Skipping it."
+                )
+                return None
+            raise KeyError(
+                f"Could not find supplementary file {absolute_name} in AASX package."
+            ) from e
+        with part_stream as p:
             final_name = file_store.add_file(
                 absolute_name, p, self.reader.get_content_type(absolute_name)
             )

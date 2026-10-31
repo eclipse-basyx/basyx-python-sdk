@@ -693,6 +693,176 @@ class AASXReaderTest(unittest.TestCase):
         finally:
             os.unlink(filename)
 
+    def test_reading_with_missing_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+
+            # ---- Arrange ----
+            # The referenced supplementary file is not added to the file store,
+            # so the failsafe writer creates an AASX package without that part.
+            submodel = model.Submodel(
+                id_="https://example.org/Test_Submodel_MissingFile",
+                submodel_element=[
+                    model.File(
+                        id_short="ExampleFile",
+                        content_type="application/pdf",
+                        value="/aasx/missing.pdf",
+                    )
+                ],
+            )
+            data: model.DictIdentifiableStore[model.Identifiable] = (
+                model.DictIdentifiableStore([submodel])
+            )
+            with aasx.AASXWriter(tmpdir_path / "tmp.aasx", failsafe=True) as writer:
+                writer.write_all_aas_objects(
+                    "/aasx/data.xml", data, aasx.DictSupplementaryFileContainer()
+                )
+
+            # ---- Act & Assert ----
+            # In failsafe mode, the missing file is logged and skipped.
+            objects: model.DictIdentifiableStore[model.Identifiable] = (
+                model.DictIdentifiableStore()
+            )
+            files = aasx.DictSupplementaryFileContainer()
+            with self.assertLogs(level="WARNING") as log:
+                with aasx.AASXReader(tmpdir_path / "tmp.aasx", failsafe=True) as reader:
+                    ids = reader.read_into(objects, files)
+
+            self.assertTrue(any("/aasx/missing.pdf" in output for output in log.output))
+            self.assertEqual({submodel.id}, ids)
+            self.assertIn(submodel.id, objects)
+            self.assertEqual(0, len(files))
+            read_submodel = objects.get_item(submodel.id)
+            assert isinstance(read_submodel, model.Submodel)
+            read_file = next(iter(read_submodel.submodel_element))
+            assert isinstance(read_file, model.File)
+            self.assertEqual("/aasx/missing.pdf", read_file.value)
+
+            # In non-failsafe mode, a clear KeyError is raised.
+            with self.assertRaises(KeyError) as cm:
+                with aasx.AASXReader(tmpdir_path / "tmp.aasx", failsafe=False) as reader:
+                    reader.read_into(
+                        model.DictIdentifiableStore(),
+                        aasx.DictSupplementaryFileContainer(),
+                    )
+            self.assertIn("/aasx/missing.pdf", cm.exception.args[0])
+
+    def test_reading_with_missing_default_thumbnail(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+
+            # ---- Arrange ----
+            aas = model.AssetAdministrationShell(
+                id_="https://example.org/Test_AAS_MissingThumbnail",
+                asset_information=model.AssetInformation(
+                    global_asset_id="https://example.org/Test_Asset",
+                    default_thumbnail=model.Resource(
+                        path="/aasx/missing_thumbnail.png", content_type="image/png"
+                    ),
+                ),
+            )
+            data: model.DictIdentifiableStore[model.Identifiable] = (
+                model.DictIdentifiableStore([aas])
+            )
+            with aasx.AASXWriter(tmpdir_path / "tmp.aasx", failsafe=True) as writer:
+                writer.write_all_aas_objects(
+                    "/aasx/data.xml", data, aasx.DictSupplementaryFileContainer()
+                )
+
+            # ---- Act & Assert ----
+            objects: model.DictIdentifiableStore[model.Identifiable] = (
+                model.DictIdentifiableStore()
+            )
+            files = aasx.DictSupplementaryFileContainer()
+            with self.assertLogs(level="WARNING") as log:
+                with aasx.AASXReader(tmpdir_path / "tmp.aasx", failsafe=True) as reader:
+                    ids = reader.read_into(objects, files)
+
+            self.assertTrue(
+                any("/aasx/missing_thumbnail.png" in output for output in log.output)
+            )
+            self.assertEqual({aas.id}, ids)
+            self.assertIn(aas.id, objects)
+            self.assertEqual(0, len(files))
+            read_aas = objects.get_item(aas.id)
+            assert isinstance(read_aas, model.AssetAdministrationShell)
+            assert read_aas.asset_information.default_thumbnail is not None
+            self.assertEqual(
+                "/aasx/missing_thumbnail.png",
+                read_aas.asset_information.default_thumbnail.path,
+            )
+
+            # In non-failsafe mode, a clear KeyError is raised.
+            with self.assertRaises(KeyError) as cm:
+                with aasx.AASXReader(tmpdir_path / "tmp.aasx", failsafe=False) as reader:
+                    reader.read_into(
+                        model.DictIdentifiableStore(),
+                        aasx.DictSupplementaryFileContainer(),
+                    )
+            self.assertIn("/aasx/missing_thumbnail.png", cm.exception.args[0])
+
+    def test_reading_missing_and_valid_supplementary_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+
+            # ---- Arrange ----
+            # The missing file comes first, so reading must continue to load the valid file.
+            submodel = model.Submodel(
+                id_="https://example.org/Test_Submodel_MixedFiles",
+                submodel_element=[
+                    model.File(
+                        id_short="MissingFile",
+                        content_type="application/pdf",
+                        value="/aasx/missing.pdf",
+                    ),
+                    model.File(
+                        id_short="ValidFile",
+                        content_type="application/pdf",
+                        value="/TestFile.pdf",
+                    ),
+                ],
+            )
+            data: model.DictIdentifiableStore[model.Identifiable] = (
+                model.DictIdentifiableStore([submodel])
+            )
+            file_store = aasx.DictSupplementaryFileContainer()
+            with open(Path(__file__).parent / "TestFile.pdf", "rb") as pdf:
+                file_store.add_file("/TestFile.pdf", pdf, "application/pdf")
+            with aasx.AASXWriter(tmpdir_path / "tmp.aasx", failsafe=True) as writer:
+                writer.write_all_aas_objects("/aasx/data.xml", data, file_store)
+
+            # ---- Act ----
+            objects: model.DictIdentifiableStore[model.Identifiable] = (
+                model.DictIdentifiableStore()
+            )
+            files = aasx.DictSupplementaryFileContainer()
+            with self.assertLogs(level="WARNING") as log:
+                with aasx.AASXReader(tmpdir_path / "tmp.aasx", failsafe=True) as reader:
+                    ids = reader.read_into(objects, files)
+
+            # ---- Assert ----
+            self.assertTrue(any("/aasx/missing.pdf" in output for output in log.output))
+            self.assertEqual({submodel.id}, ids)
+            self.assertIn(submodel.id, objects)
+            self.assertNotIn("/aasx/missing.pdf", files)
+            self.assertIn("/TestFile.pdf", files)
+            self.assertEqual("application/pdf", files.get_content_type("/TestFile.pdf"))
+            buf = io.BytesIO()
+            files.write_file("/TestFile.pdf", buf)
+            self.assertEqual(
+                hashlib.sha1(buf.getvalue()).hexdigest(),
+                "241e62aef8b4cdad0975f6c68a4ed8b3923d8db1",
+            )
+            read_submodel = objects.get_item(submodel.id)
+            assert isinstance(read_submodel, model.Submodel)
+            read_files = {
+                element.id_short: element
+                for element in read_submodel.submodel_element
+                if isinstance(element, model.File)
+            }
+            self.assertEqual("/aasx/missing.pdf", read_files["MissingFile"].value)
+            self.assertEqual("/TestFile.pdf", read_files["ValidFile"].value)
+
 
 class AASXWriterReferencedSubmodelsTest(unittest.TestCase):
     def test_only_referenced_submodels(self):
