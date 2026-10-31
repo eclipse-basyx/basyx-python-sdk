@@ -125,3 +125,23 @@ class JsonSerializationDeserializationTest5(unittest.TestCase):
         json_identifiable_store = read_aas_json_file(file, failsafe=False)
         checker = AASDataChecker(raise_immediately=True)
         checker.check_identifiable_store(json_identifiable_store, data)
+
+
+class JsonSerializationDeserializationFalsyValueTest(unittest.TestCase):
+    def test_falsy_extension_and_qualifier_values(self) -> None:
+        for value_type, value in ((model.datatypes.Int, 0),
+                                  (model.datatypes.Decimal, model.datatypes.Decimal("0")),
+                                  (model.datatypes.Boolean, False)):
+            with self.subTest(value_type=value_type):
+                submodel = model.Submodel(
+                    "https://example.org/falsy",
+                    extension=[model.Extension("e", value_type=value_type, value=value)],
+                    qualifier=[model.Qualifier("q", value_type=value_type, value=value)],
+                )
+                file = io.StringIO()
+                write_aas_json_file(file=file, data=model.DictIdentifiableStore([submodel]))
+                file.seek(0)
+                read = read_aas_json_file(file, failsafe=False).get_item("https://example.org/falsy")
+                assert isinstance(read, model.Submodel)
+                self.assertEqual(value, read.get_extension_by_name("e").value)
+                self.assertEqual(value, read.get_qualifier_by_type("q").value)
