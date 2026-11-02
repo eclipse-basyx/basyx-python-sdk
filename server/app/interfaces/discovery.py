@@ -194,7 +194,14 @@ class DiscoveryAPI(BaseWSGIApp):
             if not isinstance(item, dict):
                 raise werkzeug.exceptions.BadRequest("Each asset link must be a JSON object")
 
-            asset_link = server_model.AssetLink(item["name"], item["value"])
+            try:
+                asset_link = server_model.AssetLink(item["name"], item["value"])
+            except KeyError as e:
+                # Match the shells filter path (#511): missing name/value is a
+                # client error, not an unhandled KeyError → 500 (#672).
+                raise werkzeug.exceptions.BadRequest(
+                    f"Invalid assetId format: missing field {e}"
+                ) from e
             aas_keys = self.persistent_store.search_aas_ids_by_asset_link(asset_link)
             matching_aas_keys.update(aas_keys)
 

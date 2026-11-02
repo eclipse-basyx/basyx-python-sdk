@@ -792,11 +792,14 @@ class WSGIApp(ObjectStoreWSGIApp):
         try:
             parent.add_referable(new_submodel_element)
         except model.AASConstraintViolation as e:
-            if e.constraint_id != 22:
-                raise
-            raise Conflict(
-                f"SubmodelElement with idShort {new_submodel_element.id_short} already exists within {parent}!"
-            )
+            # Constraint 22 is "idShort already taken" → 409; every other
+            # constraint (e.g. AASd-109 type mismatch in a SubmodelElementList)
+            # is invalid client input → 400 (#672).
+            if e.constraint_id == 22:
+                raise Conflict(
+                    f"SubmodelElement with idShort {new_submodel_element.id_short} already exists within {parent}!"
+                )
+            raise BadRequest(str(e)) from e
         self.object_store.commit(self._get_submodel(url_args))
         submodel = self._get_submodel(url_args)
         id_short_path = url_args.get("id_shorts", [])
