@@ -71,8 +71,6 @@ class DiscoveryEndpointTestBase(AssertResponseMixin):
     def register(self, aas_id: str, asset_ids: List[Tuple[str, str]]) -> None:
         assets: list[SpecificAssetId] = [SpecificAssetId(name, value) for name, value in asset_ids]
         self.store.add_specific_asset_ids_to_aas(aas_id, assets)
-        for asset in assets:
-            self.store._add_aas_id_to_specific_asset_id(asset, aas_id)
 
 
 # ====================================================================== /description
@@ -233,8 +231,7 @@ class AssetLinksByIdEndpointTest(DiscoveryEndpointTestBase):
             obj=[{"name": "serial", "value": "123"}],
         )
 
-        # Spec documents 201 for creation; this server responds 200 with the updated mapping.
-        self.assert_ok(response)
+        self.assertEqual(201, response.status_code, msg=response.get_data(as_text=True))
         body = self.format_client.parse_object(response)
         self.assertEqual([("serial", "123")], [(a["name"], a["value"]) for a in body[self.AAS_ID]])
         self.assertEqual(
@@ -249,22 +246,30 @@ class AssetLinksByIdEndpointTest(DiscoveryEndpointTestBase):
             f"/lookup/shells/{base64url_encode(self.AAS_ID)}", obj={"name": "serial", "value": "123"}
         )
 
-        self.assert_ok(response)
+        self.assertEqual(201, response.status_code, msg=response.get_data(as_text=True))
         self.assertEqual(
             [("serial", "123")],
             [(a["name"], a["value"]) for a in self.format_client.parse_object(response)[self.AAS_ID]],
         )
 
-    def test_post_is_additive(self) -> None:
+    def test_post_replaces_existing_asset_links(self) -> None:
+        # Spec: PostAllAssetLinksById "Creates or replaces all asset links associated to the
+        # Asset Administration Shell". Prior links must be dropped, not merged.
         self.register(self.AAS_ID, [("serial", "123")])
 
         response = self.format_client.post(
             f"/lookup/shells/{base64url_encode(self.AAS_ID)}", obj=[{"name": "batch", "value": "xyz"}]
         )
 
-        self.assert_ok(response)
+        self.assertEqual(201, response.status_code, msg=response.get_data(as_text=True))
         stored = {(a["name"], a["value"]) for a in self.format_client.parse_object(response)[self.AAS_ID]}
-        self.assertEqual({("serial", "123"), ("batch", "xyz")}, stored)
+        self.assertEqual({("batch", "xyz")}, stored)
+        self.assertEqual(
+            [],
+            self.format_client.parse_collection(
+                self.format_client.post("/lookup/shellsByAssetLink", obj=[{"name": "serial", "value": "123"}])
+            ),
+        )
 
     def test_post_malformed_json_returns_400(self) -> None:
         response = self.format_client.post(
@@ -292,11 +297,8 @@ class AssetLinksByIdEndpointTest(DiscoveryEndpointTestBase):
             ),
         )
 
-    def test_delete_unknown_aas_returns_204(self) -> None:
-        # Spec allows 404 here; this server always returns 204.
-        response = self.format_client.delete(f"/lookup/shells/{base64url_encode(self.UNKNOWN_ID)}")
-
-        self.assertEqual(204, response.status_code, msg=response.get_data(as_text=True))
+    def test_delete_unknown_aas_returns_404(self) -> None:
+        self.assert_error(self.format_client.delete(f"/lookup/shells/{base64url_encode(self.UNKNOWN_ID)}"), 404)
 
 
 # ====================================================================== DiscoveryStore.from_file()/to_file()

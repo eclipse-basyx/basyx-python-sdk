@@ -44,17 +44,18 @@ class DiscoveryStore:
         return list(self.aas_id_to_asset_ids.get(aas_id, set()))
 
     def add_specific_asset_ids_to_aas(self, aas_id: model.Identifier, asset_ids: List[model.SpecificAssetId]) -> None:
-
-        if aas_id not in self.aas_id_to_asset_ids:
-            self.aas_id_to_asset_ids[aas_id] = set()
-
-        for asset in asset_ids:
-            self.aas_id_to_asset_ids[aas_id].add(asset)
+        self.aas_id_to_asset_ids.setdefault(aas_id, set()).update(asset_ids)
+        for asset_id in asset_ids:
+            self.asset_id_to_aas_ids.setdefault(asset_id, set()).add(aas_id)
 
     def delete_specific_asset_ids_by_aas_id(self, aas_id: model.Identifier) -> None:
-        key = aas_id
-        if key in self.aas_id_to_asset_ids:
-            del self.aas_id_to_asset_ids[key]
+        for asset_id in self.aas_id_to_asset_ids.pop(aas_id, set()):
+            aas_ids = self.asset_id_to_aas_ids.get(asset_id)
+            if aas_ids is None:
+                continue
+            aas_ids.discard(aas_id)
+            if not aas_ids:
+                del self.asset_id_to_aas_ids[asset_id]
 
     def search_aas_ids_by_asset_link(self, asset_link: server_model.AssetLink) -> List[model.Identifier]:
         result = []
@@ -62,16 +63,6 @@ class DiscoveryStore:
             if asset_key.name == asset_link.name and asset_key.value == asset_link.value:
                 result.extend(list(aas_ids))
         return result
-
-    def _add_aas_id_to_specific_asset_id(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
-        if asset_id in self.asset_id_to_aas_ids:
-            self.asset_id_to_aas_ids[asset_id].add(aas_id)
-        else:
-            self.asset_id_to_aas_ids[asset_id] = {aas_id}
-
-    def _delete_aas_id_from_specific_asset_ids(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
-        if asset_id in self.asset_id_to_aas_ids:
-            self.asset_id_to_aas_ids[asset_id].discard(aas_id)
 
     @classmethod
     def from_file(cls, filename: str) -> "DiscoveryStore":
@@ -88,21 +79,13 @@ class DiscoveryStore:
         discovery_store = DiscoveryStore()
 
         for aas_id, asset_ids in data.get("aas_id_to_asset_ids", {}).items():
-            parsed_asset_ids = set()
-
-            for asset_id in asset_ids:
-                if isinstance(asset_id, model.SpecificAssetId):
-                    parsed_asset_id = asset_id
-                else:
-                    parsed_asset_id = model.SpecificAssetId(
-                        name=asset_id["name"],
-                        value=asset_id["value"],
-                    )
-
-                parsed_asset_ids.add(parsed_asset_id)
-                discovery_store._add_aas_id_to_specific_asset_id(parsed_asset_id, aas_id)
-
-            discovery_store.aas_id_to_asset_ids[aas_id] = parsed_asset_ids
+            parsed_asset_ids = [
+                asset_id
+                if isinstance(asset_id, model.SpecificAssetId)
+                else model.SpecificAssetId(name=asset_id["name"], value=asset_id["value"])
+                for asset_id in asset_ids
+            ]
+            discovery_store.add_specific_asset_ids_to_aas(aas_id, parsed_asset_ids)
 
         return discovery_store
 
@@ -224,12 +207,10 @@ class DiscoveryAPI(BaseWSGIApp):
     ) -> Response:
         aas_identifier = str(url_args["aas_id"])
         specific_asset_ids = HTTPApiDecoder.request_body_list(request, model.SpecificAssetId, False)
+        self.persistent_store.delete_specific_asset_ids_by_aas_id(aas_identifier)
         self.persistent_store.add_specific_asset_ids_to_aas(aas_identifier, specific_asset_ids)
-        for asset_id in specific_asset_ids:
-            self.persistent_store._add_aas_id_to_specific_asset_id(asset_id, aas_identifier)
         updated = {aas_identifier: self.persistent_store.get_all_specific_asset_ids_by_aas_id(aas_identifier)}
         return response_t(updated, status=201)
-
 
     def delete_all_asset_links_by_id(
         self, request: Request, url_args: dict, response_t: Type[APIResponse], **_kwargs
@@ -238,8 +219,6 @@ class DiscoveryAPI(BaseWSGIApp):
         if aas_identifier not in self.persistent_store.aas_id_to_asset_ids:
             raise werkzeug.exceptions.NotFound(f"No AssetAdministrationShell with {aas_identifier} found!")
         self.persistent_store.delete_specific_asset_ids_by_aas_id(aas_identifier)
-        for key in list(self.persistent_store.asset_id_to_aas_ids.keys()):
-            self.persistent_store.asset_id_to_aas_ids[key].discard(aas_identifier)
         return response_t()
 
 
