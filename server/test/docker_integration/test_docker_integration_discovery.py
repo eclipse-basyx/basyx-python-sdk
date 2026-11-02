@@ -46,7 +46,11 @@ class DiscoveryDockerIntegrationTest(unittest.TestCase):
         delete_request = urllib.request.Request(
             f"{SERVER_BASE_URL}/lookup/shells/{base64url_encode(self.AAS_ID)}", method="DELETE"
         )
-        urllib.request.urlopen(delete_request).close()
+        try:
+            urllib.request.urlopen(delete_request).close()
+        except urllib.error.HTTPError as exc:
+            if exc.code != 404:
+                raise
 
     # ------------------------------------------------------------------ GET /description
 
@@ -68,7 +72,7 @@ class DiscoveryDockerIntegrationTest(unittest.TestCase):
             aas_asset_links_path, data=body, headers={"Content-Type": "application/json"}, method="POST"
         )
         with urllib.request.urlopen(post_request) as response:
-            self.assertEqual(200, response.status)
+            self.assertEqual(201, response.status)
 
         with urllib.request.urlopen(aas_asset_links_path) as response:
             self.assertEqual(200, response.status)
