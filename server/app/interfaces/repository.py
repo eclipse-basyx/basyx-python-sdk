@@ -22,6 +22,7 @@ from werkzeug.datastructures import FileStorage
 from werkzeug.exceptions import BadRequest, Conflict, NotFound
 from werkzeug.routing import MapAdapter, Rule, Submount
 
+from app._config import API_BASE_PATH
 from app.interfaces.base import PagingMetadata
 from app.model import ServiceDescription, ServiceSpecificationProfileEnum
 from app.util.converters import IdentifierToBase64URLConverter, IdShortPathConverter, base64url_decode
@@ -43,7 +44,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         self,
         object_store: model.AbstractObjectStore,
         file_store: aasx.AbstractSupplementaryFileContainer,
-        base_path: str = "/api/v3.1",
+        base_path: str = API_BASE_PATH,
     ):
         self.object_store: model.AbstractObjectStore = object_store
         self.file_store: aasx.AbstractSupplementaryFileContainer = file_store

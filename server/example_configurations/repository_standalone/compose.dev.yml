@@ -2,8 +2,11 @@ name: basyx-python-server
 services:
   app:
     build:
-      context: ../../..
-      dockerfile: server/docker/repository/Dockerfile
+      context: ../..
+      additional_contexts:
+        - sdk=../../../sdk
+        - license=../../..
+      dockerfile: ./docker/repository/Dockerfile
     ports:
     - "8080:80"
     volumes:

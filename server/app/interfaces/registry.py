@@ -1,3 +1,10 @@
+# Copyright (c) 2026 the Eclipse BaSyx Authors
+#
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
+#
+# SPDX-License-Identifier: MIT
+
 """
 This module implements the Registry interface defined in the
 'Specification of the Asset Administration Shell Part 2
@@ -16,6 +23,7 @@ from werkzeug.routing import MapAdapter, Rule, Submount
 from werkzeug.wrappers import Request, Response
 
 import app.model as server_model
+from app._config import API_BASE_PATH
 from app.interfaces.base import APIResponse, HTTPApiDecoder, ObjectStoreWSGIApp, PagingMetadata, is_stripped_request
 from app.model import DictDescriptorStore, ServiceDescription, ServiceSpecificationProfileEnum
 from app.util.converters import IdentifierToBase64URLConverter, base64url_decode
@@ -31,7 +39,7 @@ SUPPORTED_PROFILES: ServiceDescription = ServiceDescription(
 
 
 class RegistryAPI(ObjectStoreWSGIApp):
-    def __init__(self, object_store: model.AbstractObjectStore, base_path: str = "/api/v3.1"):
+    def __init__(self, object_store: model.AbstractObjectStore, base_path: str = API_BASE_PATH):
         self.object_store: model.AbstractObjectStore = object_store
         self.url_map = werkzeug.routing.Map(
             [

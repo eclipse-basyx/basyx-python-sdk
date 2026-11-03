@@ -27,7 +27,7 @@ The following types aliased in the :mod:`~basyx.aas.model.base` module are const
 """
 
 import re
-from typing import Callable, Optional, Type, TypeVar
+from typing import Callable, Optional, Protocol, Type, TypeVar
 
 _T = TypeVar("_T")
 AASD130_RE = re.compile("[\x09\x0a\x0d\x20-\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]*")
@@ -40,6 +40,17 @@ def _unicode_escape(value: str) -> str:
     return value.encode("unicode_escape").decode("utf-8")
 
 
+def _subject(type_name: str, attribute: Optional[str]) -> str:
+    """
+    Returns the subject of the error messages of :func:`~.check`.
+
+    The name of the constrained type alone (e.g. ``NameType``) is hard to relate to the attribute that was
+    actually assigned, as the constrained types are only aliases of ``str``. Thus, the name of the attribute is
+    prepended, whenever it is known.
+    """
+    return type_name if attribute is None else f"{attribute} ({type_name})"
+
+
 # Functions to verify the constraints for a given value.
 def check(
     value: str,
@@ -47,18 +58,33 @@ def check(
     min_length: int = 0,
     max_length: Optional[int] = None,
     pattern: Optional[re.Pattern] = None,
+    attribute: Optional[str] = None,
 ) -> None:
+    """
+    Verifies the given constraints for the given value.
+
+    :param value: The value to check
+    :param type_name: Name of the constrained type the value belongs to, e.g. ``NameType``
+    :param min_length: Minimum length of the value
+    :param max_length: Maximum length of the value
+    :param pattern: Pattern the value must match
+    :param attribute: Qualified name of the attribute the value was assigned to, e.g. ``Property.id_short``.
+        It is included in the error messages, as the name of the constrained type alone is often not enough to
+        identify the cause of the error.
+    :raises ValueError: If one of the constraints is violated
+    """
+    subject = _subject(type_name, attribute)
     if len(value) < min_length:
         raise ValueError(
-            f"{type_name} has a minimum length of {min_length}! (length: {len(value)})"
+            f"{subject} has a minimum length of {min_length}! (length: {len(value)})"
         )
     if max_length is not None and len(value) > max_length:
         raise ValueError(
-            f"{type_name} has a maximum length of {max_length}! (length: {len(value)})"
+            f"{subject} has a maximum length of {max_length}! (length: {len(value)})"
         )
     if pattern is not None and not pattern.fullmatch(value):
         raise ValueError(
-            f"{type_name} must match the pattern '{_unicode_escape(pattern.pattern)}'! "
+            f"{subject} must match the pattern '{_unicode_escape(pattern.pattern)}'! "
             f"(value: '{_unicode_escape(value)}')"
         )
     # Constraint AASd-130: an attribute with data type "string" shall consist of these characters only:
@@ -67,50 +93,85 @@ def check(
         # imported from `base` and the ConstrainedLangStringSet would need to except AASConstraintViolation errors
         # as well, while only re-raising ValueErrors. Thus, even if an AASConstraintViolation would be raised here,
         # in case of a ConstrainedLangStringSet it would be re-raised as a ValueError anyway.
+        prefix = "" if attribute is None else f"{subject}: "
         raise ValueError(
-            f"Every string must match the pattern '{_unicode_escape(AASD130_RE.pattern)}'! "
-            f"(value: '{_unicode_escape(value)}')"
+            f"{prefix}Every string must match the pattern "
+            f"'{_unicode_escape(AASD130_RE.pattern)}'! (value: '{_unicode_escape(value)}')"
         )
 
 
-def check_content_type(value: str, type_name: str = "ContentType") -> None:
-    return check(value, type_name, 1, 128)
+def check_content_type(
+    value: str, type_name: str = "ContentType", attribute: Optional[str] = None
+) -> None:
+    return check(value, type_name, 1, 128, attribute=attribute)
 
 
-def check_identifier(value: str, type_name: str = "Identifier") -> None:
-    return check(value, type_name, 1, 2048)
+def check_identifier(
+    value: str, type_name: str = "Identifier", attribute: Optional[str] = None
+) -> None:
+    return check(value, type_name, 1, 2048, attribute=attribute)
 
 
-def check_label_type(value: str, type_name: str = "LabelType") -> None:
-    return check(value, type_name, 1, 64)
+def check_label_type(
+    value: str, type_name: str = "LabelType", attribute: Optional[str] = None
+) -> None:
+    return check(value, type_name, 1, 64, attribute=attribute)
 
 
-def check_message_topic_type(value: str, type_name: str = "MessageTopicType") -> None:
-    return check(value, type_name, 1, 255)
+def check_message_topic_type(
+    value: str, type_name: str = "MessageTopicType", attribute: Optional[str] = None
+) -> None:
+    return check(value, type_name, 1, 255, attribute=attribute)
 
 
-def check_name_type(value: str, type_name: str = "NameType") -> None:
-    return check(value, type_name, 1, 128)
+def check_name_type(
+    value: str, type_name: str = "NameType", attribute: Optional[str] = None
+) -> None:
+    return check(value, type_name, 1, 128, attribute=attribute)
 
 
-def check_path_type(value: str, type_name: str = "PathType") -> None:
-    return check(value, type_name, 1, 2048)
+def check_path_type(
+    value: str, type_name: str = "PathType", attribute: Optional[str] = None
+) -> None:
+    return check(value, type_name, 1, 2048, attribute=attribute)
 
 
-def check_qualifier_type(value: str, type_name: str = "QualifierType") -> None:
-    return check_name_type(value, type_name)
+def check_qualifier_type(
+    value: str, type_name: str = "QualifierType", attribute: Optional[str] = None
+) -> None:
+    return check_name_type(value, type_name, attribute=attribute)
 
 
-def check_revision_type(value: str, type_name: str = "RevisionType") -> None:
-    return check(value, type_name, 1, 4, re.compile(r"([0-9]|[1-9][0-9]*)"))
+def check_revision_type(
+    value: str, type_name: str = "RevisionType", attribute: Optional[str] = None
+) -> None:
+    return check(
+        value,
+        type_name,
+        1,
+        4,
+        re.compile(r"([0-9]|[1-9][0-9]*)"),
+        attribute=attribute,
+    )
 
 
-def check_value_type_iec61360(value: str, type_name: str = "ValueTypeIEC61360") -> None:
-    return check(value, type_name, 1, 2048)
+def check_value_type_iec61360(
+    value: str, type_name: str = "ValueTypeIEC61360", attribute: Optional[str] = None
+) -> None:
+    return check(value, type_name, 1, 2048, attribute=attribute)
 
 
-def check_version_type(value: str, type_name: str = "VersionType") -> None:
-    return check(value, type_name, 1, 4, re.compile(r"([0-9]|[1-9][0-9]*)"))
+def check_version_type(
+    value: str, type_name: str = "VersionType", attribute: Optional[str] = None
+) -> None:
+    return check(
+        value,
+        type_name,
+        1,
+        4,
+        re.compile(r"([0-9]|[1-9][0-9]*)"),
+        attribute=attribute,
+    )
 
 
 def create_check_function(
@@ -127,15 +188,27 @@ def create_check_function(
     length and pattern rules.
     """
 
-    def check_fn(value: str, type_name: str) -> None:
-        return check(value, type_name, min_length, max_length, pattern)
+    def check_fn(value: str, type_name: str, attribute: Optional[str] = None) -> None:
+        return check(
+            value, type_name, min_length, max_length, pattern, attribute=attribute
+        )
 
     return check_fn
 
 
+class ConstraintCheckFunction(Protocol):
+    """
+    Type of the ``check_<type>()`` functions of this module, e.g. :func:`~.check_name_type`.
+    """
+
+    def __call__(
+        self, value: str, type_name: str = ..., attribute: Optional[str] = None
+    ) -> None: ...
+
+
 # Decorator functions to add getter/setter to classes for verification, whenever a value is updated.
 def constrain_attr(
-    pub_attr_name: str, constraint_check_fn: Callable[[str], None]
+    pub_attr_name: str, constraint_check_fn: ConstraintCheckFunction
 ) -> Callable[[Type[_T]], Type[_T]]:
     def decorator_fn(decorated_class: Type[_T]) -> Type[_T]:
         def _getter(self) -> Optional[str]:
@@ -144,7 +217,11 @@ def constrain_attr(
         def _setter(self, value: Optional[str]) -> None:
             # if value is None, skip checks. incorrect 'None' assignments are caught by the type checker anyway
             if value is not None:
-                constraint_check_fn(value)
+                # The type of self is used instead of the decorated class, so that the error message contains the
+                # name of the concrete class the attribute was assigned on, e.g. Property instead of Referable.
+                constraint_check_fn(
+                    value, attribute=f"{type(self).__name__}.{pub_attr_name}"
+                )
             setattr(self, "_" + pub_attr_name, value)
 
         if hasattr(decorated_class, pub_attr_name):

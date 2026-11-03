@@ -1,3 +1,10 @@
+# Copyright (c) 2026 the Eclipse BaSyx Authors
+#
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
+#
+# SPDX-License-Identifier: MIT
+
 """
 This module implements the Discovery interface defined in the
 'Specification of the Asset Administration Shell Part 2
@@ -14,6 +21,7 @@ from werkzeug.routing import Rule, Submount
 from werkzeug.wrappers import Request, Response
 
 from app import model as server_model
+from app._config import API_BASE_PATH
 from app.adapter import jsonization
 from app.interfaces.base import APIResponse, BaseWSGIApp, HTTPApiDecoder
 from app.model import ServiceDescription, ServiceSpecificationProfileEnum
@@ -119,7 +127,7 @@ class DiscoveryStore:
 
 
 class DiscoveryAPI(BaseWSGIApp):
-    def __init__(self, persistent_store: DiscoveryStore, base_path: str = "/api/v3.1"):
+    def __init__(self, persistent_store: DiscoveryStore, base_path: str = API_BASE_PATH):
         self.persistent_store: DiscoveryStore = persistent_store
         self.url_map = werkzeug.routing.Map(
             [
