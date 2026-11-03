@@ -35,6 +35,7 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+
 class LockedDirectoryError(RuntimeError):
     pass
 
@@ -87,7 +88,7 @@ class DirectoryLock:
 
             if _fcntl is None:
                 if self._strict_locking:
-                    raise RuntimeError("fcntl unavailable, directory locking not possible."
+                    raise RuntimeError("fcntl unavailable, directory locking not possible. "
                                         "Set strict_locking=False to continue unsafe operation on this system.")
 
                 logger.warning("fcntl unavailable; directory locking is disabled (Windows?)")
@@ -204,7 +205,7 @@ class LocalFileIdentifiableStore(
         try:
             self._dir_lock.acquire()
         except LockedDirectoryError as ex:
-            raise RuntimeError(f"Directory {self.directory_path} is already in use"
+            raise LockedDirectoryError(f"Directory {self.directory_path} is already in use"
                                f" by another LocalFileIdentifiableStore instance.") from ex
 
     def close(self) -> None:
