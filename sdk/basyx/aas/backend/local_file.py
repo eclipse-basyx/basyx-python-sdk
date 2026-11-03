@@ -84,17 +84,16 @@ class DirectoryLock:
             if self._is_locked_flag:
                 return  # Idempotent
 
-            self._dir_lock_file = open(self.lock_path, "a")  # use "a" to not swap the inode as in "w"
-
             if _fcntl is None:
                 if self._strict_locking:
                     raise RuntimeError("fcntl unavailable, directory locking not possible. "
-                                        "Set strict_locking=False to continue unsafe operation on this system.")
+                                       "Set strict_locking=False to continue unsafe operation on this system.")
 
                 logger.warning("fcntl unavailable; directory locking is disabled (Windows?)")
                 self._is_locked_flag = True
                 return
 
+            self._dir_lock_file = open(self.lock_path, "a")  # use "a" to not swap the inode as in "w"
             try:
                 _fcntl.flock(self._dir_lock_file.fileno(), _fcntl.LOCK_EX | _fcntl.LOCK_NB)
             except BlockingIOError:
@@ -103,6 +102,10 @@ class DirectoryLock:
                 self._dir_lock_file = None
                 raise LockedDirectoryError(f"Directory {self.directory_path} "
                                            "is already locked by another DirectoryLock")
+            except BaseException:
+                self._dir_lock_file.close()
+                self._dir_lock_file = None
+                raise
             else:
                 self._is_locked_flag = True
 
@@ -193,7 +196,7 @@ class LocalFileIdentifiableStore(
         ] = weakref.WeakValueDictionary()
 
         # Prevent concurrent write operations to avoid TOCTOU problems
-        self._write_lock = threading.Lock()
+        self._write_lock = threading.RLock()
 
         # We need to prevent multiple instances of LocalFileIdentifiableStore performing R/W operations on the same
         # directory in order to ensure cache validity. The directory is locked as soon as it exists.
@@ -237,20 +240,21 @@ class LocalFileIdentifiableStore(
         :raises KeyError: If the respective file could not be found
         """
         with self._dir_lock.ensure_locked():
-            try:
-                with open("{}/{}.json".format(self.directory_path, hash_), "r") as file:
-                    data = json.load(file, cls=json_deserialization.AASFromJsonDecoder)
-                    obj = data["data"]
-            except FileNotFoundError as e:
-                raise KeyError(
-                "No Identifiable with hash {} found in local file database".format(
-                    hash_
-                )
-            ) from e
-        with self._write_lock:
-            if obj.id in self._object_cache:
-                return self._object_cache[obj.id]
-            self._object_cache[obj.id] = obj
+            with self._write_lock:
+                try:
+                    with open("{}/{}.json".format(self.directory_path, hash_), "r") as file:
+                        data = json.load(file, cls=json_deserialization.AASFromJsonDecoder)
+                        obj = data["data"]
+                except FileNotFoundError as e:
+                    raise KeyError(
+                    "No Identifiable with hash {} found in local file database".format(
+                        hash_
+                    )
+                ) from e
+
+                if obj.id in self._object_cache:
+                    return self._object_cache[obj.id]
+                self._object_cache[obj.id] = obj
         return obj
 
     def get_item(self, identifier: model.Identifier) -> model.Identifiable:
@@ -263,14 +267,14 @@ class LocalFileIdentifiableStore(
             with self._write_lock:
                 if identifier in self._object_cache:
                     return self._object_cache[identifier]
-            try:
-                return self.get_identifiable_by_hash(self._transform_id(identifier))
-            except KeyError as e:
-                raise KeyError(
-                "No Identifiable with id {} found in local file database".format(
-                    identifier
-                )
-            ) from e
+                try:
+                    return self.get_identifiable_by_hash(self._transform_id(identifier))
+                except KeyError as e:
+                    raise KeyError(
+                    "No Identifiable with id {} found in local file database".format(
+                        identifier
+                    )
+                ) from e
 
     def _write_atomic(self, x: model.Identifiable) -> None:
         """
@@ -390,16 +394,16 @@ class LocalFileIdentifiableStore(
 
     def __iter__(self) -> Iterator[model.Identifiable]:
         """
-        Iterate all :class:`~basyx.aas.model.base.Identifiable` objects in the CouchDB database.
+        Iterate all :class:`~basyx.aas.model.base.Identifiable` objects in the local file database.
 
         This method returns an iterator, containing only a list of all identifiers in the database and retrieving
         the identifiable objects on the fly.
         """
         logger.debug("Iterating over objects in database ...")
         with self._dir_lock.ensure_locked():
-            for name in os.listdir(self.directory_path):
-                if name.lower().endswith(".json"):
-                    yield self.get_identifiable_by_hash(name[:-5])
+            names = [name for name in os.listdir(self.directory_path) if name.lower().endswith(".json")]
+        for name in names:
+            yield self.get_identifiable_by_hash(name[:-5])
 
     @staticmethod
     def _transform_id(identifier: model.Identifier) -> str:

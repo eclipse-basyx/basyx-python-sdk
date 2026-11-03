@@ -5,7 +5,9 @@
 #
 # SPDX-License-Identifier: MIT
 import concurrent.futures
+import errno
 import gc
+import json
 import os.path
 import shutil
 import tempfile
@@ -52,6 +54,18 @@ class DirectoryLockTest(TestCase):
             with self.assertLogs(level="WARNING") as cm:
                 lock.acquire()
             self.assertTrue(any("fcntl unavailable" in log for log in cm.output))
+
+    def test_acquire_fail_closes_lock_file(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            lock = local_file.DirectoryLock(tmpdir)
+
+            with mock.patch("basyx.aas.backend.local_file._fcntl.flock",
+                            side_effect=OSError(errno.ENOLCK, "No locks available")):
+                with self.assertRaises(OSError):
+                    lock.acquire()
+
+            self.assertFalse(lock._is_locked_flag)
+            self.assertIsNone(lock._dir_lock_file)
 
     def test_double_locking(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -330,6 +344,20 @@ class LocalFileBackendTest(TestCase):
         self.assertEqual(5, len(items))
         os.remove(stray)
 
+    def test_close_with_unfinished_iterator(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            store = local_file.LocalFileIdentifiableStore(tmpdir)
+            store.add(create_example_submodel())
+            iterator = iter(store)
+            next(iterator)
+
+            # close() must not wait for the unfinished iterator
+            close_thread = threading.Thread(target=store.close, daemon=True)
+            close_thread.start()
+            close_thread.join(timeout=5)
+
+            self.assertFalse(close_thread.is_alive())
+
     def test_mutation_persistence(self) -> None:
         submodel = model.Submodel(
             id_="https://example.org/MutationTest",
@@ -488,3 +516,37 @@ class LocalFileBackendConcurrencyTest(TestCase):
             self.assertIn("No Identifiable", ex.exception.args[0])
 
         run_threads([first, second, control])
+
+    def test_concurrent_get_item_discard(self):
+        """Checks that a concurrent get_item() does not put a discarded object back into the cache"""
+        submodel, same_id_submodel = self._example_submodels()
+        self.store.add(submodel)
+        del submodel
+        gc.collect()  # Evict the cache, so that get_item() has to read the file
+
+        file_read = threading.Event()
+        discard_done = threading.Event()
+        retrieved = []  # Keeps a strong reference, so that a ghost object would stay in the cache
+        json_load = json.load
+
+        def gated_json_load(*args, **kwargs):
+            data = json_load(*args, **kwargs)
+            file_read.set()
+            discard_done.wait(timeout=1)  # Times out, if discard() correctly waits for the read to finish
+            return data
+
+        def first():
+            retrieved.append(self.store.get_item("https://example.org/BackendTest"))
+
+        def second():
+            file_read.wait(timeout=5)
+            self.store.discard(same_id_submodel)
+            discard_done.set()
+
+        with mock.patch("basyx.aas.backend.local_file.json.load", gated_json_load):
+            run_threads([first, second])
+
+        self.assertNotIn(same_id_submodel, self.store)
+        with self.assertRaises(KeyError) as ex:
+            self.store.get_item("https://example.org/BackendTest")
+        self.assertIn("No Identifiable", ex.exception.args[0])
