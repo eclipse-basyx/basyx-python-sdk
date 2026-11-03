@@ -27,6 +27,8 @@ from .json_deserialization import (
 )
 from .json_serialization import (
     AASToJsonEncoder,
+    SortingAASToJsonEncoder,
+    SortingStrippedAASToJsonEncoder,
     StrippedAASToJsonEncoder,
     object_store_to_json,
     write_aas_json_file,
@@ -40,6 +42,8 @@ __all__ = [
     "read_aas_json_file",
     "read_aas_json_file_into",
     "AASToJsonEncoder",
+    "SortingAASToJsonEncoder",
+    "SortingStrippedAASToJsonEncoder",
     "StrippedAASToJsonEncoder",
     "object_store_to_json",
     "write_aas_json_file",
