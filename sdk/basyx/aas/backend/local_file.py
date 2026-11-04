@@ -426,7 +426,13 @@ class LocalFileObjectStore(LocalFileIdentifiableStore):
             DeprecationWarning,
             stacklevel=2,
         )
-        super().__init__(directory_path)
+        warnings.warn("`LocalFileObjectStore` does not provide concurrency control. Multiple instances on the "
+                      "same directory might lead to undefined behavior including data loss. "
+                      "Use `LocalFileIdentifiableStore` instead.",
+                      RuntimeWarning,
+                      stacklevel=2
+        )
+        super().__init__(directory_path, disable_strict_locking=True)
 
     def get_identifiable(self, identifier: model.Identifier) -> model.Identifiable:
         warnings.warn(
