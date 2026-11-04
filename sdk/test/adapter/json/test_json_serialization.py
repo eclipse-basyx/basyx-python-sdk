@@ -25,6 +25,8 @@ from basyx.aas.examples.data import (
 )
 from jsonschema import validate  # type: ignore
 
+from test._helper.test_helpers import REQUIRE_SCHEMAS
+
 JSON_SCHEMA_FILE = os.path.join(
     os.path.dirname(__file__), "../schemas/aasJSONSchema.json"
 )
@@ -68,10 +70,34 @@ class JsonSerializationTest(unittest.TestCase):
         json.loads(json_data)
 
 
+    def test_entity_omits_empty_specific_asset_ids(self) -> None:
+        # An Entity without specific asset ids must leave specificAssetIds out
+        # entirely: the schema gives it minItems 1, so an empty array is invalid.
+        # AASd-014 forbids them on a co-managed entity, so this is every such entity.
+        entity = model.Entity("test_entity", model.EntityType.CO_MANAGED_ENTITY)
+        data = json.loads(json.dumps(entity, cls=AASToJsonEncoder))
+        self.assertNotIn("specificAssetIds", data)
+
+    def test_entity_serializes_specific_asset_ids(self) -> None:
+        # AASd-014: only a self-managed entity may carry specific asset ids
+        entity = model.Entity(
+            "test_entity",
+            model.EntityType.SELF_MANAGED_ENTITY,
+            specific_asset_id=[model.SpecificAssetId("test_name", "test_value")],
+        )
+        data = json.loads(json.dumps(entity, cls=AASToJsonEncoder))
+        self.assertEqual(1, len(data["specificAssetIds"]))
+        self.assertEqual("test_name", data["specificAssetIds"][0]["name"])
+
+
 class JsonSerializationSchemaTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         if not os.path.exists(JSON_SCHEMA_FILE):
+            if REQUIRE_SCHEMAS:
+                raise RuntimeError(
+                    f"REQUIRE_SCHEMA_TESTS is set, but the JSON Schema does not exist at {JSON_SCHEMA_FILE}"
+                )
             raise unittest.SkipTest(
                 f"JSON Schema does not exist at {JSON_SCHEMA_FILE}, skipping test"
             )
