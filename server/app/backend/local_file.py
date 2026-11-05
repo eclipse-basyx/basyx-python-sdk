@@ -9,6 +9,7 @@ import hashlib
 import json
 import logging
 import os
+import tempfile
 import threading
 import weakref
 from typing import Dict, Iterator, Type, Union
@@ -99,6 +100,30 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
         except KeyError as e:
             raise KeyError("No Identifiable with id {} found in local file database".format(identifier)) from e
 
+    def _write_atomic(self, x: _DESCRIPTOR_TYPE) -> None:
+        """
+        Serialize x to a temp file in the store directory, then atomically replace the final file.
+
+        Using os.replace() (rename(2) on POSIX) ensures readers always see a complete file — never
+        a partially-written one from a crash or concurrent access mid-write.
+        """
+        final_path = "{}/{}.json".format(self.directory_path, self._transform_id(x.id))
+        tmp_fd, tmp_path = tempfile.mkstemp(dir=self.directory_path, suffix=".tmp")
+        try:
+            with os.fdopen(tmp_fd, "w") as tmp_file:
+                # Usually, we don't need to serialize the modelType, since during HTTP requests, we know exactly if
+                # this is an AASDescriptor or SubmodelDescriptor. However, here we cannot distinguish them, so to
+                # deserialize them successfully, we hack the `modelType` into the JSON.
+                serialized = json.loads(json.dumps(x, cls=jsonization.ServerAASToJsonEncoder))
+                serialized["modelType"] = DESCRIPTOR_TYPE_TO_STRING[type(x)]
+                json.dump(serialized, tmp_file, indent=4)
+            os.replace(tmp_path, final_path)
+        # Catch all `Exception`s, as well as `KeyboardInterrupt` and `SystemExit` too, so the temp
+        # file is never left behind even if the process is being torn down:
+        except BaseException:
+            os.unlink(tmp_path)
+            raise
+
     def add(self, x: _DESCRIPTOR_TYPE) -> None:
         """
         Add a Descriptor object to the store
@@ -108,15 +133,9 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
         logger.debug("Adding object %s to Local File Store ...", repr(x))
         if os.path.exists("{}/{}.json".format(self.directory_path, self._transform_id(x.id))):
             raise KeyError("Descriptor with id {} already exists in local file database".format(x.id))
-        with open("{}/{}.json".format(self.directory_path, self._transform_id(x.id)), "w") as file:
-            # Usually, we don't need to serialize the modelType, since during HTTP requests, we know exactly if this
-            # is an AASDescriptor or SubmodelDescriptor. However, here we cannot distinguish them, so to deserialize
-            # them successfully, we hack the `modelType` into the JSON.
-            serialized = json.loads(json.dumps(x, cls=jsonization.ServerAASToJsonEncoder))
-            serialized["modelType"] = DESCRIPTOR_TYPE_TO_STRING[type(x)]
-            json.dump(serialized, file, indent=4)
-            with self._object_cache_lock:
-                self._object_cache[x.id] = x
+        self._write_atomic(x)
+        with self._object_cache_lock:
+            self._object_cache[x.id] = x
 
     def commit(self, x: _DESCRIPTOR_TYPE) -> None:
         """
@@ -127,10 +146,7 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
         """
         if not os.path.exists("{}/{}.json".format(self.directory_path, self._transform_id(x.id))):
             raise KeyError("No AAS Descriptor object with id {} exists in local file database".format(x.id))
-        with open("{}/{}.json".format(self.directory_path, self._transform_id(x.id)), "w") as file:
-            serialized = json.loads(json.dumps(x, cls=jsonization.ServerAASToJsonEncoder))
-            serialized["modelType"] = DESCRIPTOR_TYPE_TO_STRING[type(x)]
-            json.dump(serialized, file, indent=4)
+        self._write_atomic(x)
 
     def discard(self, x: _DESCRIPTOR_TYPE) -> None:
         """
@@ -172,7 +188,7 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
         :return: The number of objects (determined from the number of documents)
         """
         logger.debug("Fetching number of documents from database ...")
-        return len(os.listdir(self.directory_path))
+        return sum(1 for f in os.listdir(self.directory_path) if f.lower().endswith(".json"))
 
     def __iter__(self) -> Iterator[_DESCRIPTOR_TYPE]:
         """
@@ -183,7 +199,8 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
         """
         logger.debug("Iterating over objects in database ...")
         for name in os.listdir(self.directory_path):
-            yield self.get_descriptor_by_hash(name.rstrip(".json"))
+            if name.lower().endswith(".json"):
+                yield self.get_descriptor_by_hash(name[:-5])
 
     @staticmethod
     def _transform_id(identifier: model.Identifier) -> str:

@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: MIT
 import os.path
 import shutil
-from unittest import TestCase
+from unittest import TestCase, mock
 
 from app import model
 from app.backend import local_file
@@ -70,6 +70,49 @@ class LocalFileBackendTest(TestCase):
         self.assertIn(self.sd2, retrieved_descriptor_store)
         self.assertIn(self.aasd1, retrieved_descriptor_store)
         self.assertIn(self.aasd2, retrieved_descriptor_store)
+
+    def test_len_and_iter_ignore_non_json_entries(self) -> None:
+        self.descriptor_store.add(self.sd1)
+        self.descriptor_store.add(self.aasd1)
+
+        # Foreign entries in the storage directory (e.g. lost+found at the root of an ext4 volume, .DS_Store)
+        # must be ignored by len() and __iter__()
+        os.mkdir(os.path.join(store_path, "lost+found"))
+        with open(os.path.join(store_path, ".DS_Store"), "w") as file:
+            file.write("not json")
+        self.assertEqual(2, len(self.descriptor_store))
+
+        retrieved_descriptor_store = provider.DictDescriptorStore()
+        for item in self.descriptor_store:
+            retrieved_descriptor_store.add(item)
+        self.assertEqual(2, len(retrieved_descriptor_store))
+        self.assertIn(self.sd1, retrieved_descriptor_store)
+        self.assertIn(self.aasd1, retrieved_descriptor_store)
+
+    def test_failed_commit_keeps_previous_file(self) -> None:
+        self.descriptor_store.add(self.sd1)
+        stored_files = [f for f in os.listdir(store_path) if f.endswith(".json")]
+        self.assertEqual(1, len(stored_files))
+        file_path = os.path.join(store_path, stored_files[0])
+        with open(file_path, "r") as file:
+            content_before = file.read()
+
+        # Simulate a failure during serialization (e.g. crash or full disk): the previously stored file must
+        # stay intact instead of being truncated
+        with mock.patch("app.backend.local_file.json.dump", side_effect=RuntimeError("simulated failure")):
+            with self.assertRaises(RuntimeError):
+                self.descriptor_store.commit(self.sd1)
+        with open(file_path, "r") as file:
+            self.assertEqual(content_before, file.read())
+        # No temp file must be left behind
+        self.assertEqual([], [f for f in os.listdir(store_path) if f.endswith(".tmp")])
+
+    def test_failed_add_leaves_no_file(self) -> None:
+        with mock.patch("app.backend.local_file.json.dump", side_effect=RuntimeError("simulated failure")):
+            with self.assertRaises(RuntimeError):
+                self.descriptor_store.add(self.sd1)
+        self.assertNotIn(self.sd1, self.descriptor_store)
+        self.assertEqual([], os.listdir(store_path))
 
     def test_key_errors(self) -> None:
         self.descriptor_store.add(self.aasd1)
