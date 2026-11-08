@@ -28,7 +28,6 @@ from ...format_utils import (
 )
 from ..helpers import RepositoryEndpointTestBase
 
-
 NESTED_PROPERTY = "ExampleSubmodelCollection.ExampleProperty"
 UNKNOWN_SUBMODEL_ID = "https://example.org/unknown"
 

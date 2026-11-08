@@ -15,6 +15,7 @@ Covers:
 
 ValueOnly-Serialization is JSON-only; XML variants are only used for the ``406 Not Acceptable`` cases.
 """
+from typing import cast
 
 from app.util.converters import base64url_encode
 from basyx.aas import model
@@ -27,7 +28,6 @@ from ...format_utils import (
     with_xml_client,
 )
 from ..helpers import RepositoryEndpointTestBase
-
 
 # idShorts of top-level submodel elements of ``create_example_submodel()`` without a ValueOnly
 # representation: they must not appear in a ``$value`` response.
@@ -284,6 +284,16 @@ class SubmodelElementsValueEndpointsTest(ValueEndpointTestBase):
         self.assert_ok(response)
         # Spot-check: a Property's ValueOnly representation is the raw value (not a wrapping object).
         self.assertEqual("exampleValue", format_client.parse_object(response))
+
+    @with_json_client
+    def test_submodel_element_value_get_none(self, format_client: FormatClient):
+        submodel = self.add_example_submodel()
+        cast(model.Property, submodel.get_referable(NESTED_PROPERTY)).value = None
+        self.object_store.commit(submodel)
+
+        response = format_client.get(f"{self.elements_path(submodel.id, NESTED_PROPERTY)}/$value")
+        self.assert_ok(response)
+        self.assertIsNone(format_client.parse_object(response))
 
     def test_submodel_element_value_get_rejects_unsupported_types(self):
         """

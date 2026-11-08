@@ -161,7 +161,9 @@ class XmlResponse(APIResponse):
 
     @classmethod
     def assert_supports_modifiers(cls, mods: Modifiers) -> None:
-        if mods.content not in (Content.NORMAL, Content.REFERENCE):
+        if mods.content is Content.REFERENCE:
+            return
+        if mods.content is not Content.NORMAL:
             raise werkzeug.exceptions.NotAcceptable(
                 f"The requested content type is not supported by /${mods.content}. Use 'application/json' instead."
             )

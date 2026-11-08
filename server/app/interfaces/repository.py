@@ -550,9 +550,10 @@ class WSGIApp(ObjectStoreWSGIApp):
     def get_aas_all_reference(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
+        mods = parse_modifiers(request, Content.REFERENCE)
+        response_t.assert_supports_modifiers(mods)
         aashells, paging_metadata = self._get_shells(request)
-        references: list[model.ModelReference] = [model.ModelReference.from_referable(aas) for aas in aashells]
-        return response_t(references, paging_metadata=paging_metadata)
+        return response_t(aashells, paging_metadata=paging_metadata, modifiers=mods)
 
     # --------- AAS ROUTES ---------
     def get_aas(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
@@ -560,9 +561,10 @@ class WSGIApp(ObjectStoreWSGIApp):
         return response_t(aas)
 
     def get_aas_reference(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
+        mods = parse_modifiers(request, Content.REFERENCE)
+        response_t.assert_supports_modifiers(mods)
         aas = self._get_shell(url_args)
-        reference = model.ModelReference.from_referable(aas)
-        return response_t(reference)
+        return response_t(aas, modifiers=mods)
 
     def put_aas(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         aas = self._get_shell(url_args)

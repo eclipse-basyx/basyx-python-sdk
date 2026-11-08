@@ -30,7 +30,6 @@ from ...format_utils import (
 )
 from ..helpers import RepositoryEndpointTestBase
 
-
 NESTED_COLLECTION = "ExampleSubmodelCollection"
 NESTED_LIST = "ExampleSubmodelCollection.ExampleSubmodelList"
 NESTED_PROPERTY = "ExampleSubmodelCollection.ExampleProperty"
