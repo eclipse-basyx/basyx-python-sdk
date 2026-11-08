@@ -17,6 +17,8 @@ import werkzeug.routing
 import werkzeug.utils
 from basyx.aas import model
 from basyx.aas.adapter import aasx
+from basyx.aas.adapter.json.formats.path_serialization import _PATH_SUPPORTED_TYPES
+from basyx.aas.adapter.json.formats.value_only_serialization import TYPES_WITHOUT_VALUE_ONLY
 from werkzeug import Request, Response
 from werkzeug.datastructures import FileStorage
 from werkzeug.exceptions import BadRequest, Conflict, NotFound
@@ -24,13 +26,11 @@ from werkzeug.routing import MapAdapter, Rule, Submount
 
 from app._config import API_BASE_PATH
 from app.adapter import (
-    has_value_only_representation,
+    Content,
+    Modifiers,
     parse_modifiers,
-    submodel_element_to_named_value_only,
-    submodel_element_to_value_only,
-    submodel_to_value_only,
 )
-from app.interfaces.base import PagingMetadata
+from app.interfaces.base import PagingMetadata, SubmodelElementsWrapper
 from app.model import ServiceDescription, ServiceSpecificationProfileEnum
 from app.util.converters import (
     ContentModifierConverter,
@@ -39,7 +39,7 @@ from app.util.converters import (
     base64url_decode,
 )
 
-from .base import APIResponse, HTTPApiDecoder, JsonResponse, ObjectStoreWSGIApp, T, is_stripped_request
+from .base import APIResponse, HTTPApiDecoder, ObjectStoreWSGIApp, T, is_stripped_request
 
 SUPPORTED_PROFILES: ServiceDescription = ServiceDescription(
     [
@@ -133,10 +133,7 @@ class WSGIApp(ObjectStoreWSGIApp):
                         Submount(
                             "/submodels",
                             [
-                                Rule("/$metadata", methods=["GET"], endpoint=self.get_submodel_all_metadata),
-                                Rule("/$reference", methods=["GET"], endpoint=self.get_submodel_all_reference),
-                                Rule("/$value", methods=["GET"], endpoint=self.get_submodel_all_value),
-                                Rule("/$path", methods=["GET"], endpoint=self.not_implemented),
+                                Rule("/<content_modifier:content>", methods=["GET"], endpoint=self.get_submodel_all),
                                 Rule("/<base64url:submodel_id>", methods=["GET"], endpoint=self.get_submodel),
                                 Rule(
                                     "/<base64url:submodel_id>/<content_modifier:content>",
@@ -165,21 +162,10 @@ class WSGIApp(ObjectStoreWSGIApp):
                                             "/submodel-elements",
                                             [
                                                 Rule(
-                                                    "/$metadata",
+                                                    "/<content_modifier:content>",
                                                     methods=["GET"],
-                                                    endpoint=self.get_submodel_submodel_elements_metadata,
+                                                    endpoint=self.get_submodel_submodel_elements
                                                 ),
-                                                Rule(
-                                                    "/$reference",
-                                                    methods=["GET"],
-                                                    endpoint=self.get_submodel_submodel_elements_reference,
-                                                ),
-                                                Rule(
-                                                    "/$value",
-                                                    methods=["GET"],
-                                                    endpoint=self.get_submodel_submodel_elements_value,
-                                                ),
-                                                Rule("/$path", methods=["GET"], endpoint=self.not_implemented),
                                                 Rule(
                                                     "/<id_short_path:id_shorts>",
                                                     methods=["GET"],
@@ -209,9 +195,9 @@ class WSGIApp(ObjectStoreWSGIApp):
                                                     "/<id_short_path:id_shorts>",
                                                     [
                                                         Rule(
-                                                            "/$metadata",
+                                                            "/<content_modifier:content>",
                                                             methods=["GET"],
-                                                            endpoint=self.get_submodel_submodel_elements_id_short_path_metadata,
+                                                            endpoint=self.get_submodel_submodel_elements_id_short_path
                                                         ),
                                                         Rule(
                                                             "/$metadata",
@@ -219,19 +205,8 @@ class WSGIApp(ObjectStoreWSGIApp):
                                                             endpoint=self.not_implemented,
                                                         ),
                                                         Rule(
-                                                            "/$reference",
-                                                            methods=["GET"],
-                                                            endpoint=self.get_submodel_submodel_elements_id_short_path_reference,
-                                                        ),
-                                                        Rule(
-                                                            "/$value",
-                                                            methods=["GET"],
-                                                            endpoint=self.get_submodel_submodel_elements_id_short_path_value,
-                                                        ),
-                                                        Rule(
                                                             "/$value", methods=["PATCH"], endpoint=self.not_implemented
                                                         ),
-                                                        Rule("/$path", methods=["GET"], endpoint=self.not_implemented),
                                                         Rule(
                                                             "/attachment",
                                                             methods=["GET"],
@@ -530,11 +505,17 @@ class WSGIApp(ObjectStoreWSGIApp):
         return self._get_obj_ts(url_args["submodel_id"], model.Submodel)
 
     def _get_submodel_submodel_elements(
-        self, request: Request, url_args: Dict
+        self, request: Request, url_args: Dict, mods: Modifiers
     ) -> Tuple[Iterator[model.SubmodelElement], Optional[PagingMetadata]]:
         submodel = self._get_submodel(url_args)
-        paginated_submodel_elements: Iterator[model.SubmodelElement]
-        paginated_submodel_elements, paging_metadata = self._get_slice(request, submodel.submodel_element)
+
+        elements: Iterable[model.SubmodelElement] = iter(submodel.submodel_element)
+        if mods.content is Content.VALUE:
+            elements = (item for item in elements if not isinstance(item, TYPES_WITHOUT_VALUE_ONLY))
+        elif mods.content is Content.PATH:
+            elements = (item for item in elements if isinstance(item, _PATH_SUPPORTED_TYPES))
+
+        paginated_submodel_elements, paging_metadata = self._get_slice(request, elements)
         return paginated_submodel_elements, paging_metadata
 
     def _get_submodel_submodel_elements_id_short_path(self, url_args: Dict) -> model.SubmodelElement:
@@ -544,29 +525,6 @@ class WSGIApp(ObjectStoreWSGIApp):
 
     def _get_concept_description(self, url_args):
         return self._get_obj_ts(url_args["concept_id"], model.ConceptDescription)
-
-    @classmethod
-    def _assert_json_response(cls, response_t: Type[APIResponse]) -> None:
-        """
-        The ValueOnly serialization is only defined for JSON, thus the ``$value`` routes cannot serve XML.
-        """
-        if not issubclass(response_t, JsonResponse):
-            raise werkzeug.exceptions.NotAcceptable(
-                "The ValueOnly serialization is only available as application/json!"
-            )
-
-    @classmethod
-    def _assert_value_only_representation(cls, element: model.SubmodelElement) -> None:
-        if not has_value_only_representation(element):
-            raise BadRequest(f"{element.id_short} does not allow the content modifier value!")
-
-    @classmethod
-    def _value_only_response(cls, response_t: Type[APIResponse], value: object) -> Response:
-        if value is None:
-            # An element without a value has `null` as its ValueOnly representation. This cannot be passed to the
-            # response classes, as they interpret `None` as an empty body and respond with `204 No Content`.
-            return Response(json.dumps(None), content_type="application/json")
-        return response_t(value)
 
     # ------ all not implemented ROUTES -------
     def not_implemented(self, request: Request, url_args: Dict, **_kwargs) -> Response:
@@ -714,8 +672,10 @@ class WSGIApp(ObjectStoreWSGIApp):
 
     # ------ SUBMODEL REPO ROUTES -------
     def get_submodel_all(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
+        mods = parse_modifiers(request, url_args.get("content"))
+        response_t.assert_supports_modifiers(mods)
         submodels, paging_metadata = self._get_submodels(request)
-        return response_t(list(submodels), paging_metadata=paging_metadata, stripped=is_stripped_request(request))
+        return response_t(list(submodels), paging_metadata=paging_metadata, modifiers=mods)
 
     def post_submodel(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], map_adapter: MapAdapter
@@ -728,32 +688,6 @@ class WSGIApp(ObjectStoreWSGIApp):
         created_resource_url = map_adapter.build(self.get_submodel, {"submodel_id": submodel.id}, force_external=True)
         return response_t(submodel, status=201, headers={"Location": created_resource_url})
 
-    def get_submodel_all_metadata(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
-        if "level" in request.args:
-            raise BadRequest("level cannot be used when retrieving metadata!")
-        submodels, paging_metadata = self._get_submodels(request)
-        return response_t(list(submodels), paging_metadata=paging_metadata, stripped=True)
-
-    def get_submodel_all_value(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
-        self._assert_json_response(response_t)
-        deep = not is_stripped_request(request)
-        submodels, paging_metadata = self._get_submodels(request)
-        values = [submodel_to_value_only(submodel, deep) for submodel in submodels]
-        return response_t(values, paging_metadata=paging_metadata)
-
-    def get_submodel_all_reference(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
-        submodels, paging_metadata = self._get_submodels(request)
-        references: list[model.ModelReference] = [
-            model.ModelReference.from_referable(submodel) for submodel in submodels
-        ]
-        return response_t(references, paging_metadata=paging_metadata, stripped=is_stripped_request(request))
-
     # --------- SUBMODEL ROUTES ---------
 
     def delete_submodel(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
@@ -762,6 +696,7 @@ class WSGIApp(ObjectStoreWSGIApp):
 
     def get_submodel(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         mods = parse_modifiers(request, url_args.get("content"))
+        response_t.assert_supports_modifiers(mods)
         submodel = self._get_submodel(url_args)
         return response_t(submodel, modifiers=mods)
 
@@ -774,72 +709,29 @@ class WSGIApp(ObjectStoreWSGIApp):
     def get_submodel_submodel_elements(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
-        submodel_elements, paging_metadata = self._get_submodel_submodel_elements(request, url_args)
-        return response_t(
-            list(submodel_elements), paging_metadata=paging_metadata, stripped=is_stripped_request(request)
-        )
-
-    def get_submodel_submodel_elements_metadata(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
-        if "level" in request.args:
-            raise BadRequest("level cannot be used when retrieving metadata!")
-        submodel_elements, paging_metadata = self._get_submodel_submodel_elements(request, url_args)
-        return response_t(list(submodel_elements), paging_metadata=paging_metadata, stripped=True)
-
-    def get_submodel_submodel_elements_value(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
-        self._assert_json_response(response_t)
-        deep = not is_stripped_request(request)
-        submodel_elements, paging_metadata = self._get_submodel_submodel_elements(request, url_args)
-        values = [
-            submodel_element_to_named_value_only(submodel_element, deep)
-            for submodel_element in submodel_elements
-            if has_value_only_representation(submodel_element)
-        ]
-        return response_t(values, paging_metadata=paging_metadata)
-
-    def get_submodel_submodel_elements_reference(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
-        submodel_elements, paging_metadata = self._get_submodel_submodel_elements(request, url_args)
-        references: list[model.ModelReference] = [
-            model.ModelReference.from_referable(element) for element in list(submodel_elements)
-        ]
-        return response_t(references, paging_metadata=paging_metadata, stripped=is_stripped_request(request))
+        mods = parse_modifiers(request, url_args.get("content"))
+        response_t.assert_supports_modifiers(mods)
+        submodel_elements, paging_metadata = self._get_submodel_submodel_elements(request, url_args, mods)
+        return response_t(SubmodelElementsWrapper(submodel_elements), paging_metadata=paging_metadata, modifiers=mods)
 
     def get_submodel_submodel_elements_id_short_path(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
+        mods = parse_modifiers(request, url_args.get("content"))
+        response_t.assert_supports_modifiers(mods)
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
-        return response_t(submodel_element, stripped=is_stripped_request(request))
 
-    def get_submodel_submodel_elements_id_short_path_metadata(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
-        if "level" in request.args:
-            raise BadRequest("level cannot be used when retrieving metadata!")
-        submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
-        if isinstance(submodel_element, model.Capability) or isinstance(submodel_element, model.Operation):
-            raise BadRequest(f"{submodel_element.id_short} does not allow the content modifier metadata!")
-        return response_t(submodel_element, stripped=True)
+        if mods.content is Content.VALUE:
+            if isinstance(submodel_element, TYPES_WITHOUT_VALUE_ONLY):
+                raise BadRequest(f"SubmodelElement {url_args['id_shorts']} has no ValueOnly representation!")
+        elif mods.content is Content.PATH:
+            if not isinstance(submodel_element, _PATH_SUPPORTED_TYPES):
+                raise BadRequest(f"SubmodelElement {url_args['id_shorts']} has no Path representation!")
+        elif mods.content is Content.METADATA:
+            if isinstance(submodel_element, (model.Capability, model.Operation)):
+                raise BadRequest(f"SubmodelElement {url_args['id_shorts']} has no Metadata representation!")
 
-    def get_submodel_submodel_elements_id_short_path_value(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
-        self._assert_json_response(response_t)
-        submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
-        self._assert_value_only_representation(submodel_element)
-        value = submodel_element_to_value_only(submodel_element, not is_stripped_request(request))
-        return self._value_only_response(response_t, value)
-
-    def get_submodel_submodel_elements_id_short_path_reference(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
-        submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
-        reference = model.ModelReference.from_referable(submodel_element)
-        return response_t(reference, stripped=is_stripped_request(request))
+        return response_t(submodel_element, modifiers=mods)
 
     def post_submodel_submodel_elements_id_short_path(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], map_adapter: MapAdapter
@@ -1042,9 +934,7 @@ class WSGIApp(ObjectStoreWSGIApp):
     ) -> Response:
         concept_descriptions: Iterator[model.ConceptDescription] = self._get_all_obj_of_type(model.ConceptDescription)
         concept_descriptions, paging_metadata = self._get_slice(request, concept_descriptions)
-        return response_t(
-            list(concept_descriptions), paging_metadata=paging_metadata, stripped=is_stripped_request(request)
-        )
+        return response_t(list(concept_descriptions), paging_metadata=paging_metadata)
 
     def post_concept_description(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], map_adapter: MapAdapter
@@ -1065,7 +955,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
         concept_description = self._get_concept_description(url_args)
-        return response_t(concept_description, stripped=is_stripped_request(request))
+        return response_t(concept_description)
 
     def put_concept_description(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
