@@ -16,6 +16,7 @@ import werkzeug.exceptions
 import werkzeug.routing
 import werkzeug.utils
 from basyx.aas import model
+from basyx.aas.adapter import _ordering
 from basyx.aas.adapter._generic import XML_NS_MAP
 from basyx.aas.adapter.json import MetadataJsonEncoder, PathJsonEncoder, ReferenceJsonEncoder, ValueOnlyJsonEncoder
 from basyx.aas.adapter.xml import XMLConstructables, read_aas_xml_element, xml_serialization
@@ -160,7 +161,7 @@ class XmlResponse(APIResponse):
 
     @classmethod
     def assert_supports_modifiers(cls, mods: Modifiers) -> None:
-        if not mods.content in (Content.NORMAL, Content.REFERENCE):
+        if mods.content not in (Content.NORMAL, Content.REFERENCE):
             raise werkzeug.exceptions.NotAcceptable(
                 f"The requested content type is not supported by /${mods.content}. Use 'application/json' instead."
             )
@@ -326,11 +327,15 @@ class NoBlobValueResultValueOnlyJsonEncoder(ResultValueOnlyJsonEncoder):
 
 class ResultPathJsonEncoder(ResultJsonMixin, PathJsonEncoder):
 
-    @override
-    def _submodel_elements_wrapper_to_json(self, obj: SubmodelElementsWrapper) -> object:
-        paths: List[str] = []
-        self._append_children(paths, obj, prefix=[])
-        return paths
+    def iter_paths(self, elements: Iterable[model.SubmodelElement]) -> Iterator[str]:
+        """
+        Lazily yields the idShortPaths of the given elements and their children, one top-level element at a time, so
+        that pagination does not need to compute the paths behind the requested page.
+        """
+        for element in sorted(elements, key=_ordering.referable_sort_key):
+            paths: List[str] = []
+            self._append_children(paths, [element], prefix=[])
+            yield from paths
 
 
 def pick_encoder(mods: Modifiers) -> Tuple[Type[ResultJsonMixin], Dict[str, Any]]:

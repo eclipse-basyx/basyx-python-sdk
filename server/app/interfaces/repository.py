@@ -39,7 +39,7 @@ from app.util.converters import (
     base64url_decode,
 )
 
-from .base import APIResponse, HTTPApiDecoder, ObjectStoreWSGIApp, T, is_stripped_request
+from .base import APIResponse, HTTPApiDecoder, ObjectStoreWSGIApp, ResultPathJsonEncoder, T, is_stripped_request
 
 SUPPORTED_PROFILES: ServiceDescription = ServiceDescription(
     [
@@ -512,8 +512,6 @@ class WSGIApp(ObjectStoreWSGIApp):
         elements: Iterable[model.SubmodelElement] = iter(submodel.submodel_element)
         if mods.content is Content.VALUE:
             elements = (item for item in elements if not isinstance(item, TYPES_WITHOUT_VALUE_ONLY))
-        elif mods.content is Content.PATH:
-            elements = (item for item in elements if isinstance(item, _PATH_SUPPORTED_TYPES))
 
         paginated_submodel_elements, paging_metadata = self._get_slice(request, elements)
         return paginated_submodel_elements, paging_metadata
@@ -711,8 +709,21 @@ class WSGIApp(ObjectStoreWSGIApp):
     ) -> Response:
         mods = parse_modifiers(request, url_args.get("content"))
         response_t.assert_supports_modifiers(mods)
+
+        # In $path serialization SubmodelElements are mapped 1:n to path items
+        # so pagination is needed on the idShortPath encoding, not the SubmodelElements
+        if mods.content is Content.PATH:
+            return self.get_submodel_submodel_elements_path(mods, request, response_t, url_args)
         submodel_elements, paging_metadata = self._get_submodel_submodel_elements(request, url_args, mods)
         return response_t(SubmodelElementsWrapper(submodel_elements), paging_metadata=paging_metadata, modifiers=mods)
+
+    def get_submodel_submodel_elements_path(
+        self, mods: Modifiers, request: Request, response_t: type[APIResponse], url_args: dict
+    ) -> Response:
+        submodel_elements = self._get_submodel(url_args).submodel_element
+        paths = ResultPathJsonEncoder(deep=mods.is_deep).iter_paths(submodel_elements)
+        paginated_paths, paging_metadata = self._get_slice(request, paths) # slice on IdShortPaths
+        return response_t(list(paginated_paths), paging_metadata=paging_metadata, modifiers=mods)
 
     def get_submodel_submodel_elements_id_short_path(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
