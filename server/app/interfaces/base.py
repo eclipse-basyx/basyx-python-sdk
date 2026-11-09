@@ -190,7 +190,7 @@ class XmlResponse(APIResponse):
             result_elem = self.result_to_xml(obj, **XML_NS_MAP)
             for child in result_elem:
                 root_elem.append(child)
-        elif isinstance(obj, list):
+        elif isinstance(obj, list) or isinstance(obj, SubmodelElementsWrapper):
             if modifiers is not None and modifiers.content is Content.REFERENCE:
                 obj = [model.ModelReference.from_referable(item) for item in obj if isinstance(item, model.Referable)]
             for item in obj:

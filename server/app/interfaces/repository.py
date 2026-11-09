@@ -553,7 +553,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         mods = parse_modifiers(request, Content.REFERENCE)
         response_t.assert_supports_modifiers(mods)
         aashells, paging_metadata = self._get_shells(request)
-        return response_t(aashells, paging_metadata=paging_metadata, modifiers=mods)
+        return response_t(list(aashells), paging_metadata=paging_metadata, modifiers=mods)
 
     # --------- AAS ROUTES ---------
     def get_aas(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
