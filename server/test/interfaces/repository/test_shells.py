@@ -295,14 +295,23 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
     @with_xml_client
     def test_shells_reference_get(self, format_client: FormatClient):
         self.object_store.update(self.two_shells_store())
-        example_shell = next(iter(self.object_store))
+        expected_keys = [[("AssetAdministrationShell", shell.id)] for shell in self.object_store]
 
         response = format_client.get("/shells/$reference")
 
         self.assert_ok(response)
         references = format_client.parse_collection(response)
-        self.assertEqual(2, len(references))
-        self.assertIn(example_shell.id, [format_client.reference_target(ref) for ref in references])
+        self.assertCountEqual(expected_keys, [format_client.reference_keys(reference) for reference in references])
+        for reference in references:
+            self.assertEqual("ModelReference", format_client.field(reference, "type"))
+
+    @with_json_client
+    @with_xml_client
+    def test_shells_reference_get_empty(self, format_client: FormatClient):
+        response = format_client.get("/shells/$reference")
+
+        self.assert_ok(response)
+        self.assertEqual([], format_client.parse_collection(response))
 
     @with_json_client
     @with_xml_client
@@ -312,6 +321,55 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
         pages = format_client.get_paginated("/shells/$reference", limit=1, max_pages=2)
 
         self.assertEqual([1, 1], [len(page) for page in pages])
+        self.assertEqual(
+            {shell.id for shell in self.object_store},
+            {format_client.reference_target(reference) for page in pages for reference in page},
+        )
+
+    @with_json_client
+    @with_xml_client
+    def test_shells_reference_get_filter_by_id_short(self, format_client: FormatClient):
+        self.object_store.update(self.shells_for_filtering_store())
+
+        response = format_client.get("/shells/$reference?idShort=Beta")
+
+        self.assert_ok(response)
+        self.assertEqual(
+            ["https://example.org/shell-beta"],
+            [format_client.reference_target(reference) for reference in format_client.parse_collection(response)],
+        )
+
+    @with_json_client
+    @with_xml_client
+    def test_shells_reference_get_filter_by_asset_id(self, format_client: FormatClient):
+        self.object_store.update(self.shells_for_filtering_store())
+        asset_id = _encode_global_asset_id("https://example.org/asset-beta")
+
+        response = format_client.get(f"/shells/$reference?assetIds={asset_id}")
+
+        self.assert_ok(response)
+        self.assertEqual(
+            ["https://example.org/shell-beta"],
+            [format_client.reference_target(reference) for reference in format_client.parse_collection(response)],
+        )
+
+    @with_json_client
+    @with_xml_client
+    def test_shells_reference_get_rejects_level(self, format_client: FormatClient):
+        self.object_store.update(self.two_shells_store())
+
+        for level in ("deep", "invalid"):
+            with self.subTest(level=level):
+                self.assert_error(format_client.get(f"/shells/$reference?level={level}"), 400)
+
+    @with_json_client
+    @with_xml_client
+    def test_shells_reference_get_rejects_extent_with_blob_value(self, format_client: FormatClient):
+        self.object_store.update(self.two_shells_store())
+
+        response = format_client.get("/shells/$reference?extent=WithBLOBValue")
+
+        self.assert_error(response, 400)
 
     # ------------------------------------------------------------------ GET /shells/<aas_id>
 
@@ -344,7 +402,38 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
         response = format_client.get(f"/shells/{base64url_encode(example_shell.id)}/$reference")
 
         self.assert_ok(response)
-        self.assertEqual(example_shell.id, format_client.reference_target(format_client.parse_object(response)))
+        reference = format_client.parse_object(response)
+        self.assertEqual("ModelReference", format_client.field(reference, "type"))
+        self.assertEqual([("AssetAdministrationShell", example_shell.id)], format_client.reference_keys(reference))
+
+    @with_json_client
+    @with_xml_client
+    def test_shell_reference_get_rejects_level(self, format_client: FormatClient):
+        example_shell = create_example_asset_administration_shell()
+        self.object_store.add(example_shell)
+
+        for level in ("deep", "invalid"):
+            with self.subTest(level=level):
+                self.assert_error(
+                    format_client.get(f"/shells/{base64url_encode(example_shell.id)}/$reference?level={level}"), 400
+                )
+
+    @with_json_client
+    @with_xml_client
+    def test_shell_reference_get_rejects_extent_with_blob_value(self, format_client: FormatClient):
+        example_shell = create_example_asset_administration_shell()
+        self.object_store.add(example_shell)
+
+        response = format_client.get(f"/shells/{base64url_encode(example_shell.id)}/$reference?extent=WithBLOBValue")
+
+        self.assert_error(response, 400)
+
+    @with_json_client
+    @with_xml_client
+    def test_shell_reference_get_not_found(self, format_client: FormatClient):
+        response = format_client.get(f"/shells/{base64url_encode('https://example.org/unknown')}/$reference")
+
+        self.assert_error(response, 404)
 
     # ------------------------------------------------------------------ PUT /shells/<aas_id>
 

@@ -126,6 +126,10 @@ class FormatClient(abc.ABC):
         """The value of the last key of a Reference node (a single-reference response or a collection item)."""
 
     @abc.abstractmethod
+    def reference_keys(self, node: Any) -> list[tuple[str, str]]:
+        """The ``(type, value)`` pairs of all keys of a Reference node, in document order."""
+
+    @abc.abstractmethod
     def field(self, node: Any, name: str) -> Optional[str]:
         """The text of a direct scalar child ``name`` of ``node`` (JSON member / ``aas:``-prefixed XML element)."""
 
@@ -161,6 +165,9 @@ class JsonFormatClient(FormatClient):
 
     def reference_target(self, node: Any) -> str:
         return node["keys"][-1]["value"]
+
+    def reference_keys(self, node: Any) -> list[tuple[str, str]]:
+        return [(key["type"], key["value"]) for key in node["keys"]]
 
     def field(self, node: Any, name: str) -> Optional[str]:
         return node.get(name)
@@ -205,6 +212,12 @@ class XmlFormatClient(FormatClient):
         values = node.findall(".//aas:key/aas:value", namespaces=XML_NS_MAP)
         assert values, "no keys in reference node"
         return values[-1].text
+
+    def reference_keys(self, node: Any) -> list[tuple[str, str]]:
+        return [
+            (key.findtext("aas:type", namespaces=XML_NS_MAP), key.findtext("aas:value", namespaces=XML_NS_MAP))
+            for key in node.findall("aas:keys/aas:key", namespaces=XML_NS_MAP)
+        ]
 
     def field(self, node: Any, name: str) -> Optional[str]:
         return node.findtext(f"aas:{name}", namespaces=XML_NS_MAP)
