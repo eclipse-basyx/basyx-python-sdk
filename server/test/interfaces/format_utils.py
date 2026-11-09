@@ -215,10 +215,7 @@ class XmlFormatClient(FormatClient):
         return success_elem is None or success_elem.text == "true"
 
     def next_cursor(self, response: TestResponse) -> Optional[str]:
-        # The cursor is an attribute on the <response> root; it is unconditionally serialized, so a
-        # missing next page shows up as the literal string "None" rather than an absent attribute.
-        cursor = self._root(response).get("cursor")
-        return cursor if cursor not in (None, "None") else None
+        return self._root(response).get("cursor")
 
 
 class AssertResponseMixin(unittest.TestCase):

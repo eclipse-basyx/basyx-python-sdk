@@ -246,6 +246,29 @@ class TestXmlResponse(unittest.TestCase):
 
         self.assertIsNone(parsed_body.get("cursor"))
 
+    def test_pagination_cursor_attribute(self) -> None:
+        cases = (
+            (None, None),
+            (base.PagingMetadata(cursor=None), None),
+            (base.PagingMetadata(cursor="asdf"), "asdf"),
+            (base.PagingMetadata(cursor="None"), "None"),
+        )
+        for response_type in (base.XmlResponse, base.XmlResponseAlt):
+            for objects in ([], [model.Submodel(id_="https://example.org/Example_Submodel")]):
+                for metadata, expected_cursor in cases:
+                    with self.subTest(
+                        response_type=response_type.__name__,
+                        objects=objects,
+                        expected_cursor=expected_cursor,
+                        metadata=metadata,
+                    ):
+                        response = response_type(obj=objects, paging_metadata=metadata)
+                        parsed_body = etree.fromstring(response.get_data())
+                        if expected_cursor is None:
+                            self.assertNotIn("cursor", parsed_body.attrib)
+                        else:
+                            self.assertEqual(expected_cursor, parsed_body.get("cursor"))
+
     def test_result(self):
         response = base.XmlResponse(
             base.Result(False, [base.Message("BAD_CODE", "test", base.MessageType.ERROR, datetime.datetime.now())])
