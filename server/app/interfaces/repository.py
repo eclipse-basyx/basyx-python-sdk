@@ -9,7 +9,6 @@ This module implements the "Specification of the Asset Administration Shell Part
 """
 
 import io
-import json
 from typing import Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union
 
 import werkzeug.exceptions
@@ -25,7 +24,7 @@ from werkzeug.routing import MapAdapter, Rule, Submount
 from app._config import API_BASE_PATH
 from app.interfaces.base import PagingMetadata
 from app.model import ServiceDescription, ServiceSpecificationProfileEnum
-from app.util.converters import IdentifierToBase64URLConverter, IdShortPathConverter, base64url_decode
+from app.util.converters import IdentifierToBase64URLConverter, IdShortPathConverter
 
 from .base import APIResponse, HTTPApiDecoder, ObjectStoreWSGIApp, T, is_stripped_request
 
@@ -450,28 +449,29 @@ class WSGIApp(ObjectStoreWSGIApp):
             global_asset_ids = []
 
             for asset_id in asset_ids:
-                asset_id_json = base64url_decode(asset_id)
-                asset_dict = json.loads(asset_id_json)
-                try:
-                    name = asset_dict["name"]
-                    value = asset_dict["value"]
-                except KeyError as e:
-                    raise BadRequest(f"Invalid assetId format: missing field {e}") from e
+                # Each assetIds value is a base64url-encoded SpecificAssetId (AAS Part 2, v3.1.1).
+                # The reserved name "globalAssetId" matches AssetInformation/globalAssetId, any other
+                # name matches an entry of AssetInformation/specific_asset_id. Malformed input
+                # raises BadRequest (400) instead of escaping as a 500.
+                decoded_asset_id = HTTPApiDecoder.base64url_json(asset_id, model.SpecificAssetId, False)
+                if decoded_asset_id.name == "globalAssetId":
+                    global_asset_ids.append(decoded_asset_id.value)
+                else:
+                    specific_asset_ids.append(decoded_asset_id)
 
-                if name == "specificAssetId":
-                    decoded_specific_id = HTTPApiDecoder.json_list(value, model.SpecificAssetId, False, True)[0]
-                    specific_asset_ids.append(decoded_specific_id)
-                elif name == "globalAssetId":
-                    global_asset_ids.append(value)
-
-            # Filter AAS based on both SpecificAssetIds and globalAssetIds
+            # Filter AAS based on both SpecificAssetIds and globalAssetIds. A queried SpecificAssetId
+            # matches by (name, value): full object equality would also require matching
+            # external_subject_id/semantic_id, which a plain {"name", "value"} query does not carry.
             aas = filter(
                 lambda shell: (
                     (
                         not specific_asset_ids
                         or all(
-                            specific_asset_id in shell.asset_information.specific_asset_id
-                            for specific_asset_id in specific_asset_ids
+                            any(
+                                stored.name == queried.name and stored.value == queried.value
+                                for stored in shell.asset_information.specific_asset_id
+                            )
+                            for queried in specific_asset_ids
                         )
                     )
                     and (not global_asset_ids or shell.asset_information.global_asset_id in global_asset_ids)

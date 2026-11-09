@@ -22,6 +22,10 @@ def _encode_asset_id(name: str, value: str) -> str:
     return base64.urlsafe_b64encode(payload.encode()).decode()
 
 
+def _result_ids(response) -> list:
+    return [shell["id"] for shell in json.loads(response.data)["result"]]
+
+
 class ShellsAssetIdsTest(unittest.TestCase):
     def setUp(self) -> None:
         self.example_data = create_full_example()
@@ -37,11 +41,55 @@ class ShellsAssetIdsTest(unittest.TestCase):
         id2 = _encode_asset_id("globalAssetId", unknown_id)
         response = self.client.get(f"{BASE_PATH}/shells?assetIds={id1}&assetIds={id2}")
         self.assertEqual(200, response.status_code)
-        result = json.loads(response.data)
-        returned_ids = [r["id"] for r in result]
+        returned_ids = _result_ids(response)
         self.assertIn(aas_list[0].id, returned_ids)
 
     def test_malformed_asset_id_missing_field_returns_400(self) -> None:
         bad_payload = base64.urlsafe_b64encode(b'{"name": "globalAssetId"}').decode()
         response = self.client.get(f"{BASE_PATH}/shells?assetIds={bad_payload}")
         self.assertEqual(400, response.status_code)
+
+    def test_spec_specific_asset_id_without_match_returns_empty(self) -> None:
+        # AAS Part 2, v3.1.1: each assetIds value is a base64url-encoded SpecificAssetId.
+        # A query for an id no shell carries must return an empty result, not all shells.
+        spec_id = _encode_asset_id("serialNumber", "does-not-exist")
+        response = self.client.get(f"{BASE_PATH}/shells?assetIds={spec_id}")
+        self.assertEqual(200, response.status_code)
+        self.assertEqual([], _result_ids(response))
+
+    def test_spec_specific_asset_id_with_match_returns_shell(self) -> None:
+        aas_list = [obj for obj in self.example_data if isinstance(obj, model.AssetAdministrationShell)]
+        known_specific_id = next(iter(aas_list[0].asset_information.specific_asset_id))
+        spec_id = _encode_asset_id(known_specific_id.name, known_specific_id.value)
+        response = self.client.get(f"{BASE_PATH}/shells?assetIds={spec_id}")
+        self.assertEqual(200, response.status_code)
+        self.assertEqual([aas_list[0].id], _result_ids(response))
+
+    def test_spec_specific_asset_ids_all_must_match(self) -> None:
+        aas_list = [obj for obj in self.example_data if isinstance(obj, model.AssetAdministrationShell)]
+        known_specific_id = next(iter(aas_list[0].asset_information.specific_asset_id))
+        matching_id = _encode_asset_id(known_specific_id.name, known_specific_id.value)
+        non_matching_id = _encode_asset_id("serialNumber", "does-not-exist")
+        response = self.client.get(f"{BASE_PATH}/shells?assetIds={matching_id}&assetIds={non_matching_id}")
+        self.assertEqual(200, response.status_code)
+        self.assertEqual([], _result_ids(response))
+
+    def test_malformed_asset_id_json_returns_400(self) -> None:
+        # A value that is not valid JSON must be rejected with 400, not escape as a 500.
+        bad_payload = base64.urlsafe_b64encode(b"foo").decode()
+        response = self.client.get(f"{BASE_PATH}/shells?assetIds={bad_payload}")
+        self.assertEqual(400, response.status_code)
+
+    def test_old_specific_asset_id_wrapper_no_longer_matches(self) -> None:
+        # The pre-spec wrapper {"name": "specificAssetId", "value": "<SpecificAssetId as JSON string>"}
+        # is no longer understood: it decodes as a SpecificAssetId named "specificAssetId", which no
+        # shell carries, so the result is empty. This documents the breaking change of this fix.
+        aas_list = [obj for obj in self.example_data if isinstance(obj, model.AssetAdministrationShell)]
+        known_specific_id = next(iter(aas_list[0].asset_information.specific_asset_id))
+        wrapper = _encode_asset_id(
+            "specificAssetId",
+            json.dumps({"name": known_specific_id.name, "value": known_specific_id.value}),
+        )
+        response = self.client.get(f"{BASE_PATH}/shells?assetIds={wrapper}")
+        self.assertEqual(200, response.status_code)
+        self.assertEqual([], _result_ids(response))
