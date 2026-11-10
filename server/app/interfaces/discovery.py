@@ -217,7 +217,7 @@ class DiscoveryAPI(BaseWSGIApp):
     ) -> Response:
         aas_identifier = str(url_args["aas_id"])
         if aas_identifier not in self.persistent_store.aas_id_to_asset_ids:
-            raise werkzeug.exceptions.NotFound(f"No AssetAdministrationShell with {aas_identifier} found!")
+            raise werkzeug.exceptions.NotFound(f"No asset links found for AAS {aas_identifier}!")
         self.persistent_store.delete_specific_asset_ids_by_aas_id(aas_identifier)
         return response_t()
 
