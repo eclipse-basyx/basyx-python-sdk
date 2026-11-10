@@ -55,6 +55,22 @@ form: [https://accounts.eclipse.org/user/eca](https://accounts.eclipse.org/user/
 The E-Mail address used to sign the ECA is the same one that needs to be used for
 committing.
 
+### Claim an Issue
+
+Every change needs an issue.
+If no issue exists for your change, open one (see [Issues](#issues)).
+Only trivial fixes, such as typos or broken links, need no issue.
+
+Before you write code, comment on the issue with:
+
+- Your use case: Where do you use the SDK, and why do you need this change?
+- Your approach: How do you plan to make the change, in a few sentences?
+
+Then wait until a maintainer confirms and assigns the issue to you.
+You cannot assign yourself, but your comment allows a maintainer to do it.
+
+We close pull requests for issues that are not assigned to you.
+
 ### Workflow
 
 The default branch of Eclipse-BaSyx-Python is `develop`.
@@ -92,7 +108,9 @@ git push origin <your_new_branch>
 ```
 
 5. Create a [Pull Request](https://github.com/eclipse-basyx/basyx-python-sdk/pulls) from
-   your fork `<your_new_branch>` to the Eclipse-BaSyx-Python `develop` branch
+   your fork `<your_new_branch>` to the Eclipse-BaSyx-Python `develop` branch.
+   Reference the issue that you claimed with `Fixes #123` (see
+   [Message](#message)).
 
 The Eclipse-BaSyx-Python maintainers will then review the pull request and communicate
 the further steps via the comments.

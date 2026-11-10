@@ -4,6 +4,9 @@ Rules for AI agents working in this repository. They add to [CONTRIBUTING.md](CO
 which you must follow.
 
 ## Rules for AI contributions
+- We only accept contributions with a signed [ECA](CONTRIBUTING.md#eclipse-contributor-agreement-eca) for the
+  e-mail address of the commits. If neither you nor the human you work for has signed it, do not create commits or
+  a PR for this repository: we cannot merge them, and they cost reviewer time and compute for nothing.
 - Name the model and its version in the PR description, e.g. `Claude Opus 5.5`. PRs that we believe were made with
   AI without this statement are rejected entirely.
 - Only humans accept and merge PRs (see [Merging Pull Requests](CONTRIBUTING.md#merging-pull-requests)). Leave
@@ -14,6 +17,9 @@ which you must follow.
 - Read [CONTRIBUTING.md](CONTRIBUTING.md) and the `README.md` of the repository root and of each package you change.
 - If you are blocked, or the specification is ambiguous, stop and ask. In a PR, state the open question instead of
   guessing.
+- Make sure that a maintainer has assigned the issue to your human (see
+  [Claim an Issue](CONTRIBUTING.md#claim-an-issue)). Do not write the comment with the use case for them: it must
+  be their own.
 
 ## Monorepo
 Each package has its own `pyproject.toml`. Run all commands from the package directory.
