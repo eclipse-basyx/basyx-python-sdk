@@ -380,7 +380,9 @@ class BaseWSGIApp:
                 NonNegativeInteger(int(cursor_str) - 1),
             )  # cursor is 1-indexed
         except ValueError:
-            raise BadRequest("Limit can not be negative, cursor must be positive!")
+            raise BadRequest("Limit must be a positive integer, cursor must be positive!")
+        if limit < 1:
+            raise BadRequest("Limit must be a positive integer, cursor must be positive!")
         start_index = cursor
         end_index = cursor + limit
         items = list(itertools.islice(iterator, start_index, end_index + 1))

@@ -36,6 +36,7 @@ NESTED_LIST = "ExampleSubmodelCollection.ExampleSubmodelList"
 NESTED_PROPERTY = "ExampleSubmodelCollection.ExampleProperty"
 NESTED_RANGE = "ExampleSubmodelCollection.ExampleRange"
 NESTED_ANNOTATED_REL = "ExampleAnnotatedRelationshipElement"
+LIST_ID_SHORT = "List"
 
 
 @inject_format_clients
@@ -85,17 +86,19 @@ class SubmodelsPathEndpointsTest(RepositoryEndpointTestBase):
             for path in page:
                 self.assertIsInstance(path, str)
 
-    def test_submodels_path_get_rejects_invalid_level(self):
+    @with_json_client
+    def test_submodels_path_get_rejects_invalid_level(self, format_client: FormatClient):
         self.object_store.add(create_example_submodel())
 
-        response = self.client.get("/submodels/$path?level=bogus")
+        response = format_client.get("/submodels/$path?level=bogus")
 
         self.assert_error(response, 400)
 
-    def test_submodels_path_get_rejects_extent(self):
+    @with_json_client
+    def test_submodels_path_get_rejects_extent(self, format_client: FormatClient):
         self.object_store.add(create_example_submodel())
 
-        response = self.client.get("/submodels/$path?extent=withBlobValue")
+        response = format_client.get("/submodels/$path?extent=withBlobValue")
 
         self.assert_error(response, 400)
 
@@ -133,28 +136,31 @@ class SubmodelsPathEndpointsTest(RepositoryEndpointTestBase):
 
         self.assertLess(len(core), len(deep))
 
-    def test_submodel_path_get_rejects_invalid_level(self):
+    @with_json_client
+    def test_submodel_path_get_rejects_invalid_level(self, format_client: FormatClient):
         example_submodel = create_example_submodel()
         self.object_store.add(example_submodel)
 
-        response = self.client.get(
+        response = format_client.get(
             f"/submodels/{base64url_encode(example_submodel.id)}/$path?level=bogus"
         )
 
         self.assert_error(response, 400)
 
-    def test_submodel_path_get_rejects_extent(self):
+    @with_json_client
+    def test_submodel_path_get_rejects_extent(self, format_client: FormatClient):
         example_submodel = create_example_submodel()
         self.object_store.add(example_submodel)
 
-        response = self.client.get(
+        response = format_client.get(
             f"/submodels/{base64url_encode(example_submodel.id)}/$path?extent=withBlobValue"
         )
 
         self.assert_error(response, 400)
 
-    def test_submodel_path_get_not_found(self):
-        response = self.client.get(
+    @with_json_client
+    def test_submodel_path_get_not_found(self, format_client: FormatClient):
+        response = format_client.get(
             f"/submodels/{base64url_encode('https://example.org/unknown')}/$path"
         )
 
@@ -220,17 +226,31 @@ class SubmodelElementsPathEndpointsTest(RepositoryEndpointTestBase):
 
         self.assertEqual([3, 3, 3, 3, 2], [len(page) for page in pages])
 
-    def test_submodel_elements_path_get_rejects_invalid_level(self):
+    @with_json_client
+    def test_submodel_elements_path_get_rejects_limit_below_one(self, format_client: FormatClient):
+        """
+        ``$path`` slices the idShortPaths instead of the SubmodelElements, so ``limit`` is checked separately here.
+        """
         submodel = self.add_example_submodel()
 
-        response = self.client.get(f"{self.elements_path(submodel.id)}/$path?level=bogus")
+        for limit in (0, -1):
+            with self.subTest(limit=limit):
+                response = format_client.get(f"{self.elements_path(submodel.id)}/$path?limit={limit}")
+                self.assert_error(response, 400)
+
+    @with_json_client
+    def test_submodel_elements_path_get_rejects_invalid_level(self, format_client: FormatClient):
+        submodel = self.add_example_submodel()
+
+        response = format_client.get(f"{self.elements_path(submodel.id)}/$path?level=bogus")
 
         self.assert_error(response, 400)
 
-    def test_submodel_elements_path_get_rejects_extent(self):
+    @with_json_client
+    def test_submodel_elements_path_get_rejects_extent(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
-        response = self.client.get(f"{self.elements_path(submodel.id)}/$path?extent=withBlobValue")
+        response = format_client.get(f"{self.elements_path(submodel.id)}/$path?extent=withBlobValue")
 
         self.assert_error(response, 400)
 
@@ -271,6 +291,52 @@ class SubmodelElementsPathEndpointsTest(RepositoryEndpointTestBase):
         paths = format_client.parse_object(response)
         self.assertEqual(["ExampleSubmodelList", "ExampleSubmodelList[0]", "ExampleSubmodelList[1]"], paths)
 
+    def add_list_submodel(self) -> model.Submodel:
+        """
+        Adds a Submodel with a SubmodelElementList of two SubmodelElementCollections: ``List[0]`` has no idShort,
+        ``List[1]`` has the idShort ``Named``.
+        """
+        submodel = model.Submodel("https://example.org/Test_Submodel_List", submodel_element=[
+            model.SubmodelElementList(
+                LIST_ID_SHORT,
+                type_value_list_element=model.SubmodelElementCollection,
+                value=[
+                    model.SubmodelElementCollection(
+                        None, value=[model.Property("Unnamed", model.datatypes.String, "x")]
+                    ),
+                    model.SubmodelElementCollection(
+                        "Named", value=[model.Property("Child", model.datatypes.String, "y")]
+                    ),
+                ],
+            )
+        ])
+        self.object_store.add(submodel)
+        return submodel
+
+    @with_json_client
+    def test_submodel_element_path_get_list_item_without_id_short_returns_400(self, format_client: FormatClient):
+        """
+        Every idShortPath starts with the idShort of the requested element, so an element without an idShort has no
+        Path representation.
+        """
+        submodel = self.add_list_submodel()
+
+        response = format_client.get(f"{self.elements_path(submodel.id, f'{LIST_ID_SHORT}[0]')}/$path")
+
+        self.assert_error(response, 400)
+
+    @with_json_client
+    def test_submodel_element_path_get_list_item_with_id_short(self, format_client: FormatClient):
+        """
+        A child of a SubmodelElementList that has an idShort has a Path representation.
+        """
+        submodel = self.add_list_submodel()
+
+        response = format_client.get(f"{self.elements_path(submodel.id, f'{LIST_ID_SHORT}[1]')}/$path")
+
+        self.assert_ok(response)
+        self.assertEqual(["Named", "Named.Child"], format_client.parse_object(response))
+
     @with_json_client
     def test_submodel_element_path_get_entity(self, format_client: FormatClient):
         submodel = self.add_bill_of_material_submodel()
@@ -293,7 +359,8 @@ class SubmodelElementsPathEndpointsTest(RepositoryEndpointTestBase):
         self.assertIsInstance(paths, list)
         self.assertIn(NESTED_ANNOTATED_REL, paths)
 
-    def test_submodel_element_path_get_rejects_unsupported_types(self):
+    @with_json_client
+    def test_submodel_element_path_get_rejects_unsupported_types(self, format_client: FormatClient):
         """
         $path is defined for Submodel, SubmodelElementCollection, SubmodelElementList, Entity and
         AnnotatedRelationshipElement only. Every other SubmodelElement subtype must
@@ -303,18 +370,20 @@ class SubmodelElementsPathEndpointsTest(RepositoryEndpointTestBase):
 
         for id_short_path in (NESTED_PROPERTY, NESTED_RANGE, "ExampleOperation", "ExampleBasicEventElement"):
             with self.subTest(id_short_path=id_short_path):
-                response = self.client.get(f"{self.elements_path(submodel.id, id_short_path)}/$path")
+                response = format_client.get(f"{self.elements_path(submodel.id, id_short_path)}/$path")
                 self.assert_error(response, 400)
 
-    def test_submodel_element_path_get_not_found(self):
+    @with_json_client
+    def test_submodel_element_path_get_not_found(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
-        response = self.client.get(f"{self.elements_path(submodel.id, 'Unknown')}/$path")
+        response = format_client.get(f"{self.elements_path(submodel.id, 'Unknown')}/$path")
 
         self.assert_error(response, 404)
 
-    def test_submodel_element_path_get_submodel_not_found(self):
-        response = self.client.get(
+    @with_json_client
+    def test_submodel_element_path_get_submodel_not_found(self, format_client: FormatClient):
+        response = format_client.get(
             f"{self.elements_path('https://example.org/unknown', NESTED_COLLECTION)}/$path"
         )
 

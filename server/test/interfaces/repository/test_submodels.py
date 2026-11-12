@@ -88,6 +88,17 @@ class SubmodelsEndpointsTest(RepositoryEndpointTestBase):
 
         self.assertEqual([1, 1], [len(page) for page in pages])
 
+    @with_json_client
+    def test_submodels_get_rejects_limit_below_one(self, format_client: FormatClient):
+        """
+        ``limit=0`` would return an empty page whose cursor points to the same start, so ``limit`` must be positive.
+        """
+        self.object_store.update(self.two_submodels_store())
+
+        for limit in (0, -1):
+            with self.subTest(limit=limit):
+                self.assert_error(format_client.get(f"/submodels?limit={limit}"), 400)
+
     # ------------------------------------------------------------------ GET /submodels?idShort=...&semanticId=...
 
     @with_json_client

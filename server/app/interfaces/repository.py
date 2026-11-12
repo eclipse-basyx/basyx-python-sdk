@@ -18,6 +18,7 @@ import werkzeug.routing
 import werkzeug.utils
 from basyx.aas import model
 from basyx.aas.adapter import aasx
+from basyx.aas.adapter._generic import serializable_id_short
 from basyx.aas.adapter.json.formats.path_serialization import _PATH_SUPPORTED_TYPES
 from basyx.aas.adapter.json.formats.value_only_serialization import TYPES_WITHOUT_VALUE_ONLY
 from werkzeug import Request, Response
@@ -764,6 +765,12 @@ class WSGIApp(ObjectStoreWSGIApp):
         elif mods.content is Content.PATH:
             if not isinstance(submodel_element, _PATH_SUPPORTED_TYPES):
                 raise BadRequest(f"SubmodelElement {url_args['id_shorts']} has no Path representation!")
+            # The idShortPaths of $path start with the idShort of the requested element, so elements without an
+            # idShort (children of a SubmodelElementList) have no Path representation.
+            if serializable_id_short(submodel_element) is None:
+                raise BadRequest(
+                    f"SubmodelElement {url_args['id_shorts']} has no idShort, so it has no Path representation!"
+                )
         elif mods.content is Content.METADATA:
             if isinstance(submodel_element, TYPES_WITHOUT_METADATA):
                 raise BadRequest(f"SubmodelElement {url_args['id_shorts']} has no Metadata representation!")
