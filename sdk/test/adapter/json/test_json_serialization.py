@@ -44,6 +44,20 @@ class JsonSerializationTest(unittest.TestCase):
         )
         json.dumps(test_object, cls=AASToJsonEncoder)
 
+    def test_serializer_overriding(self) -> None:
+        class EnhancedAASToJsonEncoder(AASToJsonEncoder):
+            @classmethod
+            def _get_aas_class_serializers(cls):
+                serializers = super()._get_aas_class_serializers()
+                serializers[model.Property] = lambda obj: {"enhanced": True}
+                return serializers
+
+        test_object = model.Property("test_id_short", model.datatypes.String)
+        # Serialize with the base class first, so its cached serializer mapping exists. The derived class must not
+        # reuse it.
+        self.assertNotIn("enhanced", json.loads(json.dumps(test_object, cls=AASToJsonEncoder)))
+        self.assertEqual({"enhanced": True}, json.loads(json.dumps(test_object, cls=EnhancedAASToJsonEncoder)))
+
     def test_random_object_serialization(self) -> None:
         aas_identifier = "AAS1"
         submodel_key = (model.Key(model.KeyTypes.SUBMODEL, "SM1"),)

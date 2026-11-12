@@ -256,6 +256,11 @@ class JsonDeserializationDerivingTest(unittest.TestCase):
                     "id": "https://example.org/Test_Submodel"
                 }
             ]"""
+        # Decode with the base class first, so its cached constructor mapping exists. The derived class must not
+        # reuse it.
+        parsed_data = json.loads(data, cls=StrictAASFromJsonDecoder)
+        self.assertNotIsInstance(parsed_data[0], EnhancedSubmodel)
+
         parsed_data = json.loads(data, cls=EnhancedAASDecoder)
         self.assertEqual(1, len(parsed_data))
         self.assertIsInstance(parsed_data[0], EnhancedSubmodel)

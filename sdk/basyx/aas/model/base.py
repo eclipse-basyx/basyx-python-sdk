@@ -315,20 +315,8 @@ class LangStringSet(MutableMapping[str, str]):
     ISO 3166 and ISO 15924.
     """
 
-    def __init__(self, dict_: Dict[str, str]):
-        self._dict: Dict[str, str] = {}
-        if not isinstance(dict_, dict):
-            raise TypeError(
-                f"A {self.__class__.__name__} must be initialized with a dict!, got {type(dict_)}"
-            )
-        if len(dict_) < 1:
-            raise ValueError(f"A {self.__class__.__name__} must not be empty!")
-        for ltag in dict_:
-            self._check_language_tag_constraints(ltag)
-            self._dict[ltag] = dict_[ltag]
-
-    @classmethod
-    def _check_language_tag_constraints(cls, ltag: str):
+    @staticmethod
+    def _compile_language_tag_re() -> "re.Pattern[str]":
         alphanum = "[a-zA-Z0-9]"
         singleton = "[0-9A-WY-Za-wy-z]"
         extension = f"{singleton}(-({alphanum}){{2,8}})+"
@@ -354,9 +342,27 @@ class LangStringSet(MutableMapping[str, str]):
         )
         language_tag = f"({langtag}|{privateuse}|{grandfathered})"
 
-        pattern = f"^{language_tag}$"
+        return re.compile(f"^{language_tag}$")
 
-        if re.match(pattern, ltag) is None:
+    # Compiled once when the class is created, since language tags are checked for every LangStringSet entry.
+    # Calling the staticmethod object directly in the class body only works since Python 3.10, hence ``__func__``.
+    _LANGUAGE_TAG_RE = _compile_language_tag_re.__func__()  # type: ignore[attr-defined]
+
+    def __init__(self, dict_: Dict[str, str]):
+        self._dict: Dict[str, str] = {}
+        if not isinstance(dict_, dict):
+            raise TypeError(
+                f"A {self.__class__.__name__} must be initialized with a dict!, got {type(dict_)}"
+            )
+        if len(dict_) < 1:
+            raise ValueError(f"A {self.__class__.__name__} must not be empty!")
+        for ltag in dict_:
+            self._check_language_tag_constraints(ltag)
+            self._dict[ltag] = dict_[ltag]
+
+    @classmethod
+    def _check_language_tag_constraints(cls, ltag: str):
+        if cls._LANGUAGE_TAG_RE.match(ltag) is None:
             raise ValueError(
                 f"The language tag must follow the format defined in BCP 47. "
                 f"Given language tag: {ltag}"
