@@ -9,6 +9,7 @@ This module implements the "Specification of the Asset Administration Shell Part
 """
 
 import io
+import itertools
 import json
 from typing import Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union
 
@@ -486,6 +487,10 @@ class WSGIApp(ObjectStoreWSGIApp):
         return self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
 
     def _get_submodels(self, request: Request) -> Tuple[Iterator[model.Submodel], Optional[PagingMetadata]]:
+        paginated_submodels, paging_metadata = self._get_slice(request, self._filter_submodels(request))
+        return paginated_submodels, paging_metadata
+
+    def _filter_submodels(self, request: Request) -> Iterator[model.Submodel]:
         submodels: Iterator[model.Submodel] = self._get_all_obj_of_type(model.Submodel)
         id_short = request.args.get("idShort")
         if id_short is not None:
@@ -498,8 +503,7 @@ class WSGIApp(ObjectStoreWSGIApp):
                 False,
             )
             submodels = filter(lambda sm: sm.semantic_id == spec_semantic_id, submodels)
-        paginated_submodels, paging_metadata = self._get_slice(request, submodels)
-        return paginated_submodels, paging_metadata
+        return submodels
 
     def _get_submodel(self, url_args: Dict) -> model.Submodel:
         return self._get_obj_ts(url_args["submodel_id"], model.Submodel)
@@ -674,8 +678,21 @@ class WSGIApp(ObjectStoreWSGIApp):
     def get_submodel_all(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         mods = parse_modifiers(request, url_args.get("content"))
         response_t.assert_supports_modifiers(mods)
+
+        # In $path serialization Submodels are mapped 1:n to path items
+        # so pagination is needed on the idShortPath encoding, not the Submodels
+        if mods.content is Content.PATH:
+            return self.get_submodel_all_path(mods, request, response_t)
         submodels, paging_metadata = self._get_submodels(request)
         return response_t(list(submodels), paging_metadata=paging_metadata, modifiers=mods)
+
+    def get_submodel_all_path(self, mods: Modifiers, request: Request, response_t: Type[APIResponse]) -> Response:
+        encoder = ResultPathJsonEncoder(deep=mods.is_deep)
+        paths = itertools.chain.from_iterable(
+            encoder.iter_paths(submodel.submodel_element) for submodel in self._filter_submodels(request)
+        )
+        paginated_paths, paging_metadata = self._get_slice(request, paths)  # slice on IdShortPaths
+        return response_t(list(paginated_paths), paging_metadata=paging_metadata, modifiers=mods)
 
     def post_submodel(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], map_adapter: MapAdapter
