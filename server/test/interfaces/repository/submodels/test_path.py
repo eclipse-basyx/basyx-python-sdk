@@ -350,6 +350,11 @@ class SubmodelElementsPathEndpointsTest(RepositoryEndpointTestBase):
 
     @with_json_client
     def test_submodel_element_path_get_annotated_relationship_element(self, format_client: FormatClient):
+        """
+        The specification is ambiguous here: the content modifier table lists AnnotatedRelationshipElement for
+        ``$path``, but the applicability table doesn't. We assume the applicability table missed the update, so the
+        server returns the paths of the element and its annotations.
+        """
         submodel = self.add_example_submodel()
 
         response = format_client.get(f"{self.elements_path(submodel.id, NESTED_ANNOTATED_REL)}/$path")
@@ -365,6 +370,9 @@ class SubmodelElementsPathEndpointsTest(RepositoryEndpointTestBase):
         $path is defined for Submodel, SubmodelElementCollection, SubmodelElementList, Entity and
         AnnotatedRelationshipElement only. Every other SubmodelElement subtype must
         be rejected by the server with ``400 Bad Request``.
+
+        The specification is ambiguous for leaf elements: the applicability table and its note require ``400``, while
+        an annex example returns ``200`` with the path of the leaf itself. We follow the applicability table.
         """
         submodel = self.add_example_submodel()
 

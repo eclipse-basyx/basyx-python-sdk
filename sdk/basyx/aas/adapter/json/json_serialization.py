@@ -75,7 +75,7 @@ class AASToJsonEncoder(json.JSONEncoder):
                     See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :cvar with_blob_value: If True, objects of type :class:`~basyx.aas.model.submodel.Blob` will be serialized
                            containing their value in base64 encoding. Otherwise, the ``value`` key is omitted.
-                           Default to ``True``.
+                           Defaults to ``True``.
     :param deep: If True (default), all children of the serialized object are included on all sublevels. If False,
                 only the serialized object and its direct children are included, while the children of these are
                 omitted. This corresponds to the serialization level ``core`` of the AAS API specification.
@@ -124,6 +124,13 @@ class AASToJsonEncoder(json.JSONEncoder):
 
     @classmethod
     def _get_aas_class_no_children_serializers(cls) -> Dict[Type, Callable]:
+        """
+        Returns the serialization functions used with ``deep=False`` instead of those of
+        :meth:`_get_aas_class_serializers`. Only classes that contain children have an entry.
+
+        :return: Dict mapping each class with children to the function serializing it without the children of its
+                 children
+        """
         mapping: Dict[Type, Callable] = {
             model.AnnotatedRelationshipElement: cls._annotated_relationship_element_to_json_no_children,
             model.Entity: cls._entity_to_json_no_children,
@@ -135,6 +142,12 @@ class AASToJsonEncoder(json.JSONEncoder):
 
     @classmethod
     def _get_aas_class_children_keys(cls) -> Dict[Type, str]:
+        """
+        Returns the JSON key holding the children of each class that contains children. Used by
+        :meth:`_remove_children` to strip the children of a child element with ``deep=False``.
+
+        :return: Dict mapping each class with children to the JSON key of its children
+        """
         mapping: Dict[Type, str] = {
             model.AnnotatedRelationshipElement: "annotations",
             model.Entity: "statements",

@@ -4,6 +4,10 @@
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
+"""
+Module for serializing Asset Administration Shell objects to the JSON format "Reference" (content modifier
+``$reference``)
+"""
 from typing import Callable, Dict, Type
 
 from basyx.aas import model
@@ -15,11 +19,15 @@ class ReferenceJsonEncoder(AASToJsonEncoder):
     """
     Custom JSONEncoder that serializes :class:`~basyx.aas.model.base.Referable` objects, which are contained
     in an :class:`~basyx.aas.model.base.Identifiable`, as their :class:`~basyx.aas.model.base.ModelReference`.
+
+    Objects that are not Referable (except References and their Keys) have no Reference serialization and raise a
+    :class:`TypeError`.
     """
 
     @classmethod
     def _get_aas_class_serializers(cls) -> Dict[Type, Callable]:
         normal_serializers = super()._get_aas_class_serializers()
+        # Non-Referables are rejected, References and Keys are kept to serialize the resulting ModelReferences
         serializers: Dict[Type, Callable] = {}
         for typ in normal_serializers:
             if not issubclass(typ, model.Referable):

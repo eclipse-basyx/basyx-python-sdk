@@ -4,6 +4,10 @@
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
+"""
+Sort keys for the canonical order of collections that are unordered according to the specification (every
+multi-valued attribute not marked ``<<ordered>>``).
+"""
 from typing import Optional, Tuple
 
 from basyx.aas import model

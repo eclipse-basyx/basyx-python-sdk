@@ -497,6 +497,9 @@ class WSGIApp(ObjectStoreWSGIApp):
         return paginated_submodels, paging_metadata
 
     def _filter_submodels(self, request: Request) -> Iterator[model.Submodel]:
+        """
+        Returns all Submodels matching the ``idShort`` and ``semanticId`` query parameters, without pagination.
+        """
         submodels: Iterator[model.Submodel] = self._get_all_obj_of_type(model.Submodel)
         id_short = request.args.get("idShort")
         if id_short is not None:
@@ -519,6 +522,8 @@ class WSGIApp(ObjectStoreWSGIApp):
     ) -> Tuple[Iterator[model.SubmodelElement], Optional[PagingMetadata]]:
         submodel = self._get_submodel(url_args)
 
+        # Elements without a representation in the requested format are filtered before slicing, so that every page
+        # contains ``limit`` elements
         elements: Iterable[model.SubmodelElement] = iter(submodel.submodel_element)
         if mods.content is Content.VALUE:
             elements = (item for item in elements if not isinstance(item, TYPES_WITHOUT_VALUE_ONLY))
@@ -763,6 +768,7 @@ class WSGIApp(ObjectStoreWSGIApp):
             if isinstance(submodel_element, TYPES_WITHOUT_VALUE_ONLY):
                 raise BadRequest(f"SubmodelElement {url_args['id_shorts']} has no ValueOnly representation!")
         elif mods.content is Content.PATH:
+            # Leaf elements have no Path representation.
             if not isinstance(submodel_element, _PATH_SUPPORTED_TYPES):
                 raise BadRequest(f"SubmodelElement {url_args['id_shorts']} has no Path representation!")
             # The idShortPaths of $path start with the idShort of the requested element, so elements without an

@@ -4,6 +4,10 @@
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
+"""
+Module for serializing Asset Administration Shell objects to the JSON format "ValueOnly" (content modifier
+``$value``)
+"""
 import base64
 import math
 from typing import Callable, Iterable, Union
@@ -13,7 +17,10 @@ from basyx.aas.adapter import _generic, _ordering
 
 from ..json_serialization import AASToJsonEncoder
 
+# SubmodelElements without a ValueOnly representation. They are omitted from their parent and raise a TypeError, if
+# serialized directly.
 TYPES_WITHOUT_VALUE_ONLY = (model.Capability, model.Operation)
+# SubmodelElements whose ValueOnly representation consists only of their children
 CONTAINER_TYPES = (model.SubmodelElementCollection, model.SubmodelElementList)
 
 
@@ -33,6 +40,12 @@ class ValueOnlyJsonEncoder(AASToJsonEncoder):
           in the text, instead of objects with string values only, as defined in the schema.
         * ``globalAssetId`` of an Entity is serialized as string, as defined in the schema and the metamodel, instead
           of a Reference, as shown in the Entity example.
+        * Non-finite ``xs:double`` and ``xs:float`` values (``NaN``, ``INF``, ``-INF``) are serialized as strings in
+          their XSD representation, since JSON numbers cannot represent them.
+
+    SubmodelElements without a value (e.g. a Property whose value is ``None``) are omitted from their parent, as are
+    Operations and Capabilities, which have no ValueOnly representation. Elements of a SubmodelElementList are always
+    kept, so that their indices stay intact.
 
     Like in :class:`~basyx.aas.adapter.json.json_serialization.AASToJsonEncoder`, unordered collections are serialized
     in a canonical order: The JSON objects with idShorts as names are sorted by idShort and the ``specificAssetIds``
@@ -87,6 +100,15 @@ class ValueOnlyJsonEncoder(AASToJsonEncoder):
 
     @classmethod
     def _has_value(cls, obj: model.SubmodelElement) -> bool:
+        """
+        Determines whether a SubmodelElement has a value, so that it is included in the ValueOnly representation of
+        its parent
+
+        :param obj: The SubmodelElement to check
+        :return: ``False`` if the element has no ValueOnly representation or none of its value attributes is set.
+                 SubmodelElementCollections and SubmodelElementLists have a value if any of their children has one,
+                 Entities also if any of their statements has one.
+        """
         if isinstance(obj, TYPES_WITHOUT_VALUE_ONLY):
             return False
         if isinstance(obj, model.Property):
@@ -118,6 +140,8 @@ class ValueOnlyJsonEncoder(AASToJsonEncoder):
     def _submodel_element_list_to_value_only(
             cls, obj: model.SubmodelElementList
     ) -> list[object]:
+        # Unlike the children of other containers, elements without a value are kept, since their index is their
+        # identity within the list
         return [element for element in obj.value]
 
     @classmethod

@@ -47,6 +47,9 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
     Bodies are written once against the format-agnostic ``format_client`` helper.
     For each test two variants are generated where the :class:`~..format_utils.JsonFormatClient` and
     :class:`~..format_utils.XmlFormatClient` are injected respectively.
+
+    The OpenAPI specification only defines ``application/json`` for these routes. Supporting ``application/xml``
+    (including ``$reference``) is a BaSyx Python SDK extension.
     """
 
     # ------------------------------------------------------------------ GET /shells

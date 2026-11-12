@@ -15,6 +15,13 @@ objects and their attributes by converting them into standard python objects.
 object. A function :meth:`~basyx.aas.adapter.json.json_deserialization.read_aas_json_file` is provided to read all
 AAS objects within a JSON file and return them as BaSyx Python SDK
 :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>`.
+
+``formats``: The subpackage offers JSONEncoders for the serialization formats of the AAS API specification (Part 2),
+which are selected with a content modifier:
+:class:`~basyx.aas.adapter.json.formats.metadata_serialization.MetadataJsonEncoder` (``$metadata``),
+:class:`~basyx.aas.adapter.json.formats.value_only_serialization.ValueOnlyJsonEncoder` (``$value``),
+:class:`~basyx.aas.adapter.json.formats.reference_serialization.ReferenceJsonEncoder` (``$reference``) and
+:class:`~basyx.aas.adapter.json.formats.path_serialization.PathJsonEncoder` (``$path``).
 """
 
 from .formats.metadata_serialization import MetadataJsonEncoder

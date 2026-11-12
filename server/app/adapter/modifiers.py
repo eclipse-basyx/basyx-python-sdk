@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: MIT
 """
-Central parsing and validation of serialization modifiers
+Central parsing and validation of serialization modifiers.
 """
 
 from dataclasses import dataclass
@@ -19,6 +19,10 @@ __all__ = ["Content", "Modifiers", "parse_modifiers"]
 
 
 class Content(str, Enum):
+    """
+    Serialization format selected by the content modifier. ``NORMAL`` is used, if the URL has no ``$<content>`` suffix.
+    """
+
     NORMAL = "normal"
     METADATA = "metadata"
     VALUE = "value"
@@ -28,6 +32,14 @@ class Content(str, Enum):
 
 @dataclass(frozen=True)
 class Modifiers:
+    """
+    The serialization modifiers of a request
+
+    :ivar content: The requested serialization format
+    :ivar is_deep: ``True`` for ``level=deep`` (default), ``False`` for ``level=core``
+    :ivar is_with_blob: ``True`` for ``extent=WithBLOBValue``, ``False`` for ``extent=WithoutBLOBValue`` (default)
+    """
+
     content: Content
     is_deep: bool
     is_with_blob: bool

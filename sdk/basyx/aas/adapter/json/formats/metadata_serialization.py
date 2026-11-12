@@ -4,6 +4,10 @@
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
+"""
+Module for serializing Asset Administration Shell objects to the JSON format "Metadata" (content modifier
+``$metadata``)
+"""
 from typing import Callable, Dict, Type
 
 from basyx.aas import model
@@ -14,12 +18,17 @@ from ..json_serialization import AASToJsonEncoder
 class MetadataJsonEncoder(AASToJsonEncoder):
     """
     Custom JSONEncoder that serializes BaSyx Python SDK objects into the JSON format "Metadata". This equals
-    the normal serialization format but omits certain keys.
+    the normal serialization format but omits certain keys holding the values, leaving only the metadata of the object.
+
+    Objects without a Metadata serialization (AssetInformation, Resource, SpecificAssetId, ConceptDescription) raise
+    a :class:`TypeError`.
     """
 
     @classmethod
     def _get_aas_class_serializers(cls) -> Dict[Type, Callable]:
         mapping = super()._get_aas_class_serializers()
+
+        # Without a serializer, the encoder raises a TypeError for these objects
 
         mapping.pop(model.AssetInformation, None)
         mapping.pop(model.Resource, None)

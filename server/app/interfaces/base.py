@@ -126,7 +126,11 @@ class APIResponse(abc.ABC, Response):
     @classmethod
     @abc.abstractmethod
     def assert_supports_modifiers(cls, mods: Modifiers) -> None:
-        pass
+        """
+        Ensures the response format supports the requested serialization modifiers. Can be used to fast-fail on
+        unsupported combinations of modifiers, even before object, retrieval.
+        """
+
 
 class JsonResponse(APIResponse):
     def __init__(self, *args, content_type="application/json", **kwargs):
@@ -134,6 +138,7 @@ class JsonResponse(APIResponse):
 
     @classmethod
     def assert_supports_modifiers(cls, mods: Modifiers) -> None:
+        # JSON supports all serialization formats and modifiers
         return
 
     def serialize(
@@ -142,7 +147,6 @@ class JsonResponse(APIResponse):
         paging_metadata: Optional[PagingMetadata],
         modifiers: Optional[Modifiers]
     ) -> str:
-        # TODO: stripped is still handled here, needs to be replaced see #650
         if modifiers is not None:
             encoder_cls, encoder_kwargs = pick_encoder(modifiers)
         else:
@@ -161,6 +165,10 @@ class XmlResponse(APIResponse):
 
     @classmethod
     def assert_supports_modifiers(cls, mods: Modifiers) -> None:
+        """
+        XML only supports the Normal and Reference serialization, Normal requires ``extent=WithBLOBValue`` and
+        ``level=deep``. Supporting XML is a BaSyx Python SDK extension, as the specification only defines JSON.
+        """
         if mods.content is Content.REFERENCE:
             return
         if mods.content is not Content.NORMAL:
@@ -191,6 +199,7 @@ class XmlResponse(APIResponse):
             for child in result_elem:
                 root_elem.append(child)
         elif isinstance(obj, list) or isinstance(obj, SubmodelElementsWrapper):
+            # There is no Reference encoder for XML, so Referables are converted to their ModelReference beforehand
             if modifiers is not None and modifiers.content is Content.REFERENCE:
                 obj = [model.ModelReference.from_referable(item) for item in obj if isinstance(item, model.Referable)]
             for item in obj:
@@ -317,6 +326,10 @@ class ResultReferenceJsonEncoder(ResultJsonMixin, ReferenceJsonEncoder):
 
 
 class ResultValueOnlyJsonEncoder(ResultJsonMixin, ValueOnlyJsonEncoder):
+    """
+    ValueOnly serialization. A ``.../submodel-elements`` listing is serialized as one ValueOnly object with the
+    idShorts as names, like the ValueOnly representation of a Submodel (``GetSubmodelElementsValueResult``).
+    """
 
     @override
     def _submodel_elements_wrapper_to_json(self, obj: SubmodelElementsWrapper) -> object:
@@ -626,6 +639,11 @@ class HTTPApiDecoder:
 
 
 def is_stripped_request(request: Request) -> bool:
+    """
+    Determines whether a request body is to be parsed as stripped object (``level=core``). Only used for parsing
+    request bodies, responses are serialized according to :func:`~app.adapter.modifiers.parse_modifiers`.
+    """
+    # TODO: replace by parse_modifiers, see #650
     level = request.args.get("level")
     if level not in {"deep", "core", None}:
         raise BadRequest(f"Level {level} is not a valid level!")

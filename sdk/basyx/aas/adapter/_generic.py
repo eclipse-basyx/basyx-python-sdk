@@ -17,9 +17,10 @@ from basyx.aas import model
 
 def serializable_id_short(obj: model.Referable) -> Optional[str]:
     """
-    Get the idShort of a :class:`~basyx.aas.model.base.Referable` as it is to be serialized, hides the internal
-    ``generated_submodel_list_hack_*` idShort of elements in `:class:`~basyx.aas.model.submodel.SubmodelElementList`.
-    For these, ``None`` is returned, while valid idShorts are returned as they are.
+    Get the idShort of a :class:`~basyx.aas.model.base.Referable` as it is to be serialized. This hides the internal
+    idShort (prefixed with :attr:`~basyx.aas.model.submodel.SubmodelElementList.GENERATED_ID_SHORT_PREFIX`), which
+    the SDK generates for elements of a :class:`~basyx.aas.model.submodel.SubmodelElementList` added without an
+    idShort. For these, ``None`` is returned, while all other idShorts are returned as they are.
 
     :param obj: The Referable to get the idShort of
     :return: The idShort to serialize or ``None``, if no idShort is to be serialized

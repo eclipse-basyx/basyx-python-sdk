@@ -4,6 +4,9 @@
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
+"""
+Module for serializing Asset Administration Shell objects to the JSON format "Path" (content modifier ``$path``)
+"""
 
 from typing import Iterable, List, Tuple, cast
 
@@ -38,6 +41,9 @@ class PathJsonEncoder(AASToJsonEncoder):
     :param deep: If True (default), all descendants on all sublevels are included. If False, only
                  the requested element and its direct children are included. Compare to
                  SerializationModifier level.
+    :raises TypeError: If the object is of an unsupported type
+    :raises ValueError: If the object has no idShort (e.g. an element of a SubmodelElementList), so no idShortPath
+                        can be computed for it
     """
 
     def __init__(self, *args, deep: bool = True, **kwargs):
