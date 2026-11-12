@@ -115,25 +115,35 @@ The server can also be run directly on the host system without Docker, NGINX and
 
 The server can be accessed at http://localhost:8080/api/v3.1/ from your host system. 
 
+## Serialization Modifiers
+All serialization modifiers of the specification are implemented for the Submodel Repository routes (`$reference`
+also for the Asset Administration Shell Repository routes):
+
+- Content (`$metadata`, `$value`, `$reference`, `$path`)
+- Level (`?level=deep`, `?level=core`)
+- Extent (`?extent=WithBLOBValue`, `?extent=WithoutBLOBValue`)
+
+All combinations are supported with `Accept: application/json`. With `Accept: application/xml`, the server supports
+the Normal serialization with `?extent=WithBLOBValue` and `?level=deep` (the default), as well as `$reference`. All
+other combinations are rejected with `406 Not Acceptable`. Note that the specification only defines JSON for these
+routes, so XML support is an extension of this server.
+
 ## Currently Unimplemented
 Several features and routes are currently not supported:
 
 1. Correlation ID: Not implemented because it was deemed unnecessary for this server.
 
-2. Extent Parameter (`withBlobValue/withoutBlobValue`):
-   Not implemented due to the lack of support in JSON/XML serialization.
+2. Route `/shells/{aasIdentifier}/asset-information/thumbnail`: Not implemented because the specification lacks clarity.
 
-3. Route `/shells/{aasIdentifier}/asset-information/thumbnail`: Not implemented because the specification lacks clarity.
-
-4. Serialization and Description Routes:
+3. Serialization and Description Routes:
    - `/serialization`
    - `/description`
    These routes are not implemented at this time.
 
-5. Path and PATCH Routes:
-   - All `/…/$path` and `PATCH` routes are currently not implemented.
+4. PATCH Routes:
+   - All `PATCH` routes, including `/…/$metadata` and `/…/$value`, are currently not implemented.
 
-6. Operation Invocation Routes: The following routes are not implemented because operation invocation
+5. Operation Invocation Routes: The following routes are not implemented because operation invocation
    is not yet supported by the `basyx-python-sdk`:
    - `POST /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke`
    - `POST /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke/$value`
