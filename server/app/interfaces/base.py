@@ -10,7 +10,7 @@ import enum
 import io
 import itertools
 import json
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Type, TypeVar, Union, override
+from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Type, TypeVar, Union
 
 import werkzeug.exceptions
 import werkzeug.routing
@@ -331,7 +331,6 @@ class ResultValueOnlyJsonEncoder(ResultJsonMixin, ValueOnlyJsonEncoder):
     idShorts as names, like the ValueOnly representation of a Submodel (``GetSubmodelElementsValueResult``).
     """
 
-    @override
     def _submodel_elements_wrapper_to_json(self, obj: SubmodelElementsWrapper) -> object:
         return self._submodel_element_iterable_to_value_only(obj)
 
