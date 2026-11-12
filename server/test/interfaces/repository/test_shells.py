@@ -73,6 +73,15 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
 
         self.assertEqual([1, 1], [len(page) for page in pages])
 
+    @with_json_client
+    @with_xml_client
+    def test_shells_get_rejects_level(self, format_client: FormatClient):
+        self.object_store.update(self.two_shells_store())
+
+        response = format_client.get("/shells?level=core")
+
+        self.assert_error(response, 400)
+
     # ------------------------------------------------------------------ GET /shells?idShort=...&assetIds=...
 
     @staticmethod
@@ -394,6 +403,16 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
 
         self.assert_error(response, 404)
 
+    @with_json_client
+    @with_xml_client
+    def test_shell_get_rejects_level(self, format_client: FormatClient):
+        example_shell = create_example_asset_administration_shell()
+        self.object_store.add(example_shell)
+
+        response = format_client.get(f"/shells/{base64url_encode(example_shell.id)}?level=core")
+
+        self.assert_error(response, 400)
+
     # ------------------------------------------------------------------ GET /shells/<aas_id>/$reference
 
     @with_json_client
@@ -502,6 +521,16 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
             format_client.field(format_client.parse_object(response), "globalAssetId"),
         )
 
+    @with_json_client
+    @with_xml_client
+    def test_shell_asset_information_get_rejects_level(self, format_client: FormatClient):
+        example_shell = create_example_asset_administration_shell()
+        self.object_store.add(example_shell)
+
+        response = format_client.get(f"/shells/{base64url_encode(example_shell.id)}/asset-information?level=core")
+
+        self.assert_error(response, 400)
+
     # ------------------------------------------------------------------ PUT /shells/<aas_id>/asset-information
 
     @with_json_client
@@ -561,6 +590,16 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
         )
 
         self.assertEqual([1, 1], [len(page) for page in pages])
+
+    @with_json_client
+    @with_xml_client
+    def test_shell_submodel_refs_get_rejects_level(self, format_client: FormatClient):
+        example_shell = create_example_asset_administration_shell()
+        self.object_store.add(example_shell)
+
+        response = format_client.get(f"/shells/{base64url_encode(example_shell.id)}/submodel-refs?level=core")
+
+        self.assert_error(response, 400)
 
     # ------------------------------------------------------------------ POST /shells/<aas_id>/submodel-refs
 

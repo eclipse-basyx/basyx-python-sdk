@@ -550,6 +550,9 @@ class WSGIApp(ObjectStoreWSGIApp):
 
     # ------ AAS REPO ROUTES -------
     def get_aas_all(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
+        mods = parse_modifiers(request)
+        if not mods.is_deep:
+            raise BadRequest("Parameter 'level=core' is not allowed for AssetAdministrationShells.")
         aashells, paging_metadata = self._get_shells(request)
         return response_t(list(aashells), paging_metadata=paging_metadata)
 
@@ -574,6 +577,9 @@ class WSGIApp(ObjectStoreWSGIApp):
 
     # --------- AAS ROUTES ---------
     def get_aas(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
+        mods = parse_modifiers(request)
+        if not mods.is_deep:
+            raise BadRequest("Parameter 'level=core' is not allowed for AssetAdministrationShells.")
         aas = self._get_shell(url_args)
         return response_t(aas)
 
@@ -599,6 +605,9 @@ class WSGIApp(ObjectStoreWSGIApp):
     def get_aas_asset_information(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
+        mods = parse_modifiers(request)
+        if not mods.is_deep:
+            raise BadRequest("Parameter 'level=core' is not allowed for AssetInformation.")
         aas = self._get_shell(url_args)
         return response_t(aas.asset_information)
 
@@ -613,6 +622,9 @@ class WSGIApp(ObjectStoreWSGIApp):
     def get_aas_submodel_refs(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
+        mods = parse_modifiers(request)
+        if not mods.is_deep:
+            raise BadRequest("Parameter 'level=core' is not allowed for Submodel References.")
         aas = self._get_shell(url_args)
         submodel_refs: Iterator[model.ModelReference[model.Submodel]]
         sorted_submodel_refs = sorted(aas.submodel, key=lambda ref: ref.key[0].value)
@@ -981,6 +993,9 @@ class WSGIApp(ObjectStoreWSGIApp):
     def get_concept_description_all(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
+        mods = parse_modifiers(request)
+        if not mods.is_deep:
+            raise BadRequest("Parameter 'level=core' is not allowed for ConceptDescriptions.")
         concept_descriptions: Iterator[model.ConceptDescription] = self._get_all_obj_of_type(model.ConceptDescription)
         concept_descriptions, paging_metadata = self._get_slice(request, concept_descriptions)
         return response_t(list(concept_descriptions), paging_metadata=paging_metadata)
@@ -1003,6 +1018,9 @@ class WSGIApp(ObjectStoreWSGIApp):
     def get_concept_description(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
+        mods = parse_modifiers(request)
+        if not mods.is_deep:
+            raise BadRequest("Parameter 'level=core' is not allowed for ConceptDescriptions.")
         concept_description = self._get_concept_description(url_args)
         return response_t(concept_description)
 
