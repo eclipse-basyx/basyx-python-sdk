@@ -19,6 +19,7 @@ unit tests and is not re-asserted here.
 
 from app.util.converters import base64url_encode
 from basyx.aas import model
+from basyx.aas.examples.data import example_aas
 from basyx.aas.examples.data.example_aas import create_example_bill_of_material_submodel
 from basyx.aas.examples.data.example_aas_missing_attributes import create_example_submodel
 
@@ -46,40 +47,43 @@ class SubmodelsPathEndpointsTest(RepositoryEndpointTestBase):
     with ``406 Not Acceptable``.
     """
 
-    SECOND_ID = "https://example.org/Test_Submodel_Second"
+    # 14 idShortPaths of the example submodel + 4 of the bill of material submodel
+    TWO_SUBMODELS_PATH_COUNT = 18
 
     def two_submodels_store(self) -> model.DictIdentifiableStore:
         store: model.DictIdentifiableStore = model.DictIdentifiableStore()
         store.add(create_example_submodel())
-        second = create_example_submodel()
-        second.id = self.SECOND_ID
-        second.id_short = "SecondSubmodel"
-        store.add(second)
+        store.add(create_example_bill_of_material_submodel())
         return store
 
     # ------------------------------------------------------------------ GET /submodels/$path
 
-    # TODO: Determine list behaviour
     @with_json_client
     def test_submodels_path_get(self, format_client: FormatClient):
+        """``result`` is a flat list of idShortPath strings of all Submodels (``GetPathItemsResult``)."""
         self.object_store.update(self.two_submodels_store())
 
         response = format_client.get("/submodels/$path")
 
         self.assert_ok(response)
-        collection = format_client.parse_collection(response)
-        self.assertEqual(2, len(collection))
-        for paths in collection:
-            self.assertIsInstance(paths, list)
+        paths = format_client.parse_collection(response)
+        self.assertEqual(self.TWO_SUBMODELS_PATH_COUNT, len(paths))
+        for path in paths:
+            self.assertIsInstance(path, str)
+        self.assertIn("ExampleSubmodelCollection.ExampleBlob", paths)
+        self.assertIn("ExampleEntity.ExampleProperty", paths)
 
-    # TODO: Determine list behaviour
     @with_json_client
     def test_submodels_path_get_supports_pagination(self, format_client: FormatClient):
+        """``limit`` counts idShortPath strings, not Submodels."""
         self.object_store.update(self.two_submodels_store())
 
-        pages = format_client.get_paginated("/submodels/$path", limit=1, max_pages=2)
+        pages = format_client.get_paginated("/submodels/$path", limit=5, max_pages=4)
 
-        self.assertEqual([1, 1], [len(page) for page in pages])
+        self.assertEqual([5, 5, 5, 3], [len(page) for page in pages])
+        for page in pages:
+            for path in page:
+                self.assertIsInstance(path, str)
 
     def test_submodels_path_get_rejects_invalid_level(self):
         self.object_store.add(create_example_submodel())
@@ -88,12 +92,12 @@ class SubmodelsPathEndpointsTest(RepositoryEndpointTestBase):
 
         self.assert_error(response, 400)
 
-    def test_submodels_path_get_extent_not_implemented(self):
+    def test_submodels_path_get_rejects_extent(self):
         self.object_store.add(create_example_submodel())
 
         response = self.client.get("/submodels/$path?extent=withBlobValue")
 
-        self.assert_error(response, 501)
+        self.assert_error(response, 400)
 
     @with_xml_client
     def test_submodels_path_get_xml_not_acceptable(self, format_client: FormatClient):
@@ -139,7 +143,7 @@ class SubmodelsPathEndpointsTest(RepositoryEndpointTestBase):
 
         self.assert_error(response, 400)
 
-    def test_submodel_path_get_extent_not_implemented(self):
+    def test_submodel_path_get_rejects_extent(self):
         example_submodel = create_example_submodel()
         self.object_store.add(example_submodel)
 
@@ -147,7 +151,7 @@ class SubmodelsPathEndpointsTest(RepositoryEndpointTestBase):
             f"/submodels/{base64url_encode(example_submodel.id)}/$path?extent=withBlobValue"
         )
 
-        self.assert_error(response, 501)
+        self.assert_error(response, 400)
 
     def test_submodel_path_get_not_found(self):
         response = self.client.get(
@@ -172,7 +176,8 @@ class SubmodelElementsPathEndpointsTest(RepositoryEndpointTestBase):
     Endpoint tests for the ``$path`` modifier on the ``submodel-elements`` subtree.
     """
 
-    TOP_LEVEL_COUNT = 6
+    # 6 top-level elements + 2 annotations + 6 collection children of the example submodel
+    EXAMPLE_SUBMODEL_PATH_COUNT = 14
 
     def add_example_submodel(self) -> model.Submodel:
         submodel = create_example_submodel()
@@ -191,29 +196,29 @@ class SubmodelElementsPathEndpointsTest(RepositoryEndpointTestBase):
 
     # ------------------------------------------------------------------ GET .../submodel-elements/$path
 
-    # TODO: Determine list behaviour
     @with_json_client
     def test_submodel_elements_path_get(self, format_client: FormatClient):
+        """``result`` is a flat list of idShortPath strings (``GetPathItemsResult``)."""
         submodel = self.add_example_submodel()
 
         response = format_client.get(f"{self.elements_path(submodel.id)}/$path")
 
         self.assert_ok(response)
-        collection = format_client.parse_collection(response)
-        # One path-list per top-level submodel element
-        self.assertEqual(self.TOP_LEVEL_COUNT, len(collection))
-        for paths in collection:
-            self.assertIsInstance(paths, list)
-            self.assertGreaterEqual(len(paths), 1)
+        paths = format_client.parse_collection(response)
+        self.assertEqual(self.EXAMPLE_SUBMODEL_PATH_COUNT, len(paths))
+        for path in paths:
+            self.assertIsInstance(path, str)
+        self.assertIn(NESTED_COLLECTION, paths)
+        self.assertIn(NESTED_PROPERTY, paths)
 
-    # TODO: Determine list behaviour
     @with_json_client
     def test_submodel_elements_path_get_supports_pagination(self, format_client: FormatClient):
+        """``limit`` counts idShortPath strings, not top-level SubmodelElements."""
         submodel = self.add_example_submodel()
 
-        pages = format_client.get_paginated(f"{self.elements_path(submodel.id)}/$path", limit=3, max_pages=2)
+        pages = format_client.get_paginated(f"{self.elements_path(submodel.id)}/$path", limit=3, max_pages=5)
 
-        self.assertEqual([3, 3], [len(page) for page in pages])
+        self.assertEqual([3, 3, 3, 3, 2], [len(page) for page in pages])
 
     def test_submodel_elements_path_get_rejects_invalid_level(self):
         submodel = self.add_example_submodel()
@@ -222,12 +227,12 @@ class SubmodelElementsPathEndpointsTest(RepositoryEndpointTestBase):
 
         self.assert_error(response, 400)
 
-    def test_submodel_elements_path_get_extent_not_implemented(self):
+    def test_submodel_elements_path_get_rejects_extent(self):
         submodel = self.add_example_submodel()
 
         response = self.client.get(f"{self.elements_path(submodel.id)}/$path?extent=withBlobValue")
 
-        self.assert_error(response, 501)
+        self.assert_error(response, 400)
 
     @with_xml_client
     def test_submodel_elements_path_get_xml_not_acceptable(self, format_client: FormatClient):
@@ -252,15 +257,19 @@ class SubmodelElementsPathEndpointsTest(RepositoryEndpointTestBase):
 
     @with_json_client
     def test_submodel_element_path_get_list_uses_index_notation(self, format_client: FormatClient):
-        """SML children are addressed by ``[<index>]"""
-        submodel = self.add_example_submodel()
+        """
+        SML children are addressed by ``[<index>]``. Every idShortPath starts with the idShort of the requested
+        element, not with the top-level element of the Submodel (IDTA-01001, Format "Path").
+        """
+        # Only the full example submodel contains a SubmodelElementList
+        submodel = example_aas.create_example_submodel()
+        self.object_store.add(submodel)
 
         response = format_client.get(f"{self.elements_path(submodel.id, NESTED_LIST)}/$path")
 
         self.assert_ok(response)
         paths = format_client.parse_object(response)
-        self.assertIn(NESTED_LIST, paths)
-        self.assertIn(f"{NESTED_LIST}[0]", paths)
+        self.assertEqual(["ExampleSubmodelList", "ExampleSubmodelList[0]", "ExampleSubmodelList[1]"], paths)
 
     @with_json_client
     def test_submodel_element_path_get_entity(self, format_client: FormatClient):
