@@ -32,6 +32,13 @@ from ..helpers import RepositoryEndpointTestBase
 # idShorts of top-level submodel elements of ``create_example_submodel()`` without a ValueOnly
 # representation: they must not appear in a ``$value`` response.
 VALUE_LESS_ID_SHORTS = ("ExampleOperation", "ExampleCapability")
+# idShorts of the top-level submodel elements of ``create_example_submodel()`` with a ValueOnly representation.
+VALUE_ID_SHORTS = {
+    "ExampleAnnotatedRelationshipElement",
+    "ExampleBasicEventElement",
+    "ExampleRelationshipElement",
+    "ExampleSubmodelCollection",
+}
 
 NESTED_COLLECTION = "ExampleSubmodelCollection"
 NESTED_PROPERTY = "ExampleSubmodelCollection.ExampleProperty"
@@ -201,32 +208,33 @@ class SubmodelElementsValueEndpointsTest(ValueEndpointTestBase):
 
     # ------------------------------------------------------------------ GET .../submodel-elements/$value
 
-    # TODO: Determine list behaviour
     @with_json_client
     def test_submodel_elements_value_get(self, format_client: FormatClient):
+        """
+        ``result`` is one ``SubmodelValue`` object with the idShorts as names (``GetSubmodelElementsValueResult``).
+        Elements without a ValueOnly representation (Operation, Capability) are omitted.
+        """
         submodel = self.add_example_submodel()
 
         response = format_client.get(f"{self.elements_path(submodel.id)}/$value")
 
         self.assert_ok(response)
-        # Spot-check: elements that lack a ValueOnly representation (Operation, Capability) are
-        # omitted from the collection response.
-        values = format_client.parse_collection(response)
-        emitted = {id_short for value in values for id_short in value}
-        for id_short in VALUE_LESS_ID_SHORTS:
-            self.assertNotIn(id_short, emitted)
+        result = format_client.parse_object(response)["result"]
+        self.assertIsInstance(result, dict)
+        self.assertEqual(VALUE_ID_SHORTS, set(result))
 
-    # TODO: Determine list behaviour
     @with_json_client
     def test_submodel_elements_value_get_supports_pagination(self, format_client: FormatClient):
+        """
+        ``limit`` counts SubmodelElements with a ValueOnly representation. Each page is one ``SubmodelValue`` object,
+        whose names are returned by ``parse_collection``.
+        """
         submodel = self.add_example_submodel()
 
         pages = format_client.get_paginated(f"{self.elements_path(submodel.id)}/$value", limit=3, max_pages=2)
 
-        # Value-less elements are omitted from every page.
-        emitted = {id_short for page in pages for value in page for id_short in value}
-        for id_short in VALUE_LESS_ID_SHORTS:
-            self.assertNotIn(id_short, emitted)
+        self.assertEqual([3, 1], [len(page) for page in pages])
+        self.assertEqual(VALUE_ID_SHORTS, {id_short for page in pages for id_short in page})
 
     @with_json_client
     def test_submodel_elements_value_get_level_handling(self, format_client: FormatClient):
