@@ -786,10 +786,9 @@ class WSGIApp(ObjectStoreWSGIApp):
             )
         self.object_store.commit(self._get_submodel(url_args))
         submodel = self._get_submodel(url_args)
-        id_short_path = url_args.get("id_shorts", [])
         created_resource_url = map_adapter.build(
             self.get_submodel_submodel_elements_id_short_path,
-            {"submodel_id": submodel.id, "id_shorts": id_short_path + [new_submodel_element.id_short]},
+            {"submodel_id": submodel.id, "id_shorts": new_submodel_element.get_id_short_path_as_a_list()},
             force_external=True,
         )
         return response_t(new_submodel_element, status=201, headers={"Location": created_resource_url})

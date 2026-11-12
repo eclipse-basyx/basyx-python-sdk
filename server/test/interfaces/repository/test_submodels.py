@@ -487,6 +487,31 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
 
         self.assert_error(response, 409)
 
+    @with_json_client
+    @with_xml_client
+    def test_submodel_element_post_into_list_location_uses_index(self, format_client: FormatClient):
+        """
+        Elements of a SubmodelElementList are addressed by their index. The internal idShort the SDK generates for
+        list elements without an idShort must not leak into the ``Location`` header.
+        """
+        sml = model.SubmodelElementList(
+            "ExampleList",
+            model.Property,
+            value_type_list_element=model.datatypes.String,
+            value=[model.Property(None, model.datatypes.String, "existing")],
+        )
+        submodel = model.Submodel("https://example.org/Test_Submodel_List", submodel_element=[sml])
+        self.object_store.add(submodel)
+        new_element = model.Property(None, model.datatypes.String, "added")
+
+        response = format_client.post(self.elements_path(submodel.id, "ExampleList"), obj=new_element)
+
+        self.assertEqual(201, response.status_code)
+        self.assertNotIn(model.SubmodelElementList.GENERATED_ID_SHORT_PREFIX, response.headers["Location"])
+        created = format_client.get(f"{response.headers['Location']}?extent=WithBLOBValue")
+        self.assert_ok(created)
+        self.assertEqual("added", format_client.field(format_client.parse_object(created), "value"))
+
     def test_submodel_element_post_into_non_namespace_returns_400(self):
         submodel = self.add_example_submodel()
         payload = json.dumps(

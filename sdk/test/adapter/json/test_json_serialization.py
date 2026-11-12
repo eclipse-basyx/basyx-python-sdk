@@ -15,7 +15,6 @@ from basyx.aas.adapter.json import (
     AASToJsonEncoder,
     StrippedAASToJsonEncoder,
     object_store_to_json,
-    read_aas_json_file,
     write_aas_json_file,
 )
 from basyx.aas.examples.data import (
@@ -90,6 +89,27 @@ class JsonSerializationTest(unittest.TestCase):
         data = json.loads(json.dumps(entity, cls=AASToJsonEncoder))
         self.assertEqual(1, len(data["specificAssetIds"]))
         self.assertEqual("test_name", data["specificAssetIds"][0]["name"])
+
+    def test_submodel_list_elements_idShort_ok(self) -> None:
+        """Verify, that adding SE to a SML does not mess with their idShorts in any serialization"""
+        prop1 = model.Property(id_short=None, value_type=model.datatypes.String, value="WithoutIdShort")
+        prop2 = model.Property(id_short="exampleIdShort", value_type=model.datatypes.String, value="WithIdShort")
+        sml = model.SubmodelElementList(
+            id_short="exampleList",
+            type_value_list_element=model.Property,
+            value_type_list_element=model.datatypes.String,
+            value=[prop1, prop2],
+        )
+
+        data1 = json.loads(json.dumps(prop1, cls=AASToJsonEncoder))
+        data2 = json.loads(json.dumps(prop2, cls=AASToJsonEncoder))
+        data_sml = json.loads(json.dumps(sml, cls=AASToJsonEncoder))
+
+        self.assertNotIn("idShort", data1)
+        self.assertEqual("exampleIdShort", data2["idShort"])
+
+        self.assertNotIn("idShort", data_sml["value"][0].keys())
+        self.assertEqual("exampleIdShort", data_sml["value"][1]["idShort"])
 
 
 class JsonSerializationSchemaTest(unittest.TestCase):

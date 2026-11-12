@@ -84,6 +84,23 @@ class TestMetadataJsonEncoder(unittest.TestCase):
         # List-level metadata (type/semantics of elements) must be retained
         self.assertIn("typeValueListElement", parsed_output)
 
+    def test_submodel_element_list_elements_idShort_ok(self) -> None:
+        """Verify, that adding SE to a SML does not mess with the idShorts"""
+        prop1 = model.Property(id_short=None, value_type=model.datatypes.String, value="WithoutIdShort")
+        prop2 = model.Property(id_short="exampleIdShort", value_type=model.datatypes.String, value="WithIdShort")
+        model.SubmodelElementList(
+            id_short="exampleList",
+            type_value_list_element=model.Property,
+            value_type_list_element=model.datatypes.String,
+            value=[prop1, prop2],
+        )
+
+        data1 = json.loads(json.dumps(prop1, cls=MetadataJsonEncoder))
+        data2 = json.loads(json.dumps(prop2, cls=MetadataJsonEncoder))
+
+        self.assertNotIn("idShort", data1)
+        self.assertEqual("exampleIdShort", data2["idShort"])
+
     # ----- Entity: drops statements, globalAssetId, specificAssetId
     def test_entity_drops_statements_and_asset_identifiers_ok(self):
         submodel = example_aas.create_example_bill_of_material_submodel()

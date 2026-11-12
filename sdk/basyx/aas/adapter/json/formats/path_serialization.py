@@ -5,10 +5,10 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Iterable, List, Tuple
+from typing import Iterable, List, Tuple, cast
 
 from basyx.aas import model
-from basyx.aas.adapter import _ordering
+from basyx.aas.adapter import _generic, _ordering
 
 from ..json_serialization import AASToJsonEncoder
 
@@ -46,7 +46,7 @@ class PathJsonEncoder(AASToJsonEncoder):
 
     def default(self, obj: object) -> object:
         if isinstance(obj, _PATH_SUPPORTED_TYPES):
-            return self._referable_to_path(obj)
+            return self._referable_to_path(cast(model.Referable, obj))
         raise TypeError(
             f"Object of type {type(obj).__name__} has no $path representation; "
             f"supported types are: {', '.join(t.__name__ for t in _PATH_SUPPORTED_TYPES)}."
@@ -60,9 +60,10 @@ class PathJsonEncoder(AASToJsonEncoder):
             return paths
         # For the remaining supported types the idShort of the requested element is the root of
         # every returned idShortPath. If it is missing, no path can be computed from this element.
-        if obj.id_short is None:
+        id_short = _generic.serializable_id_short(obj)
+        if id_short is None:
             raise ValueError(f"{obj!r} has no idShort, so no idShortPath can be computed for it!")
-        prefix = [obj.id_short]
+        prefix = [id_short]
         paths = [model.Referable.build_id_short_path(prefix)]
         if isinstance(obj, model.SubmodelElementList):
             self._append_indexed_children(paths, obj.value, prefix)

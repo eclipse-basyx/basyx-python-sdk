@@ -93,6 +93,14 @@ class TestPathJsonEncoder(unittest.TestCase):
 
         self.assertEqual([], parsed_output)
 
+    def test_submodel_element_collection_without_id_short_fail(self):
+        smc = model.SubmodelElementCollection(None, value=[
+            model.Property("example", value_type=model.datatypes.String, value="Test")
+        ])
+
+        with self.assertRaises(ValueError):
+            json.dumps(smc, cls=PathJsonEncoder)
+
     def test_submodel_element_collection_deep_ok(self):
         smc = self.submodel.get_referable("ExampleSubmodelCollection")
 
@@ -169,6 +177,34 @@ class TestPathJsonEncoder(unittest.TestCase):
         parsed_output = json.loads(out_str)
 
         self.assertEqual(["ExampleSubmodelList2"], parsed_output)
+
+    def test_submodel_element_list_elements_without_id_short_fail(self):
+        smc = model.SubmodelElementCollection(
+            None, value=[model.Property("example", value_type=model.datatypes.String, value="Test")]
+        )
+        model.SubmodelElementList(
+            "ExampleSubmodelList",
+            type_value_list_element=model.SubmodelElementCollection,
+            value=[smc],
+        )
+
+        with self.assertRaises(ValueError):
+            json.dumps(smc, cls=PathJsonEncoder)
+
+    def test_submodel_element_list_elements_with_id_short_ok(self):
+        smc = model.SubmodelElementCollection(
+            "ExampleCollection", value=[model.Property("example", value_type=model.datatypes.String, value="Test")]
+        )
+        model.SubmodelElementList(
+            "ExampleSubmodelList",
+            type_value_list_element=model.SubmodelElementCollection,
+            value=[smc],
+        )
+
+        out_str = json.dumps(smc, cls=PathJsonEncoder)
+        parsed_output = json.loads(out_str)
+
+        self.assertEqual(["ExampleCollection", "ExampleCollection.example"], parsed_output)
 
     def test_entity_ok(self):
         submodel = example_aas.create_example_bill_of_material_submodel()

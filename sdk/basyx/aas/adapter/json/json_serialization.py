@@ -183,8 +183,9 @@ class AASToJsonEncoder(json.JSONEncoder):
                     )
                 ) from e
             data["modelType"] = ref_type.__name__
-            if obj.id_short and not isinstance(obj.parent, model.SubmodelElementList):
-                data["idShort"] = obj.id_short
+            id_short = _generic.serializable_id_short(obj)
+            if id_short:
+                data["idShort"] = id_short
             if obj.display_name:
                 data["displayName"] = obj.display_name
             if obj.category:

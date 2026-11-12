@@ -9,7 +9,7 @@ import math
 from typing import Callable, Iterable, Union
 
 from basyx.aas import model
-from basyx.aas.adapter import _ordering, _generic
+from basyx.aas.adapter import _generic, _ordering
 
 from ..json_serialization import AASToJsonEncoder
 
