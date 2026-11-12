@@ -60,25 +60,6 @@ class ValueEndpointTestBase(RepositoryEndpointTestBase):
         with self.subTest(level="core"):
             self.assert_ok(format_client.get(f"{path}?level=core"))
 
-    def assert_extent_toggles_blob_value(
-        self, format_client: FormatClient, path: str, locate_blob,
-    ) -> None:
-        """
-        Value supports both extent variants
-        """
-        with self.subTest(extent="WithBLOBValue"):
-            response = format_client.get(f"{path}?extent=WithBLOBValue")
-            self.assert_ok(response)
-            blob = locate_blob(format_client.parse_object(response))
-            self.assertIn("value", blob)
-
-        for omit_query in ("?extent=WithoutBLOBValue", ""):
-            with self.subTest(extent=omit_query or "default"):
-                response = format_client.get(f"{path}{omit_query}")
-                self.assert_ok(response)
-                blob = locate_blob(format_client.parse_object(response))
-                self.assertNotIn("value", blob)
-
 
 @inject_format_clients
 class SubmodelsValueEndpointsTest(ValueEndpointTestBase):

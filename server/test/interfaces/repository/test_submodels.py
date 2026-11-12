@@ -12,6 +12,7 @@ from unittest import mock
 from app.util.converters import base64url_encode
 from basyx.aas import model
 from basyx.aas.adapter.json import AASToJsonEncoder
+from basyx.aas.examples.data import example_aas
 from basyx.aas.examples.data.example_aas_missing_attributes import create_example_submodel
 
 from ..format_utils import (
@@ -22,6 +23,26 @@ from ..format_utils import (
 )
 from .helpers import RepositoryEndpointTestBase
 
+# ExampleSubmodelCollection (a nested namespace) and one of its children, carried by
+# ``create_example_submodel()``; used as ready-made id_short paths in the tests below.
+NESTED_COLLECTION = "ExampleSubmodelCollection"
+NESTED_PROPERTY = "ExampleSubmodelCollection.ExampleProperty"
+NESTED_BLOB = "ExampleSubmodelCollection.ExampleBlob"
+NESTED_FILE = "ExampleSubmodelCollection.ExampleFile"
+# SubmodelElementList inside ExampleSubmodelCollection, only carried by ``example_aas.create_example_submodel()``.
+NESTED_LIST_ID_SHORT = "ExampleSubmodelList"
+EXAMPLE_QUALIFIER_TYPE = "http://example.org/Qualifier/ExampleQualifier"
+
+
+def _child(elements: list, id_short: str) -> dict:
+    """Returns the element with the given idShort from a list of SubmodelElements in JSON format."""
+    return next(element for element in elements if element["idShort"] == id_short)
+
+
+def _example_blob(submodel_elements: list) -> dict:
+    """Returns ``ExampleSubmodelCollection.ExampleBlob`` from the SubmodelElements of ``create_example_submodel()``."""
+    return _child(_child(submodel_elements, NESTED_COLLECTION)["value"], "ExampleBlob")
+
 
 def _encode_reference(reference: model.Reference) -> str:
     return base64url_encode(json.dumps(reference, cls=AASToJsonEncoder))
@@ -31,6 +52,7 @@ def _encode_reference(reference: model.Reference) -> str:
 EXAMPLE_SEMANTIC_ID = model.ExternalReference(
     (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/SubmodelTemplates/ExampleSubmodel"),)
 )
+
 
 @inject_format_clients
 class SubmodelsEndpointsTest(RepositoryEndpointTestBase):
@@ -55,7 +77,7 @@ class SubmodelsEndpointsTest(RepositoryEndpointTestBase):
         return store
 
     def _get_submodel_ids(self, format_client: FormatClient, query: str) -> set:
-        response = format_client.get(f"/submodels?{query}")
+        response = format_client.get(f"/submodels?{query}&extent=WithBLOBValue")
         self.assert_ok(response)
         return {format_client.identifier(node) for node in format_client.parse_collection(response)}
 
@@ -66,7 +88,7 @@ class SubmodelsEndpointsTest(RepositoryEndpointTestBase):
     def test_submodels_get(self, format_client: FormatClient):
         self.object_store.update(self.two_submodels_store())
 
-        response = format_client.get("/submodels")
+        response = format_client.get("/submodels?extent=WithBLOBValue")
 
         self.assert_ok(response)
         self.assertEqual(2, len(format_client.parse_collection(response)))
@@ -74,7 +96,7 @@ class SubmodelsEndpointsTest(RepositoryEndpointTestBase):
     @with_json_client
     @with_xml_client
     def test_submodels_get_empty(self, format_client: FormatClient):
-        response = format_client.get("/submodels")
+        response = format_client.get("/submodels?extent=WithBLOBValue")
 
         self.assert_ok(response)
         self.assertEqual(0, len(format_client.parse_collection(response)))
@@ -84,9 +106,44 @@ class SubmodelsEndpointsTest(RepositoryEndpointTestBase):
     def test_submodels_get_supports_pagination(self, format_client: FormatClient):
         self.object_store.update(self.two_submodels_store())
 
-        pages = format_client.get_paginated("/submodels", limit=1, max_pages=2)
+        pages = format_client.get_paginated("/submodels?extent=WithBLOBValue", limit=1, max_pages=2)
 
         self.assertEqual([1, 1], [len(page) for page in pages])
+
+    @with_json_client
+    def test_submodels_get_extent_toggles_blob_value(self, format_client: FormatClient):
+        self.object_store.add(create_example_submodel())
+
+        self.assert_extent_toggles_blob_value(
+            format_client, "/submodels", locate_blob=lambda body: _example_blob(body["result"][0]["submodelElements"])
+        )
+
+    @with_xml_client
+    def test_submodels_get_xml_requires_blob_value(self, format_client: FormatClient):
+        self.object_store.add(create_example_submodel())
+
+        self.assert_xml_requires_blob_value(format_client, "/submodels")
+
+    @with_xml_client
+    def test_submodels_get_xml_rejects_level_core(self, format_client: FormatClient):
+        response = format_client.get("/submodels?level=core")
+
+        self.assert_error(response, 406)
+
+    @with_json_client
+    def test_submodels_get_level_core(self, format_client: FormatClient):
+        """
+        ``level=core`` keeps the direct children of each Submodel but omits their children.
+        """
+        self.object_store.update(self.two_submodels_store())
+
+        response = format_client.get("/submodels?level=core")
+
+        self.assert_ok(response)
+        submodels = format_client.parse_collection(response)
+        self.assertEqual(2, len(submodels))
+        for submodel in submodels:
+            self.assertNotIn("value", _child(submodel["submodelElements"], NESTED_COLLECTION))
 
     @with_json_client
     def test_submodels_get_rejects_limit_below_one(self, format_client: FormatClient):
@@ -178,7 +235,7 @@ class SubmodelsEndpointsTest(RepositoryEndpointTestBase):
         example_submodel = create_example_submodel()
         self.object_store.add(example_submodel)
 
-        response = format_client.get(f"/submodels/{base64url_encode(example_submodel.id)}")
+        response = format_client.get(f"/submodels/{base64url_encode(example_submodel.id)}?extent=WithBLOBValue")
 
         self.assert_ok(response)
         self.assertEqual(example_submodel.id, format_client.identifier(format_client.parse_object(response)))
@@ -186,40 +243,72 @@ class SubmodelsEndpointsTest(RepositoryEndpointTestBase):
     @with_json_client
     @with_xml_client
     def test_submodel_get_not_found(self, format_client: FormatClient):
-        response = format_client.get(f"/submodels/{base64url_encode('https://example.org/unknown')}")
+        response = format_client.get(
+            f"/submodels/{base64url_encode('https://example.org/unknown')}?extent=WithBLOBValue"
+        )
 
         self.assert_error(response, 404)
 
-    def test_submodel_get_stripped_omits_submodel_elements(self):
-        example_submodel = create_example_submodel()
-        self.object_store.add(example_submodel)
-        path = f"/submodels/{base64url_encode(example_submodel.id)}"
+    @with_xml_client
+    def test_submodel_get_not_found_xml_without_extent_returns_406(self, format_client: FormatClient):
+        """
+        The modifiers are checked before the Submodel is looked up, so clients learn that XML without BLOB values is
+        not supported, even if the Submodel doesn't exist.
+        """
+        response = format_client.get(f"/submodels/{base64url_encode('https://example.org/unknown')}")
 
-        full = self.client.get(path)
-        stripped = self.client.get(f"{path}?level=core")
+        self.assert_error(response, 406)
 
-        self.assert_ok(full)
-        self.assert_ok(stripped)
-        self.assertIn("submodelElements", full.get_data(as_text=True))
-        self.assertNotIn("submodelElements", stripped.get_data(as_text=True))
-
-    def test_submodel_get_invalid_level_returns_400(self):
-        example_submodel = create_example_submodel()
-        self.object_store.add(example_submodel)
-
-        response = self.client.get(f"/submodels/{base64url_encode(example_submodel.id)}?level=bogus")
-
-        self.assert_error(response, 400)
-
-    def test_submodel_get_extent_not_implemented(self):
+    @with_json_client
+    def test_submodel_get_extent_toggles_blob_value(self, format_client: FormatClient):
         example_submodel = create_example_submodel()
         self.object_store.add(example_submodel)
 
-        response = self.client.get(
-            f"/submodels/{base64url_encode(example_submodel.id)}?extent=withBlobValue"
+        self.assert_extent_toggles_blob_value(
+            format_client,
+            f"/submodels/{base64url_encode(example_submodel.id)}",
+            locate_blob=lambda body: _example_blob(body["submodelElements"]),
         )
 
-        self.assert_error(response, 501)
+    @with_xml_client
+    def test_submodel_get_xml_requires_blob_value(self, format_client: FormatClient):
+        example_submodel = create_example_submodel()
+        self.object_store.add(example_submodel)
+
+        self.assert_xml_requires_blob_value(format_client, f"/submodels/{base64url_encode(example_submodel.id)}")
+
+    @with_xml_client
+    def test_submodel_get_xml_rejects_level_core(self, format_client: FormatClient):
+        example_submodel = create_example_submodel()
+        self.object_store.add(example_submodel)
+
+        response = format_client.get(f"/submodels/{base64url_encode(example_submodel.id)}?level=core")
+
+        self.assert_error(response, 406)
+
+    @with_json_client
+    def test_submodel_get_level_core(self, format_client: FormatClient):
+        """
+        ``level=core`` keeps the direct children of the Submodel but omits their children.
+        """
+        example_submodel = create_example_submodel()
+        self.object_store.add(example_submodel)
+
+        response = format_client.get(f"/submodels/{base64url_encode(example_submodel.id)}?level=core")
+
+        self.assert_ok(response)
+        submodel_elements = format_client.parse_object(response)["submodelElements"]
+        self.assertEqual(len(example_submodel.submodel_element), len(submodel_elements))
+        self.assertNotIn("value", _child(submodel_elements, NESTED_COLLECTION))
+
+    @with_json_client
+    def test_submodel_get_invalid_level_returns_400(self, format_client: FormatClient):
+        example_submodel = create_example_submodel()
+        self.object_store.add(example_submodel)
+
+        response = format_client.get(f"/submodels/{base64url_encode(example_submodel.id)}?level=bogus")
+
+        self.assert_error(response, 400)
 
     # ------------------------------------------------------------------ PUT /submodels/<submodel_id>
 
@@ -272,15 +361,6 @@ class SubmodelsEndpointsTest(RepositoryEndpointTestBase):
         self.assert_error(response, 404)
 
 
-# ExampleSubmodelCollection (a nested namespace) and one of its children, carried by
-# ``create_example_submodel()``; used as ready-made id_short paths in the tests below.
-NESTED_COLLECTION = "ExampleSubmodelCollection"
-NESTED_PROPERTY = "ExampleSubmodelCollection.ExampleProperty"
-NESTED_BLOB = "ExampleSubmodelCollection.ExampleBlob"
-NESTED_FILE = "ExampleSubmodelCollection.ExampleFile"
-EXAMPLE_QUALIFIER_TYPE = "http://example.org/Qualifier/ExampleQualifier"
-
-
 @inject_format_clients
 class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
     """
@@ -298,6 +378,14 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
 
     def add_example_submodel(self) -> model.Submodel:
         submodel = create_example_submodel()
+        self.object_store.add(submodel)
+        return submodel
+
+    def add_full_example_submodel(self) -> model.Submodel:
+        """
+        Adds the full example submodel, which nests a SubmodelElementList inside ``ExampleSubmodelCollection``.
+        """
+        submodel = example_aas.create_example_submodel()
         self.object_store.add(submodel)
         return submodel
 
@@ -341,7 +429,7 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
     def test_submodel_elements_get(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
-        response = format_client.get(self.elements_path(submodel.id))
+        response = format_client.get(f"{self.elements_path(submodel.id)}?extent=WithBLOBValue")
 
         self.assert_ok(response)
         self.assertEqual(self.TOP_LEVEL_COUNT, len(format_client.parse_collection(response)))
@@ -351,7 +439,7 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
     def test_submodel_elements_get_pagination_limit(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
-        response = format_client.get(f"{self.elements_path(submodel.id)}?limit=2")
+        response = format_client.get(f"{self.elements_path(submodel.id)}?limit=2&extent=WithBLOBValue")
 
         self.assert_ok(response)
         self.assertEqual(2, len(format_client.parse_collection(response)))
@@ -361,16 +449,54 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
     def test_submodel_elements_get_supports_pagination(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
-        pages = format_client.get_paginated(self.elements_path(submodel.id), limit=3, max_pages=2)
+        pages = format_client.get_paginated(
+            f"{self.elements_path(submodel.id)}?extent=WithBLOBValue", limit=3, max_pages=2
+        )
 
         self.assertEqual([3, 3], [len(page) for page in pages])
 
     @with_json_client
     @with_xml_client
     def test_submodel_elements_get_submodel_not_found(self, format_client: FormatClient):
-        response = format_client.get(self.elements_path("https://example.org/unknown"))
+        response = format_client.get(f"{self.elements_path('https://example.org/unknown')}?extent=WithBLOBValue")
 
         self.assert_error(response, 404)
+
+    @with_json_client
+    def test_submodel_elements_get_extent_toggles_blob_value(self, format_client: FormatClient):
+        submodel = self.add_example_submodel()
+
+        self.assert_extent_toggles_blob_value(
+            format_client, self.elements_path(submodel.id), locate_blob=lambda body: _example_blob(body["result"])
+        )
+
+    @with_xml_client
+    def test_submodel_elements_get_xml_requires_blob_value(self, format_client: FormatClient):
+        submodel = self.add_example_submodel()
+
+        self.assert_xml_requires_blob_value(format_client, self.elements_path(submodel.id))
+
+    @with_xml_client
+    def test_submodel_elements_get_xml_rejects_level_core(self, format_client: FormatClient):
+        submodel = self.add_full_example_submodel()
+
+        response = format_client.get(f"{self.elements_path(submodel.id)}?level=core")
+
+        self.assert_error(response, 406)
+
+    @with_json_client
+    def test_submodel_elements_get_level_core(self, format_client: FormatClient):
+        """
+        ``level=core`` keeps the direct children of each SubmodelElement but omits their children.
+        """
+        submodel = self.add_full_example_submodel()
+
+        response = format_client.get(f"{self.elements_path(submodel.id)}?level=core")
+
+        self.assert_ok(response)
+        collection = _child(format_client.parse_collection(response), NESTED_COLLECTION)
+        self.assertIn("value", collection)
+        self.assertNotIn("value", _child(collection["value"], NESTED_LIST_ID_SHORT))
 
     # ------------------------------------------------------------------ POST .../submodel-elements
 
@@ -415,7 +541,7 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
     def test_submodel_element_get_top_level(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
-        response = format_client.get(self.elements_path(submodel.id, "ExampleCapability"))
+        response = format_client.get(f"{self.elements_path(submodel.id, 'ExampleCapability')}?extent=WithBLOBValue")
 
         self.assert_ok(response)
         self.assertEqual(
@@ -427,7 +553,7 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
     def test_submodel_element_get_nested(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
-        response = format_client.get(self.elements_path(submodel.id, NESTED_PROPERTY))
+        response = format_client.get(f"{self.elements_path(submodel.id, NESTED_PROPERTY)}?extent=WithBLOBValue")
 
         self.assert_ok(response)
         self.assertEqual(
@@ -439,7 +565,7 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
     def test_submodel_element_get_not_found(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
-        response = format_client.get(self.elements_path(submodel.id, "DoesNotExist"))
+        response = format_client.get(f"{self.elements_path(submodel.id, 'DoesNotExist')}?extent=WithBLOBValue")
 
         self.assert_error(response, 404)
 
@@ -449,22 +575,60 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
         submodel = self.add_example_submodel()
 
         response = format_client.get(
-            self.elements_path(submodel.id, f"{NESTED_COLLECTION}.DoesNotExist")
+            f"{self.elements_path(submodel.id, f'{NESTED_COLLECTION}.DoesNotExist')}?extent=WithBLOBValue"
         )
 
         self.assert_error(response, 404)
 
-    def test_submodel_element_get_path_through_non_namespace_returns_400(self):
+    @with_json_client
+    def test_submodel_element_get_extent_toggles_blob_value(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
-        response = self.client.get(self.elements_path(submodel.id, f"{NESTED_PROPERTY}.Child"))
+        self.assert_extent_toggles_blob_value(
+            format_client, self.elements_path(submodel.id, NESTED_BLOB), locate_blob=lambda body: body
+        )
+
+    @with_xml_client
+    def test_submodel_element_get_xml_requires_blob_value(self, format_client: FormatClient):
+        submodel = self.add_example_submodel()
+
+        self.assert_xml_requires_blob_value(format_client, self.elements_path(submodel.id, NESTED_COLLECTION))
+
+    @with_xml_client
+    def test_submodel_element_get_xml_rejects_level_core(self, format_client: FormatClient):
+        submodel = self.add_full_example_submodel()
+
+        response = format_client.get(f"{self.elements_path(submodel.id, NESTED_COLLECTION)}?level=core")
+
+        self.assert_error(response, 406)
+
+    @with_json_client
+    def test_submodel_element_get_level_core(self, format_client: FormatClient):
+        """
+        ``level=core`` keeps the direct children of the requested SubmodelElement but omits their children.
+        """
+        submodel = self.add_full_example_submodel()
+
+        response = format_client.get(f"{self.elements_path(submodel.id, NESTED_COLLECTION)}?level=core")
+
+        self.assert_ok(response)
+        collection = format_client.parse_object(response)
+        self.assertIn("value", collection)
+        self.assertNotIn("value", _child(collection["value"], NESTED_LIST_ID_SHORT))
+
+    @with_json_client
+    def test_submodel_element_get_path_through_non_namespace_returns_400(self, format_client: FormatClient):
+        submodel = self.add_example_submodel()
+
+        response = format_client.get(self.elements_path(submodel.id, f"{NESTED_PROPERTY}.Child"))
 
         self.assert_error(response, 400)
 
-    def test_submodel_element_get_malformed_id_short_path_returns_400(self):
+    @with_json_client
+    def test_submodel_element_get_malformed_id_short_path_returns_400(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
-        response = self.client.get(self.elements_path(submodel.id, "a..b"))
+        response = format_client.get(self.elements_path(submodel.id, "a..b"))
 
         self.assert_error(response, 400)
 
@@ -523,13 +687,14 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
         self.assert_ok(created)
         self.assertEqual("added", format_client.field(format_client.parse_object(created), "value"))
 
-    def test_submodel_element_post_into_non_namespace_returns_400(self):
+    @with_json_client
+    def test_submodel_element_post_into_non_namespace_returns_400(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
         payload = json.dumps(
             model.Property("Child", model.datatypes.String, "v"), cls=AASToJsonEncoder
         )
 
-        response = self.client.post(
+        response = format_client.post(
             self.elements_path(submodel.id, NESTED_PROPERTY),
             data=payload,
             content_type="application/json",
@@ -575,7 +740,7 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
         response = format_client.delete(self.elements_path(submodel.id, NESTED_PROPERTY))
 
         self.assertEqual(204, response.status_code)
-        follow_up = format_client.get(self.elements_path(submodel.id, NESTED_PROPERTY))
+        follow_up = format_client.get(f"{self.elements_path(submodel.id, NESTED_PROPERTY)}?extent=WithBLOBValue")
         self.assert_error(follow_up, 404)
 
     @with_json_client
@@ -589,70 +754,77 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
 
     # ------------------------------------------------------------------ .../<idShortPath>/attachment
 
-    def test_submodel_element_attachment_get_blob(self):
+    @with_json_client
+    def test_submodel_element_attachment_get_blob(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
-        response = self.client.get(f"{self.elements_path(submodel.id, NESTED_BLOB)}/attachment")
+        response = format_client.get(f"{self.elements_path(submodel.id, NESTED_BLOB)}/attachment")
 
         self.assertEqual(200, response.status_code)
         self.assertEqual("application/pdf", response.mimetype)
         self.assertEqual(bytes([1, 2, 3, 4, 5]), response.get_data())
 
-    def test_submodel_element_attachment_get_file(self):
+    @with_json_client
+    def test_submodel_element_attachment_get_file(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
         self._nested_file(submodel, NESTED_FILE).value = "/TestFile.pdf"
         self._nested_file(submodel, NESTED_FILE).content_type = "application/pdf"
 
         self.file_store.write_file.side_effect = lambda name, stream: stream.write(b"file-content")
 
-        response = self.client.get(f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment")
+        response = format_client.get(f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment")
 
         self.assertEqual(200, response.status_code)
         self.assertEqual("application/pdf", response.content_type)
         self.file_store.write_file.assert_any_call("/TestFile.pdf", mock.ANY)
         self.assertEqual(b"file-content", response.data)
 
-    def test_submodel_element_attachment_get_on_non_file_returns_400(self):
+    @with_json_client
+    def test_submodel_element_attachment_get_on_non_file_returns_400(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
-        response = self.client.get(f"{self.elements_path(submodel.id, NESTED_PROPERTY)}/attachment")
+        response = format_client.get(f"{self.elements_path(submodel.id, NESTED_PROPERTY)}/attachment")
 
         self.assert_error(response, 400)
 
-    def test_submodel_element_attachment_get_file_without_value_returns_404(self):
+    @with_json_client
+    def test_submodel_element_attachment_get_file_without_value_returns_404(self, format_client: FormatClient):
         submodel = create_example_submodel()
         self._nested_file(submodel, NESTED_FILE).value = None
         self.object_store.add(submodel)
 
-        response = self.client.get(f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment")
+        response = format_client.get(f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment")
 
         self.assert_error(response, 404)
 
-    def test_submodel_element_attachment_get_external_file_return_400(self):
+    @with_json_client
+    def test_submodel_element_attachment_get_external_file_return_400(self, format_client: FormatClient):
         submodel = create_example_submodel()
         self._nested_file(submodel, NESTED_FILE).value = "C:\\Users\\Test\\File.pdf"
         self.object_store.add(submodel)
 
-        response = self.client.get(f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment")
+        response = format_client.get(f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment")
 
         self.assert_error(response, 400)
 
-    def test_submodel_element_attachment_get_missing_file_return_404(self):
+    @with_json_client
+    def test_submodel_element_attachment_get_missing_file_return_404(self, format_client: FormatClient):
         submodel = create_example_submodel()
         self.object_store.add(submodel)
 
         self.file_store.write_file.side_effect = KeyError
-        response = self.client.get(f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment")
+        response = format_client.get(f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment")
 
         self.assert_error(response, 404)
 
-    def test_submodel_element_attachment_put_success(self):
+    @with_json_client
+    def test_submodel_element_attachment_put_success(self, format_client: FormatClient):
         submodel = create_example_submodel()
         self._nested_file(submodel, NESTED_FILE).value = None
         self.object_store.add(submodel)
         self.file_store.add_file.return_value = "/uploaded.pdf"
 
-        response = self.client.put(
+        response = format_client.put(
             f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment",
             data={
                 "fileName": "/uploaded.pdf",
@@ -667,10 +839,11 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
             "/uploaded.pdf", self._nested_file(self._stored_submodel(submodel.id), NESTED_FILE).value
         )
 
-    def test_submodel_element_attachment_put_conflict_when_value_present(self):
+    @with_json_client
+    def test_submodel_element_attachment_put_conflict_when_value_present(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
-        response = self.client.put(
+        response = format_client.put(
             f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment",
             data={
                 "fileName": "/uploaded.pdf",
@@ -681,10 +854,11 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
 
         self.assert_error(response, 409)
 
-    def test_submodel_element_attachment_put_on_non_file_returns_400(self):
+    @with_json_client
+    def test_submodel_element_attachment_put_on_non_file_returns_400(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
-        response = self.client.put(
+        response = format_client.put(
             f"{self.elements_path(submodel.id, NESTED_PROPERTY)}/attachment",
             data={"fileName": "/x.pdf", "file": (io.BytesIO(b"x"), "x.pdf", "application/pdf")},
             content_type="multipart/form-data",
@@ -692,11 +866,12 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
 
         self.assert_error(response, 400)
 
-    def test_submodel_element_attachment_put_missing_filename_returns_400(self):
+    @with_json_client
+    def test_submodel_element_attachment_put_missing_filename_returns_400(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
         self._nested_file(submodel, NESTED_FILE).value = None
 
-        response = self.client.put(
+        response = format_client.put(
             f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment",
             data={"file": (io.BytesIO(b"x"), "x.pdf", "application/pdf")},
             content_type="multipart/form-data",
@@ -704,11 +879,12 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
 
         self.assert_error(response, 400)
 
-    def test_submodel_element_attachment_put_external_filename_returns_400(self):
+    @with_json_client
+    def test_submodel_element_attachment_put_external_filename_returns_400(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
         self._nested_file(submodel, NESTED_FILE).value = None
 
-        response = self.client.put(
+        response = format_client.put(
             f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment",
             data={"fileName": "C:\\Users\\Test\\x.pdf", "file": (io.BytesIO(b"x"), "x.pdf", "application/pdf")},
             content_type="multipart/form-data",
@@ -716,11 +892,12 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
 
         self.assert_error(response, 400)
 
-    def test_submodel_element_attachment_put_missing_file_returns_400(self):
+    @with_json_client
+    def test_submodel_element_attachment_put_missing_file_returns_400(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
         self._nested_file(submodel, NESTED_FILE).value = None
 
-        response = self.client.put(
+        response = format_client.put(
             f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment",
             data={"fileName": "/x.pdf"},
             content_type="multipart/form-data",
@@ -728,11 +905,12 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
 
         self.assert_error(response, 400)
 
-    def test_submodel_element_attachment_put_mimetype_mismatch_returns_400(self):
+    @with_json_client
+    def test_submodel_element_attachment_put_mimetype_mismatch_returns_400(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
         self._nested_file(submodel, NESTED_FILE).value = None
 
-        response = self.client.put(
+        response = format_client.put(
             f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment",
             data={"fileName": "/x.pdf", "file": (io.BytesIO(b"x"), "x.pdf", "application/xml")},
             content_type="multipart/form-data",
@@ -740,60 +918,66 @@ class SubmodelElementsEndpointsTest(RepositoryEndpointTestBase):
 
         self.assert_error(response, 415)
 
-    def test_submodel_element_attachment_delete_blob(self):
+    @with_json_client
+    def test_submodel_element_attachment_delete_blob(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
-        response = self.client.delete(f"{self.elements_path(submodel.id, NESTED_BLOB)}/attachment")
+        response = format_client.delete(f"{self.elements_path(submodel.id, NESTED_BLOB)}/attachment")
 
         self.assertEqual(204, response.status_code)
         self.assertIsNone(self._nested_blob(self._stored_submodel(submodel.id), NESTED_BLOB).value)
 
-    def test_submodel_element_attachment_delete_file(self):
+    @with_json_client
+    def test_submodel_element_attachment_delete_file(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
         self._nested_file(submodel, NESTED_FILE).value = "/TestFile.pdf"
 
-        response = self.client.delete(f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment")
+        response = format_client.delete(f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment")
 
         self.assertEqual(204, response.status_code)
         self.file_store.delete_file.assert_any_call("/TestFile.pdf")
         self.assertIsNone(self._nested_file(self._stored_submodel(submodel.id), NESTED_FILE).value)
 
-    def test_submodel_element_attachment_delete_file_ignores_store_error(self):
+    @with_json_client
+    def test_submodel_element_attachment_delete_file_ignores_store_error(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
         self._nested_file(submodel, NESTED_FILE).value = "/TestFile.pdf"
 
         self.file_store.delete_file.side_effect = KeyError
 
-        response = self.client.delete(f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment")
+        response = format_client.delete(f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment")
 
         self.assertEqual(204, response.status_code)
         self.file_store.delete_file.assert_any_call("/TestFile.pdf")
         self.assertIsNone(self._nested_file(self._stored_submodel(submodel.id), NESTED_FILE).value)
 
-    def test_submodel_element_attachment_delete_on_non_attachment_returns_400(self):
+    @with_json_client
+    def test_submodel_element_attachment_delete_on_non_attachment_returns_400(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
-        response = self.client.delete(
+        response = format_client.delete(
             f"{self.elements_path(submodel.id, NESTED_PROPERTY)}/attachment"
         )
 
         self.assert_error(response, 400)
 
-    def test_submodel_element_attachment_delete_no_value_returns_404(self):
+    @with_json_client
+    def test_submodel_element_attachment_delete_no_value_returns_404(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
         self._nested_blob(submodel, NESTED_BLOB).value = None
 
-        response = self.client.delete(
+        response = format_client.delete(
             f"{self.elements_path(submodel.id, NESTED_BLOB)}/attachment"
         )
 
         self.assert_error(response, 404)
 
-    def test_submodel_element_attachment_delete_external_file_returns_400(self):
+    @with_json_client
+    def test_submodel_element_attachment_delete_external_file_returns_400(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
         self._nested_file(submodel, NESTED_FILE).value = "C:\\Users\\Test\\x.pdf"
 
-        response = self.client.delete(f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment")
+        response = format_client.delete(f"{self.elements_path(submodel.id, NESTED_FILE)}/attachment")
 
         self.assertEqual(400, response.status_code)
 

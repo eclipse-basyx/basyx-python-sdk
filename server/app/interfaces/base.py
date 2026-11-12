@@ -174,7 +174,7 @@ class XmlResponse(APIResponse):
         if not mods.is_with_blob:
             raise werkzeug.exceptions.NotAcceptable(
                 "The requested content type is not supported with ?extent=WithoutBlobValue. "
-                "Use 'application/json instead.'"
+                "Use 'application/json' instead."
             )
 
     def serialize(
