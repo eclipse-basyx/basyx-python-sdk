@@ -51,6 +51,11 @@ SUPPORTED_PROFILES: ServiceDescription = ServiceDescription(
     ]
 )
 
+# The specification is ambiguous on whether Operation and Capability have a Metadata serialization.
+# We treat them as having none: they are omitted from ``submodel-elements`` listings and rejected with 400
+# when requested directly.
+TYPES_WITHOUT_METADATA = (model.Capability, model.Operation)
+
 
 class WSGIApp(ObjectStoreWSGIApp):
     def __init__(
@@ -516,6 +521,8 @@ class WSGIApp(ObjectStoreWSGIApp):
         elements: Iterable[model.SubmodelElement] = iter(submodel.submodel_element)
         if mods.content is Content.VALUE:
             elements = (item for item in elements if not isinstance(item, TYPES_WITHOUT_VALUE_ONLY))
+        elif mods.content is Content.METADATA:
+            elements = (item for item in elements if not isinstance(item, TYPES_WITHOUT_METADATA))
 
         paginated_submodel_elements, paging_metadata = self._get_slice(request, elements)
         return paginated_submodel_elements, paging_metadata
@@ -758,7 +765,7 @@ class WSGIApp(ObjectStoreWSGIApp):
             if not isinstance(submodel_element, _PATH_SUPPORTED_TYPES):
                 raise BadRequest(f"SubmodelElement {url_args['id_shorts']} has no Path representation!")
         elif mods.content is Content.METADATA:
-            if isinstance(submodel_element, (model.Capability, model.Operation)):
+            if isinstance(submodel_element, TYPES_WITHOUT_METADATA):
                 raise BadRequest(f"SubmodelElement {url_args['id_shorts']} has no Metadata representation!")
 
         return response_t(submodel_element, modifiers=mods)
