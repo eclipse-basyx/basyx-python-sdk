@@ -491,7 +491,9 @@ class Key:
         """
         TODO: Add instruction what to do after construction
         """
-        _string_constraints.check_identifier(value)
+        _string_constraints.check_identifier(
+            value, attribute=f"{type(self).__name__}.value"
+        )
         self.type: KeyTypes
         self.value: Identifier
         super().__setattr__("type", type_)
@@ -811,7 +813,9 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         :raises ValueError: if the constraint is not fulfilled
         """
         if category is not None:
-            _string_constraints.check_name_type(category)
+            _string_constraints.check_name_type(
+                category, attribute=f"{type(self).__name__}.category"
+            )
         self._category = category
 
     def _get_category(self) -> Optional[NameType]:
@@ -882,7 +886,9 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
             (see :func:`~basyx.aas.model._string_constraints.check_name_type`).
         :raises AASConstraintViolation: If the id_short doesn't comply to Constraint AASd-002.
         """
-        _string_constraints.check_name_type(id_short)
+        _string_constraints.check_name_type(
+            id_short, attribute=f"{cls.__name__}.id_short"
+        )
         test_id_short: NameType = str(id_short)
         if not re.fullmatch("[A-Za-z0-9_-]*", test_id_short):
             raise AASConstraintViolation(
@@ -1469,7 +1475,9 @@ class AdministrativeInformation(HasDataSpecification):
                 "there is no revision neither. Please set version first.",
             )
         if revision is not None:
-            _string_constraints.check_revision_type(revision)
+            _string_constraints.check_revision_type(
+                revision, attribute=f"{type(self).__name__}.revision"
+            )
         self._revision = revision
 
     revision = property(_get_revision, _set_revision)
@@ -1757,7 +1765,9 @@ class Extension(HasSemantics):
 
     @name.setter
     def name(self, name: NameType) -> None:
-        _string_constraints.check_name_type(name)
+        _string_constraints.check_name_type(
+            name, attribute=f"{type(self).__name__}.name"
+        )
         if self.parent is not None:
             for set_ in self.parent.namespace_element_sets:
                 if set_.contains_id("name", name):
@@ -1913,7 +1923,9 @@ class Qualifier(HasSemantics):
 
     @type.setter
     def type(self, type_: QualifierType) -> None:
-        _string_constraints.check_qualifier_type(type_)
+        _string_constraints.check_qualifier_type(
+            type_, attribute=f"{type(self).__name__}.type"
+        )
         if self.parent is not None:
             for set_ in self.parent.namespace_element_sets:
                 if set_.contains_id("type", type_):
@@ -2598,8 +2610,12 @@ class SpecificAssetId(HasSemantics):
         super().__init__()
         if value == "":
             raise ValueError("value is not allowed to be an empty string")
-        _string_constraints.check_label_type(name)
-        _string_constraints.check_identifier(value)
+        _string_constraints.check_label_type(
+            name, attribute=f"{type(self).__name__}.name"
+        )
+        _string_constraints.check_identifier(
+            value, attribute=f"{type(self).__name__}.value"
+        )
         self.name: LabelType
         self.value: Identifier
         self.external_subject_id: ExternalReference

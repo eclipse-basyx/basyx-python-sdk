@@ -192,7 +192,7 @@ class XmlResponse(APIResponse):
         modifiers: Optional[Modifiers]
     ) -> str:
         root_elem = etree.Element("response", nsmap=XML_NS_MAP)
-        if paging_metadata is not None:
+        if paging_metadata is not None and paging_metadata.cursor is not None:
             root_elem.set("cursor", str(paging_metadata.cursor))
         if isinstance(obj, Result):
             result_elem = self.result_to_xml(obj, **XML_NS_MAP)
