@@ -11,8 +11,8 @@ The Registry Service provides the endpoint for a given AAS-ID or Submodel-ID. Su
 
 ## Features
 # AAS Registry:
-| Function                                         | Description                                                          | Example URL                                                                                                           |
-|--------------------------------------------------|----------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| Function                                         | Description                                                          | Example URL                                                                                                         |
+|--------------------------------------------------|----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
 | **GetAllAssetAdministrationShellDescriptors**    | Return all AAS descriptor                                            | `GET http://localhost:8083/api/v3.1/shell-descriptors`                                                              |
 | **GetAssetAdministrationShellDescriptorById**    | Return a specific AAS descriptor                                     | `GET http://localhost:8083/api/v3.1/shell-descriptors/{aasIdentifier}`                                              |
 | **PostAssetAdministrationShellDescriptor**       | Register/create a new AAS descriptor                                 | `POST http://localhost:8083/api/v3.1/shell-descriptors`                                                             |

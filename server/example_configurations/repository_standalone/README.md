@@ -1,6 +1,6 @@
 # Repository Standalone
 This example Docker compose configuration runs a repository server using the pre-built
-`eclipsebasyx/basyx-python-repository` image from [DockerHub](https://hub.docker.com/r/eclipsebasyx/basyx-python-repository):
+`eclipsebasyx/basyx-python-repository:latest` image from [DockerHub](https://hub.docker.com/r/eclipsebasyx/basyx-python-repository):
 ```
 $ docker compose up
 ```
