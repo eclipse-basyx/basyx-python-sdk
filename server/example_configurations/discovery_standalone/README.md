@@ -20,13 +20,16 @@ The Discovery Service stores and retrieves relations between AAS identifiers and
 
 
 ## Configuration
-The example Docker compose configuration `compose.dev.yml` builds a discovery server locally. This is usually only necessary
-for development:
+This example Docker compose configuration runs a discovery server using the pre-built
+`eclipsebasyx/basyx-python-discovery:latest` image from [DockerHub](https://hub.docker.com/r/eclipsebasyx/basyx-python-discovery):
+```
+$ docker compose up
+```
+
+To build the image locally from source instead, use `compose.dev.yml`. This is usually only necessary for development:
 ```
 $ docker compose -f compose.dev.yml up
 ```
-To just run the discovery server, use the pre-built image `eclipsebasyx/basyx-python-discovery:latest` 
-on [DockerHub](https://hub.docker.com/r/eclipsebasyx/basyx-python-discovery).
 
 ## Persistence
 
@@ -34,7 +37,7 @@ The discovery service can run in persistent or non-persistent mode.
 
 ### Persistent Mode
 
-Persistent mode configuration is provided in the `compose.dev.yml`.
+Persistent mode configuration is provided in both `compose.yml` and `compose.dev.yml`.
 
 Only the AAS-to-asset-ID mapping is persisted. The reverse lookup index is rebuilt in memory when the service starts.
 
@@ -44,5 +47,5 @@ If `storage_path` is not set, the discovery service runs in memory only.
 
 ## Notes
 - Stop the service before manually editing `discovery_store.json`.
-- Note that the image is built from the `server` directory. The local `sdk` directory is passed in as an additional build context named `sdk`.
+- `compose.dev.yml` builds the image from the `server` directory. The local `sdk` directory is passed in as an additional build context named `sdk`.
 To include the package license, a second additional build context `license` passes in the repository root.

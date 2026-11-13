@@ -1,4 +1,4 @@
-name: basyx-python-server
+name: basyx-python-discovery
 services:
   app:
     build:

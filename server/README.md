@@ -81,9 +81,12 @@ This implies the following start-up behaviour:
 ## Building and Running the Image with Docker Compose
 
 Example configurations can be found in the `./example_configurations` directory.
+Each example has a `compose.yml` that pulls the pre-built images from DockerHub (`docker compose up`)
+and a `compose.dev.yml` that builds the images locally from source (`docker compose -f compose.dev.yml up`).
 
 Currently, we offer: 
 
+- [combined](example_configurations/combined/README.md): Repository, registry and discovery server together
 - [repository_standalone](example_configurations/repository_standalone/README.md): Standalone repository server
 - [registry_standalone](example_configurations/registry_standalone/README.md): Standalone registry server
 - [discovery_standalone](example_configurations/discovery_standalone/README.md): Standalone discovery server
