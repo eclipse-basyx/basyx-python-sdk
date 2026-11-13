@@ -1,0 +1,28 @@
+name: basyx-python-server
+services:
+  repository:
+    image: eclipsebasyx/basyx-python-repository:latest
+    ports:
+    - "8080:80"
+    volumes:
+      - ./repository/input:/input
+      - ./repository/storage:/storage
+    environment:
+      STORAGE_PERSISTENCY: True
+  registry:
+    image: eclipsebasyx/basyx-python-registry:latest
+    ports:
+    - "8083:80"
+    volumes:
+      - ./registry/input:/input
+      - ./registry/storage:/storage
+    environment:
+      STORAGE_PERSISTENCY: True
+  discovery:
+    image: eclipsebasyx/basyx-python-discovery:latest
+    ports:
+    - "8084:80"
+    environment:
+      storage_path: /storage/discovery_store.json
+    volumes:
+      - ./discovery/storage:/storage

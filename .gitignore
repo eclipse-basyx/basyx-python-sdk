@@ -37,3 +37,8 @@ server/example_configurations/repository_standalone/storage/
 server/example_configurations/registry_standalone/input/
 server/example_configurations/registry_standalone/storage/
 server/example_configurations/discovery_standalone/storage/
+server/example_configurations/combined/repository/input/
+server/example_configurations/combined/repository/storage/
+server/example_configurations/combined/registry/input/
+server/example_configurations/combined/registry/storage/
+server/example_configurations/combined/discovery/storage/
