@@ -10,9 +10,29 @@ implementation to the respective string and vice versa.
 """
 
 import os
-from typing import IO, BinaryIO, Dict, Type, Union
+from typing import IO, BinaryIO, Dict, Optional, Type, Union
 
 from basyx.aas import model
+
+
+def serializable_id_short(obj: model.Referable) -> Optional[str]:
+    """
+    Get the idShort of a :class:`~basyx.aas.model.base.Referable` as it is to be serialized. This hides the internal
+    idShort (prefixed with :attr:`~basyx.aas.model.submodel.SubmodelElementList.GENERATED_ID_SHORT_PREFIX`), which
+    the SDK generates for elements of a :class:`~basyx.aas.model.submodel.SubmodelElementList` added without an
+    idShort. For these, ``None`` is returned, while all other idShorts are returned as they are.
+
+    :param obj: The Referable to get the idShort of
+    :return: The idShort to serialize or ``None``, if no idShort is to be serialized
+    """
+    if (
+        obj.id_short is not None
+        and isinstance(obj.parent, model.SubmodelElementList)
+        and obj.id_short.startswith(model.SubmodelElementList.GENERATED_ID_SHORT_PREFIX)
+    ):
+        return None
+    return obj.id_short
+
 
 # type aliases for path-like objects and IO
 # used by write_aas_xml_file, read_aas_xml_file, write_aas_json_file, read_aas_json_file

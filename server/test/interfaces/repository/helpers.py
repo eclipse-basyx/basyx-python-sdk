@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import TypeVar
+from typing import Any, Callable, TypeVar
 from unittest import mock
 
 from app.interfaces import repository
@@ -17,7 +17,7 @@ from basyx.aas.examples.data.example_aas_missing_attributes import (
 from basyx.aas.model import Identifiable
 from werkzeug.test import Client
 
-from ..format_utils import AssertResponseMixin
+from ..format_utils import AssertResponseMixin, FormatClient
 
 T = TypeVar('T')
 
@@ -39,6 +39,39 @@ class RepositoryEndpointTestBase(AssertResponseMixin):
     def setUp(self) -> None:
         self.object_store.clear()
         self.file_store.reset_mock()
+
+    def assert_extent_toggles_blob_value(
+        self, format_client: FormatClient, path: str, locate_blob: Callable[[Any], Any],
+    ) -> None:
+        """
+        Ensures the BLOB value is only serialized with ``extent=WithBLOBValue``. ``WithoutBLOBValue`` is the default.
+
+        :param locate_blob: Returns the Blob node from the parsed response body
+        """
+        with self.subTest(extent="WithBLOBValue"):
+            response = format_client.get(f"{path}?extent=WithBLOBValue")
+            self.assert_ok(response)
+            blob = locate_blob(format_client.parse_object(response))
+            self.assertIn("value", blob)
+
+        for omit_query in ("?extent=WithoutBLOBValue", ""):
+            with self.subTest(extent=omit_query or "default"):
+                response = format_client.get(f"{path}{omit_query}")
+                self.assert_ok(response)
+                blob = locate_blob(format_client.parse_object(response))
+                self.assertNotIn("value", blob)
+
+    def assert_xml_requires_blob_value(self, format_client: FormatClient, path: str) -> None:
+        """
+        Ensures Normal XML responses are only served with ``extent=WithBLOBValue`` and ``level=deep``, as the XML
+        serialization can neither omit BLOB values nor children. Every other combination must be rejected with
+        ``406 Not Acceptable``.
+        """
+        for query in ("", "?extent=WithoutBLOBValue", "?extent=WithBLOBValue&level=core"):
+            with self.subTest(query=query or "default"):
+                self.assert_error(format_client.get(f"{path}{query}"), 406)
+        with self.subTest(query="?extent=WithBLOBValue"):
+            self.assert_ok(format_client.get(f"{path}?extent=WithBLOBValue"))
 
     @classmethod
     def two_shells_store(cls):

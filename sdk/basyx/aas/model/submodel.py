@@ -814,7 +814,12 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
                                     supplemental semantic ID of the element. (inherited from
                                     :class:`~basyx.aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
+
+    :cvar GENERATED_ID_SHORT_PREFIX: Prefix of the idShort generated for elements added without an idShort. It is only
+                                     used internally and must never be serialized.
     """
+
+    GENERATED_ID_SHORT_PREFIX = "generated_submodel_list_hack_"
 
     def __init__(
         self,
@@ -897,14 +902,14 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
         # a unique attribute for child-elements (which contradicts the definition of a Namespace).
         if new.id_short is None:
             new.id_short = (
-                "generated_submodel_list_hack_"
+                self.GENERATED_ID_SHORT_PREFIX
                 + uuid.uuid1(clock_seq=self._uuid_seq).hex
             )
             self._uuid_seq += 1
 
     def _unset_id_short(self, old: _SE) -> None:
         if old.id_short is not None and old.id_short.startswith(
-            "generated_submodel_list_hack_"
+            self.GENERATED_ID_SHORT_PREFIX
         ):
             old.id_short = None
 

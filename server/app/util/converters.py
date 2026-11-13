@@ -20,6 +20,8 @@ import werkzeug.utils
 from basyx.aas import model
 from werkzeug.exceptions import BadRequest
 
+from app.adapter.modifiers import Content
+
 BASE64URL_ENCODING = "utf-8"
 
 
@@ -55,6 +57,28 @@ class IdentifierToBase64URLConverter(werkzeug.routing.UnicodeConverter):
         value = super().to_python(value)
         decoded = base64url_decode(value)
         return decoded
+
+
+class ContentModifierConverter(werkzeug.routing.BaseConverter):
+    """
+    URL converter matching the ``$metadata``, ``$value``, ``$reference`` and ``$path`` suffixes to convert
+    to :class:`~app.adapter.modifiers.Content` value
+    """
+
+    _TO_PYTHON = {
+        "$metadata":  Content.METADATA,
+        "$value":     Content.VALUE,
+        "$reference": Content.REFERENCE,
+        "$path":      Content.PATH,
+    }
+    _TO_URL = {v: k for k, v in _TO_PYTHON.items()}
+    regex = r"\$(?:metadata|value|reference|path)"
+
+    def to_python(self, value: str) -> Content:
+        return self._TO_PYTHON[value]
+
+    def to_url(self, value: Content) -> str:
+        return self._TO_URL[value]
 
 
 class IdShortPathConverter(werkzeug.routing.UnicodeConverter):

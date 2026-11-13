@@ -16,7 +16,9 @@ import werkzeug.exceptions
 import werkzeug.routing
 import werkzeug.utils
 from basyx.aas import model
+from basyx.aas.adapter import _ordering
 from basyx.aas.adapter._generic import XML_NS_MAP
+from basyx.aas.adapter.json import MetadataJsonEncoder, PathJsonEncoder, ReferenceJsonEncoder, ValueOnlyJsonEncoder
 from basyx.aas.adapter.xml import XMLConstructables, read_aas_xml_element, xml_serialization
 from basyx.aas.model import AbstractObjectStore
 from basyx.aas.model.datatypes import NonNegativeInteger
@@ -26,7 +28,13 @@ from werkzeug.exceptions import BadRequest, NotFound
 from werkzeug.routing import MapAdapter
 
 import app.model
-from app.adapter import ServerAASToJsonEncoder, ServerStrictAASFromJsonDecoder, ServerStrictStrippedAASFromJsonDecoder
+from app.adapter import (
+    Content,
+    Modifiers,
+    ServerAASToJsonEncoder,
+    ServerStrictAASFromJsonDecoder,
+    ServerStrictStrippedAASFromJsonDecoder,
+)
 from app.model import AssetAdministrationShellDescriptor, AssetLink, SubmodelDescriptor
 from app.util.converters import base64url_decode
 
@@ -94,40 +102,96 @@ class APIResponse(abc.ABC, Response):
         self,
         obj: Optional[ResponseData] = None,
         paging_metadata: Optional[PagingMetadata] = None,
-        stripped: bool = False,
+        modifiers: Optional[Modifiers] = None,
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
+        if modifiers is not None:
+            self.assert_supports_modifiers(modifiers)
         if obj is None:
             self.status_code = 204
         else:
-            self.data = self.serialize(obj, paging_metadata, stripped)
+            self.data = self.serialize(obj, paging_metadata, modifiers)
 
     @abc.abstractmethod
-    def serialize(self, obj: ResponseData, paging_metadata: Optional[PagingMetadata], stripped: bool) -> str:
+    def serialize(
+        self,
+        obj: ResponseData,
+        paging_metadata: Optional[PagingMetadata],
+        modifiers: Optional[Modifiers]
+    ) -> str:
         pass
+
+    @classmethod
+    @abc.abstractmethod
+    def assert_supports_modifiers(cls, mods: Modifiers) -> None:
+        """
+        Ensures the response format supports the requested serialization modifiers. Can be used to fast-fail on
+        unsupported combinations of modifiers, even before object, retrieval.
+        """
 
 
 class JsonResponse(APIResponse):
     def __init__(self, *args, content_type="application/json", **kwargs):
         super().__init__(*args, **kwargs, content_type=content_type)
 
-    def serialize(self, obj: ResponseData, paging_metadata: Optional[PagingMetadata], stripped: bool) -> str:
+    @classmethod
+    def assert_supports_modifiers(cls, mods: Modifiers) -> None:
+        # JSON supports all serialization formats and modifiers
+        return
+
+    def serialize(
+        self,
+        obj: ResponseData,
+        paging_metadata: Optional[PagingMetadata],
+        modifiers: Optional[Modifiers]
+    ) -> str:
+        if modifiers is not None:
+            encoder_cls, encoder_kwargs = pick_encoder(modifiers)
+        else:
+            encoder_cls = ResultToJsonEncoder
+            encoder_kwargs = {}
         if paging_metadata is None:
             data = obj
         else:
             data = {"paging_metadata": paging_metadata, "result": obj}
-        return json.dumps(
-            data, cls=StrippedResultToJsonEncoder if stripped else ResultToJsonEncoder, separators=(",", ":")
-        )
+        return json.dumps(data, cls=encoder_cls, separators=(",", ":"), **encoder_kwargs)
 
 
 class XmlResponse(APIResponse):
     def __init__(self, *args, content_type="application/xml", **kwargs):
         super().__init__(*args, **kwargs, content_type=content_type)
 
-    def serialize(self, obj: ResponseData, paging_metadata: Optional[PagingMetadata], stripped: bool) -> str:
+    @classmethod
+    def assert_supports_modifiers(cls, mods: Modifiers) -> None:
+        """
+        XML only supports the Normal and Reference serialization, Normal requires ``extent=WithBLOBValue`` and
+        ``level=deep``. Supporting XML is a BaSyx Python SDK extension, as the specification only defines JSON.
+        """
+        if mods.content is Content.REFERENCE:
+            return
+        if mods.content is not Content.NORMAL:
+            raise werkzeug.exceptions.NotAcceptable(
+                f"The requested content type is not supported by /${mods.content.value}. "
+                "Use 'application/json' instead."
+            )
+        if not mods.is_deep:
+            raise werkzeug.exceptions.NotAcceptable(
+                "The requested content type is not supported with ?level=core. Use 'application/json' instead."
+            )
+        if not mods.is_with_blob:
+            raise werkzeug.exceptions.NotAcceptable(
+                "The requested content type is not supported with ?extent=WithoutBlobValue. "
+                "Use 'application/json' instead."
+            )
+
+    def serialize(
+        self,
+        obj: ResponseData,
+        paging_metadata: Optional[PagingMetadata],
+        modifiers: Optional[Modifiers]
+    ) -> str:
         root_elem = etree.Element("response", nsmap=XML_NS_MAP)
         if paging_metadata is not None and paging_metadata.cursor is not None:
             root_elem.set("cursor", str(paging_metadata.cursor))
@@ -135,11 +199,16 @@ class XmlResponse(APIResponse):
             result_elem = self.result_to_xml(obj, **XML_NS_MAP)
             for child in result_elem:
                 root_elem.append(child)
-        elif isinstance(obj, list):
+        elif isinstance(obj, list) or isinstance(obj, SubmodelElementsWrapper):
+            # There is no Reference encoder for XML, so Referables are converted to their ModelReference beforehand
+            if modifiers is not None and modifiers.content is Content.REFERENCE:
+                obj = [model.ModelReference.from_referable(item) for item in obj if isinstance(item, model.Referable)]
             for item in obj:
                 item_elem = xml_serialization.object_to_xml_element(item)
                 root_elem.append(item_elem)
         else:
+            if modifiers is not None and modifiers.content is Content.REFERENCE:
+                obj = model.ModelReference.from_referable(obj) if isinstance(obj, model.Referable) else None
             obj_elem = xml_serialization.object_to_xml_element(obj)
             for child in obj_elem:
                 root_elem.append(child)
@@ -184,7 +253,26 @@ class XmlResponseAlt(XmlResponse):
         super().__init__(*args, **kwargs, content_type=content_type)
 
 
-class ResultToJsonEncoder(ServerAASToJsonEncoder):
+class SubmodelElementsWrapper(Iterable[model.SubmodelElement]):
+    """
+    Marks an iterable of ``SubmodelElement``s as the result of a ``.../submodel-elements`` route, so that each result
+    encoder can apply the representation of its serialization format to the listing as a whole.
+    """
+
+    def __init__(self, elements: Iterable[model.SubmodelElement]):
+        self.elements = elements
+
+    def __iter__(self):
+        return iter(self.elements)
+
+
+class ResultJsonMixin(json.JSONEncoder):
+    """
+    Serialization of the server's response objects. Combined with an encoder of the requested serialization format,
+    which handles everything else. It has to precede that encoder in the bases, as not all of them call
+    ``super().default()``.
+    """
+
     @classmethod
     def _result_to_json(cls, result: Result) -> Dict[str, object]:
         return {"success": result.success, "messages": result.messages}
@@ -205,6 +293,9 @@ class ResultToJsonEncoder(ServerAASToJsonEncoder):
             json_result["cursor"] = str(metadata.cursor)
         return json_result
 
+    def _submodel_elements_wrapper_to_json(self, obj: SubmodelElementsWrapper) -> object:
+        return list(obj)
+
     def default(self, obj: object) -> object:
         if isinstance(obj, Result):
             return self._result_to_json(obj)
@@ -214,11 +305,74 @@ class ResultToJsonEncoder(ServerAASToJsonEncoder):
             return str(obj)
         if isinstance(obj, PagingMetadata):
             return self._paging_metadata_to_json(obj)
+        if isinstance(obj, SubmodelElementsWrapper):
+            return self._submodel_elements_wrapper_to_json(obj)
         return super().default(obj)
 
 
-class StrippedResultToJsonEncoder(ResultToJsonEncoder):
-    stripped = True
+class ResultToJsonEncoder(ResultJsonMixin, ServerAASToJsonEncoder):
+    pass
+
+
+class NoBlobValueResultToJsonEncoder(ResultToJsonEncoder):
+    with_blob_value = False
+
+
+class ResultMetadataJsonEncoder(ResultJsonMixin, MetadataJsonEncoder):
+    pass
+
+
+class ResultReferenceJsonEncoder(ResultJsonMixin, ReferenceJsonEncoder):
+    pass
+
+
+class ResultValueOnlyJsonEncoder(ResultJsonMixin, ValueOnlyJsonEncoder):
+    """
+    ValueOnly serialization. A ``.../submodel-elements`` listing is serialized as one ValueOnly object with the
+    idShorts as names, like the ValueOnly representation of a Submodel (``GetSubmodelElementsValueResult``).
+    """
+
+    def _submodel_elements_wrapper_to_json(self, obj: SubmodelElementsWrapper) -> object:
+        return self._submodel_element_iterable_to_value_only(obj)
+
+
+class NoBlobValueResultValueOnlyJsonEncoder(ResultValueOnlyJsonEncoder):
+    with_blob_value = False
+
+
+class ResultPathJsonEncoder(ResultJsonMixin, PathJsonEncoder):
+
+    def iter_paths(self, elements: Iterable[model.SubmodelElement]) -> Iterator[str]:
+        """
+        Lazily yields the idShortPaths of the given elements and their children, one top-level element at a time, so
+        that pagination does not need to compute the paths behind the requested page.
+        """
+        for element in sorted(elements, key=_ordering.referable_sort_key):
+            paths: List[str] = []
+            self._append_children(paths, [element], prefix=[])
+            yield from paths
+
+
+def pick_encoder(mods: Modifiers) -> Tuple[Type[ResultJsonMixin], Dict[str, Any]]:
+    """Pick a JSON encoder class + encoder-constructor kwargs for the given modifier combination.
+
+    Encoders that take per-request axis state (e.g. ``deep``) receive it via kwargs here;
+    ``json.dumps`` forwards them into the encoder's ``__init__``.
+    """
+    encoder: Type[ResultJsonMixin]
+    match mods.content:
+        case Content.NORMAL:
+            encoder = ResultToJsonEncoder if mods.is_with_blob else NoBlobValueResultToJsonEncoder
+            return encoder, {"deep": mods.is_deep}
+        case Content.METADATA:
+            return ResultMetadataJsonEncoder, {}
+        case Content.VALUE:
+            encoder = ResultValueOnlyJsonEncoder if mods.is_with_blob else NoBlobValueResultValueOnlyJsonEncoder
+            return encoder, {"deep": mods.is_deep}
+        case Content.REFERENCE:
+            return ResultReferenceJsonEncoder, {}
+        case Content.PATH:
+            return ResultPathJsonEncoder, {"deep": mods.is_deep}
 
 
 class BaseWSGIApp:
@@ -239,7 +393,9 @@ class BaseWSGIApp:
                 NonNegativeInteger(int(cursor_str) - 1),
             )  # cursor is 1-indexed
         except ValueError:
-            raise BadRequest("Limit can not be negative, cursor must be positive!")
+            raise BadRequest("Limit must be a positive integer, cursor must be positive!")
+        if limit < 1:
+            raise BadRequest("Limit must be a positive integer, cursor must be positive!")
         start_index = cursor
         end_index = cursor + limit
         items = list(itertools.islice(iterator, start_index, end_index + 1))
@@ -483,6 +639,11 @@ class HTTPApiDecoder:
 
 
 def is_stripped_request(request: Request) -> bool:
+    """
+    Determines whether a request body is to be parsed as stripped object (``level=core``). Only used for parsing
+    request bodies, responses are serialized according to :func:`~app.adapter.modifiers.parse_modifiers`.
+    """
+    # TODO: replace by parse_modifiers, see #650
     level = request.args.get("level")
     if level not in {"deep", "core", None}:
         raise BadRequest(f"Level {level} is not a valid level!")
