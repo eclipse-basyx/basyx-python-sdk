@@ -56,7 +56,8 @@ add_module_names = False
 # Still render on the page just dont clutter / leak into navigation or TOC.
 toc_object_entries = False
 
-# Autodoc defaults: document public members only, preserve source order
+# Autodoc defaults: document all public members, including undocumented
+# ones (they are referenced elsewhere), and preserve source order
 autodoc_default_options = {
     "members": True,
     "member-order": "bysource", # alphabetic ordering can break logical grouping of source files
