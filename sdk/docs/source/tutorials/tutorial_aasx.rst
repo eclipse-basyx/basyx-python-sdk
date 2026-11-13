@@ -1,5 +1,5 @@
-Tutorial: AASX
-=============================
+Read and write AASX packages
+============================
 
 .. _tutorial_aasx:
 

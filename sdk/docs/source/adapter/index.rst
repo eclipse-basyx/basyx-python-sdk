@@ -1,5 +1,7 @@
-basyx.aas.adapter: Adapter of AAS-objects from and to different file-formats
-============================================================================
+Adapter of AAS-Objects from and to different file-formats
+=========================================================
+
+.. rubric:: :mod:`basyx.aas.adapter`
 
 .. automodule:: basyx.aas.adapter
 

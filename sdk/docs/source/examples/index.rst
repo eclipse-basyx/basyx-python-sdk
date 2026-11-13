@@ -1,12 +1,10 @@
-basyx.aas.examples - Example classes
-====================================
+Example classes
+===============
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
 
    example_aas
    example_aas_mandatory_attributes
    example_aas_missing_attributes
    example_submodel_template
-   _helper
