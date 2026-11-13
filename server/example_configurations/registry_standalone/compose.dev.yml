@@ -1,3 +1,4 @@
+name: basyx-python-registry
 services:
   app:
     build:

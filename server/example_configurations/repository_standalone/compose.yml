@@ -1,4 +1,4 @@
-name: basyx-python-server
+name: basyx-python-repository
 services:
   app:
     image: eclipsebasyx/basyx-python-repository:latest

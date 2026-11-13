@@ -1,3 +1,4 @@
+name: basyx-python-registry
 services:
   app:
     image: eclipsebasyx/basyx-python-registry:latest
