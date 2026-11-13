@@ -173,7 +173,8 @@ class XmlResponse(APIResponse):
             return
         if mods.content is not Content.NORMAL:
             raise werkzeug.exceptions.NotAcceptable(
-                f"The requested content type is not supported by /${mods.content}. Use 'application/json' instead."
+                f"The requested content type is not supported by /${mods.content.value}. "
+                "Use 'application/json' instead."
             )
         if not mods.is_deep:
             raise werkzeug.exceptions.NotAcceptable(

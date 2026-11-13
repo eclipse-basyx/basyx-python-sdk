@@ -196,7 +196,7 @@ class ValueOnlyJsonEncoder(AASToJsonEncoder):
         data: dict[str, object] = {}
         data["contentType"] = obj.content_type
         if obj.value is not None:
-                data["value"] = obj.value
+            data["value"] = obj.value
         return data
 
     @classmethod

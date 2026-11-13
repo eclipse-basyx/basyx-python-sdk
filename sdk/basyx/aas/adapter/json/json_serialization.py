@@ -219,7 +219,7 @@ class AASToJsonEncoder(json.JSONEncoder):
                     }
                     for spec in sorted(
                         obj.embedded_data_specifications,
-                        key=lambda s: _ordering.embedded_data_specification_sort_key(s),
+                        key=_ordering.embedded_data_specification_sort_key,
                     )
                 ]
 
