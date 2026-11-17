@@ -112,24 +112,17 @@ class AASToJsonEncoder(json.JSONEncoder):
         :param obj: The object to serialize to json
         :return: The serialized object
         """
-        mapping = self._get_cached_aas_class_serializers()
-        for typ, mapping_method in mapping.items():
-            if isinstance(obj, typ):
-                return mapping_method(obj)
-        return super().default(obj)
-
-    @classmethod
-    def _get_cached_aas_class_serializers(cls) -> Dict[Type, Callable]:
-        """
-        Returns the result of :meth:`_get_aas_class_serializers`, which is computed only once per encoder class, since
-        :meth:`default` needs it for every single object.
-        """
-        # Look up in cls.__dict__ (not via getattr), so subclasses don't reuse the serializers of their base class
+        # Computed once per encoder class, since it is needed for every single object. Look up in __dict__ (not via
+        # getattr), so subclasses don't reuse the serializers of their base class
+        cls = type(self)
         mapping = cls.__dict__.get("_aas_class_serializers_cache")
         if mapping is None:
             mapping = cls._get_aas_class_serializers()
             setattr(cls, "_aas_class_serializers_cache", mapping)
-        return mapping
+        for typ, mapping_method in mapping.items():
+            if isinstance(obj, typ):
+                return mapping_method(obj)
+        return super().default(obj)
 
     @classmethod
     def _abstract_classes_to_json(cls, obj: object) -> Dict[str, object]:

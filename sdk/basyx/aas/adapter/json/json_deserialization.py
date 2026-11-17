@@ -231,28 +231,18 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return aas_class_parsers
 
     @classmethod
-    def _get_cached_aas_class_parsers(
-        cls,
-    ) -> Dict[str, Callable[[Dict[str, object]], object]]:
-        """
-        Returns the result of :meth:`_get_aas_class_parsers`, which is computed only once per decoder class, since
-        :meth:`object_hook` needs it for every single JSON object.
-        """
-        # Look up in cls.__dict__ (not via getattr), so subclasses don't reuse the parsers of their base class
-        parsers = cls.__dict__.get("_aas_class_parsers_cache")
-        if parsers is None:
-            parsers = cls._get_aas_class_parsers()
-            setattr(cls, "_aas_class_parsers_cache", parsers)
-        return parsers
-
-    @classmethod
     def object_hook(cls, dct: Dict[str, object]) -> object:
         # Check if JSON object seems to be a deserializable AAS object (i.e. it has a modelType). Otherwise, the JSON
         #   object is returned as is, so it's possible to mix AAS objects with other data within a JSON structure.
         if "modelType" not in dct:
             return dct
 
-        AAS_CLASS_PARSERS = cls._get_cached_aas_class_parsers()
+        # Computed once per decoder class, since it is needed for every single JSON object. Look up in __dict__ (not
+        # via getattr), so subclasses don't reuse the parsers of their base class
+        AAS_CLASS_PARSERS = cls.__dict__.get("_aas_class_parsers_cache")
+        if AAS_CLASS_PARSERS is None:
+            AAS_CLASS_PARSERS = cls._get_aas_class_parsers()
+            setattr(cls, "_aas_class_parsers_cache", AAS_CLASS_PARSERS)
 
         # Get modelType and constructor function
         if not isinstance(dct["modelType"], str):
