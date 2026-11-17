@@ -33,6 +33,9 @@ class DictDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier, _DE
         for x in descriptors:
             self.add(x)
 
+    def commit(self, x: _DESCRIPTOR_TYPE) -> None:
+        pass
+
     def get_item(self, identifier: model.Identifier) -> _DESCRIPTOR_TYPE:
         return self._backend[identifier]
 

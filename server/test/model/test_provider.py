@@ -5,10 +5,16 @@
 #
 # SPDX-License-Identifier: MIT
 
+import json
+import os
+import tempfile
 import unittest
+from typing import Iterable
 
-from app import model
-from app.model.provider import DictDescriptorStore
+from app import adapter, model
+from app.model.provider import DictDescriptorStore, load_directory
+
+from ..adapter.descriptor_utils import example_aas_descriptor, example_submodel_descriptor
 
 
 class DictDescriptorStoreTest(unittest.TestCase):
@@ -64,3 +70,99 @@ class DictDescriptorStoreTest(unittest.TestCase):
         descriptor_store1.update(descriptor_store2)
         self.assertIsInstance(descriptor_store1, DictDescriptorStore)
         self.assertIn(self.sd2, descriptor_store1)
+
+
+class LoadDirectoryTest(unittest.TestCase):
+    """
+    Tests for :func:`~app.model.provider.load_directory`.
+
+    Descriptor JSON files must carry a ``modelType`` field for each descriptor so that
+    ``ServerAASFromJsonDecoder`` recognizes and converts them (descriptors aren't ``Referable``, so the SDK's
+    encoder never writes ``modelType`` on its own -- see ``LocalFileDescriptorStore.add()``/``commit()``,
+    which inject it for the same reason). ``_write_file()`` below replicates that injection to build valid
+    fixture files.
+    """
+
+    @staticmethod
+    def _write_file(
+        directory: str,
+        filename: str,
+        aas_descriptors: Iterable[model.AssetAdministrationShellDescriptor] = (),
+        submodel_descriptors: Iterable[model.SubmodelDescriptor] = (),
+    ) -> None:
+        data = {
+            "assetAdministrationShellDescriptors": list(aas_descriptors),
+            "submodelDescriptors": list(submodel_descriptors),
+        }
+
+        # Hack in the "modelType" to deserialize into the right classes
+        json_save = json.loads(json.dumps(data, cls=adapter.ServerAASToJsonEncoder))
+        for aas in json_save["assetAdministrationShellDescriptors"]:
+            aas["modelType"] = "AssetAdministrationShellDescriptor"
+        for sm in json_save["submodelDescriptors"]:
+            sm["modelType"] = "SubmodelDescriptor"
+
+        with open(os.path.join(directory, filename), "w") as f:
+            json.dump(json_save, f)
+
+    def test_loads_descriptors_from_single_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            aasd = example_aas_descriptor("https://example.org/AASDescriptor/1")
+            sd = example_submodel_descriptor("https://example.org/SubmodelDescriptor/1")
+            self._write_file(tmp_dir, "descriptors.json", aas_descriptors=[aasd], submodel_descriptors=[sd])
+
+            store = load_directory(tmp_dir)
+
+            self.assertEqual(2, len(store))
+            self.assertIn("https://example.org/AASDescriptor/1", store)
+            self.assertIn("https://example.org/SubmodelDescriptor/1", store)
+
+    def test_merges_descriptors_from_multiple_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            aasd1 = example_aas_descriptor("https://example.org/AASDescriptor/1")
+            sd1 = example_submodel_descriptor("https://example.org/SubmodelDescriptor/1")
+            aasd2 = example_aas_descriptor("https://example.org/AASDescriptor/2")
+            sd2 = example_submodel_descriptor("https://example.org/SubmodelDescriptor/2")
+            self._write_file(tmp_dir, "a.json", aas_descriptors=[aasd1], submodel_descriptors=[sd1])
+            self._write_file(tmp_dir, "b.json", aas_descriptors=[aasd2], submodel_descriptors=[sd2])
+
+            store = load_directory(tmp_dir)
+
+            self.assertEqual(4, len(store))
+            self.assertIn("https://example.org/AASDescriptor/1", store)
+            self.assertIn("https://example.org/AASDescriptor/2", store)
+            self.assertIn("https://example.org/SubmodelDescriptor/1", store)
+            self.assertIn("https://example.org/SubmodelDescriptor/2", store)
+
+    def test_duplicate_ids_across_files_are_skipped_not_raised(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            aasd1 = example_aas_descriptor("https://example.org/AASDescriptor/1")
+            aasd2 = example_aas_descriptor("https://example.org/AASDescriptor/1")
+            sd1 = example_submodel_descriptor("https://example.org/SubmodelDescriptor/1")
+            sd2 = example_submodel_descriptor("https://example.org/SubmodelDescriptor/1")
+            self._write_file(tmp_dir, "a.json", aas_descriptors=[aasd1], submodel_descriptors=[sd1])
+            self._write_file(tmp_dir, "b.json", aas_descriptors=[aasd2], submodel_descriptors=[sd2])
+
+            store = load_directory(tmp_dir)  # must not raise despite the duplicate ids
+
+            self.assertEqual(2, len(store))
+            self.assertIn("https://example.org/AASDescriptor/1", store)
+            self.assertIn("https://example.org/SubmodelDescriptor/1", store)
+
+    def test_ignores_non_json_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            with open(os.path.join(tmp_dir, "readme.txt"), "w") as f:
+                f.write("not a descriptor file")
+            aasd = example_aas_descriptor("https://example.org/AASDescriptor/1")
+            sd = example_submodel_descriptor("https://example.org/SubmodelDescriptor/1")
+            self._write_file(tmp_dir, "a.json", aas_descriptors=[aasd], submodel_descriptors=[sd])
+
+            store = load_directory(tmp_dir)
+
+            self.assertEqual(2, len(store))
+
+    def test_empty_directory_returns_empty_store(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            store = load_directory(tmp_dir)
+
+            self.assertEqual(0, len(store))

@@ -1,27 +1,25 @@
-.. Eclipse BaSyx Python SDK documentation master file, created by
-   sphinx-quickstart on Tue Nov 10 15:09:27 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to the Eclipse BaSyx Python SDK's documentation!
 ========================================================
 
 .. toctree::
-   :numbered:
+   :caption: User Guide
    :maxdepth: 2
-   :caption: Contents:
 
    tutorials/index
+   examples/index
+
+.. toctree::
+   :caption: API Reference
+   :maxdepth: 2
+
    model/index
    adapter/index
    backend/index
-   examples/index
    util/index
    constraints
 
-
-Indices and tables
-==================
+Indices
+=======
 
 * :ref:`genindex`
 * :ref:`modindex`

@@ -7,6 +7,7 @@
 
 import base64
 import configparser
+import os
 import os.path
 import urllib.error
 import urllib.request
@@ -19,6 +20,12 @@ TEST_CONFIG.read(
     )
 )
 
+
+# By default, the schema validation tests are skipped when the AAS schema files are missing, so that a plain local
+# `python -m unittest` run doesn't require downloading them first. Set this environment variable to "1"/"true"
+# (e.g. in CI) to instead make those tests fail if the files are missing, so a broken download can't silently cause
+# the tests to be skipped without anyone noticing.
+REQUIRE_SCHEMAS = os.environ.get("REQUIRE_SCHEMA_TESTS", "false").lower() in {"1", "true", "yes"}
 
 # Check if CouchDB database is available. Otherwise, skip tests.
 try:
