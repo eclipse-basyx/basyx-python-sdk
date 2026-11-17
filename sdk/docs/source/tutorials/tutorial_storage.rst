@@ -1,5 +1,5 @@
-Tutorial: Storage
-=================
+Store and retrieve AAS objects
+==============================
 
 .. _tutorial_storage:
 

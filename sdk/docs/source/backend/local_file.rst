@@ -1,4 +1,6 @@
-local_file - Store and Retrieve AAS-objects as JSON Files
-=========================================================
+Store and Retrieve AAS-Objects as JSON Files
+============================================
+
+.. rubric:: :mod:`basyx.aas.backend.local_file`
 
 .. automodule:: basyx.aas.backend.local_file

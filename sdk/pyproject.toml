@@ -27,14 +27,14 @@ authors = [
     { name = "The Eclipse BaSyx Authors", email = "admins@iat.rwth-aachen.de" }
 ]
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Development Status :: 5 - Production/Stable"
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "lxml>=6.0.2",
     "python-dateutil>=2.8,<3",

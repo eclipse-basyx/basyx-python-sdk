@@ -1,4 +1,4 @@
-name: pr
+name: CI
 
 on:
   push:
@@ -12,11 +12,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  X_PYTHON_MIN_VERSION: "3.10"
-  X_PYTHON_MAX_VERSION: "3.12"
-  X_API_VERSION: "v3.1"
-
 jobs:
   helper-scripts-static-analysis:
     #This job runs static code analysis with ruff on the helper scripts in ./etc/scripts
@@ -26,77 +21,58 @@ jobs:
         working-directory: ./etc/scripts
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+      - uses: ./.github/actions/load-versions
       - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
         with:
           python-version: ${{ env.X_PYTHON_MIN_VERSION }}
       - name: Install Ruff
-      # Revisit when Ruff version is specified in single source of truth
         run: |
           python -m pip install --upgrade pip
-          python -m pip install ruff==0.16.0
+          python -m pip install ruff==${{ env.X_RUFF_VERSION }}
       - name: Check formatting and linting rules with Ruff
         run: |
-          python -m ruff check 
+          python -m ruff check
 
-  check-python-versions:
-    # This job checks that the Python Versions we support match and are not End of Life
+  check-global-versions:
+    # Verifies that (1) the supported Python versions are not EoL and (2) the values
+    # declared in `versions.toml` coincide with every module's `pyproject.toml` and
+    # any listed `config.toml` file.
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./etc/scripts
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+      - uses: ./.github/actions/load-versions
       - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
         with:
           python-version: ${{ env.X_PYTHON_MIN_VERSION }}
           cache: "pip"
-          cache-dependency-path: "./check_python_versions_requirements.txt"
+          cache-dependency-path: "./check_versions_requirements.txt"
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r ./check_python_versions_requirements.txt
+          python -m pip install -r ./check_versions_requirements.txt
       - name: Check Supported Python Versions
         run: |
           python check_python_versions_supported.py \
             ${{ env.X_PYTHON_MIN_VERSION }} \
             ${{ env.X_PYTHON_MAX_VERSION }}
 
-      - name: Check Python Versions coincide with all pyproject.toml Files
+      - name: Check versions.toml coincides with pyproject.toml and config files
         run: |
-          for file in ../../sdk/pyproject.toml ../../compliance_tool/pyproject.toml ../../server/pyproject.toml; do
-            python check_python_versions_coincide.py \
-              $file \
-              ${{ env.X_PYTHON_MIN_VERSION }} \
-              ${{ env.X_PYTHON_MAX_VERSION }}
-          done
-
-      - name: Check Python Versions coincide with all Dockerfiles
-        run: |
-          for file in ../../server/docker/repository/Dockerfile \
-                      ../../server/docker/registry/Dockerfile  \
-                      ../../server/docker/discovery/Dockerfile; do
-            python check_python_versions_coincide.py --docker \
-              $file \
-              ${{ env.X_PYTHON_MIN_VERSION }} \
-              ${{ env.X_PYTHON_MAX_VERSION }}
-          done
+          python check_global_versions_coincide.py
 
   sdk-test:
     # This job runs the unittests on the python versions specified down at the matrix
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.12"]
+        python-version: ["3.11", "3.12"]
     env:
       COUCHDB_ADMIN_PASSWORD: "yo0Quai3"
-      # (2024-10-11, s-heppner)
-      # Specify the tag of the released schema files from https://github.com/admin-shell-io/aas-specs/releases
-      # that you want to use to test the serialization adapter against.
-      # Currently, we need to update this manually, however I'm afraid this is not possible to automatically infer,
-      # since it's heavily dependant of the version of the AAS specification we support.
-      AAS_SPECS_RELEASE_TAG: "v3.1.2"
     services:
       couchdb:
         image: couchdb:3
@@ -110,6 +86,7 @@ jobs:
         working-directory: ./sdk
     steps:
     - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+    - uses: ./.github/actions/load-versions
     - name: Verify Matrix Version matches Global Version
       run: |
         if [ "${{ matrix.python-version }}" != "${{ env.X_PYTHON_MIN_VERSION }}" ] && [ "${{ matrix.python-version }}" != "${{ env.X_PYTHON_MAX_VERSION }}" ]; then
@@ -124,9 +101,9 @@ jobs:
         cache-dependency-path: "**/pyproject.toml"
     - name: Collect schema files from aas-specs
       run: |
-        mkdir -p ./test/adapter/schema
-        curl -sSLf -o ./test/adapter/schema/aasJSONSchema.json https://raw.githubusercontent.com/admin-shell-io/aas-specs-metamodel/refs/tags/${{ env.AAS_SPECS_RELEASE_TAG }}/schemas/json/aas.json
-        curl -sSLf -o ./test/adapter/schema/aasXMLSchema.xsd https://raw.githubusercontent.com/admin-shell-io/aas-specs-metamodel/refs/tags/${{ env.AAS_SPECS_RELEASE_TAG }}/schemas/xml/AAS.xsd
+        mkdir -p ./test/adapter/schemas
+        curl -sSLf -o ./test/adapter/schemas/aasJSONSchema.json https://raw.githubusercontent.com/admin-shell-io/aas-specs-metamodel/refs/tags/${{ env.X_AAS_SPECS_RELEASE_TAG }}/schemas/json/aas.json
+        curl -sSLf -o ./test/adapter/schemas/aasXMLSchema.xsd https://raw.githubusercontent.com/admin-shell-io/aas-specs-metamodel/refs/tags/${{ env.X_AAS_SPECS_RELEASE_TAG }}/schemas/xml/AAS.xsd
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
@@ -135,6 +112,9 @@ jobs:
       run: |
         python test/_helper/setup_testdb.py -u "admin" -p "$COUCHDB_ADMIN_PASSWORD"
     - name: Test with coverage + unittest
+      env:
+        # Fail instead of silently skipping if the schema files above are missing (see test_helpers.py).
+        REQUIRE_SCHEMA_TESTS: "1"
       run: |
         python -m coverage run --source=basyx -m unittest
     - name: Report test coverage
@@ -150,6 +130,7 @@ jobs:
         working-directory: ./sdk
     steps:
     - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+    - uses: ./.github/actions/load-versions
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
@@ -175,6 +156,7 @@ jobs:
         working-directory: ./sdk
     steps:
     - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+    - uses: ./.github/actions/load-versions
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
@@ -206,6 +188,7 @@ jobs:
         working-directory: ./sdk
     steps:
     - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+    - uses: ./.github/actions/load-versions
     - name: Set up Python ${{ env.X_PYTHON_MAX_VERSION }}
       uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
@@ -228,6 +211,7 @@ jobs:
         working-directory: ./sdk
     steps:
     - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+    - uses: ./.github/actions/load-versions
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
@@ -236,6 +220,8 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install build
+    - name: Copy LICENSE into build directory
+      run: cp ../LICENSE .
     - name: Create source and wheel dist
       run: |
         python -m build
@@ -257,7 +243,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.12"]
+        python-version: ["3.11", "3.12"]
     defaults:
       run:
         working-directory: ./compliance_tool
@@ -269,6 +255,13 @@ jobs:
         # Need tags so setuptools_scm builds the local sdk as >=1.0.0, else the loose
         # `basyx-python-sdk>=1.0.0` pin lets pip replace it with the PyPI release.
         fetch-depth: 0
+    - uses: ./.github/actions/load-versions
+    - name: Verify Matrix Version matches Global Version
+      run: |
+        if [ "${{ matrix.python-version }}" != "${{ env.X_PYTHON_MIN_VERSION }}" ] && [ "${{ matrix.python-version }}" != "${{ env.X_PYTHON_MAX_VERSION }}" ]; then
+          echo "Error: Matrix version ${{ matrix.python-version }} does not match global version."
+          exit 1
+        fi
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
@@ -303,6 +296,7 @@ jobs:
         # Need tags so setuptools_scm builds the local sdk as >=1.0.0, else the loose
         # `basyx-python-sdk>=1.0.0` pin lets pip replace it with the PyPI release.
         fetch-depth: 0
+    - uses: ./.github/actions/load-versions
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
@@ -331,6 +325,7 @@ jobs:
         working-directory: ./compliance_tool
     steps:
     - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+    - uses: ./.github/actions/load-versions
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
@@ -339,9 +334,51 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install build
+    - name: Copy LICENSE into build directory
+      run: cp ../LICENSE .
     - name: Create source and wheel dist
       run: |
         python -m build
+
+  server-test:
+    # This job runs the unittests on the python versions specified down at the matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    defaults:
+      run:
+        working-directory: ./server
+
+    steps:
+    - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+      with:
+        # TODO(#592): revisit when the sdk<->server version pinning is fixed.
+        # Need tags so setuptools_scm builds the local sdk as >=1.0.0, else the loose
+        # `basyx-python-sdk>=1.0.0` pin lets pip replace it with the PyPI release.
+        fetch-depth: 0
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: "pip"
+        cache-dependency-path: "**/pyproject.toml"
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install ../sdk
+        python -m pip install .[dev]
+    - name: Test with coverage + unittest
+      env:
+        # No server/container is started in this job, so the Docker integration tests should just skip here,
+        # not be required to pass (see test_helpers.py).
+        REQUIRE_SERVER_INTEGRATION_TESTS: "0"
+      run: |
+        python -m coverage run --source=app -m unittest
+    - name: Report test coverage
+      if: ${{ always() }}
+      run: |
+        python -m coverage report -m
 
   server-static-analysis:
     # This job runs static code analysis, namely ruff and mypy
@@ -352,6 +389,12 @@ jobs:
         working-directory: ./server
     steps:
     - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+      with:
+        # TODO(#592): revisit when the sdk<->server version pinning is fixed.
+        # Need tags so setuptools_scm builds the local sdk as >=1.0.0, else the loose
+        # `basyx-python-sdk>=1.0.0` pin lets pip replace it with the PyPI release.
+        fetch-depth: 0
+    - uses: ./.github/actions/load-versions
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
       with:
@@ -359,6 +402,7 @@ jobs:
         cache: "pip"
         cache-dependency-path: "**/pyproject.toml"
     - name: Install Python dependencies
+      # install the local sdk first so its version satisfies the >=1.0.0 pin and pip keeps it instead of PyPI
       run: |
         python -m pip install --upgrade pip
         python -m pip install ../sdk
@@ -372,7 +416,7 @@ jobs:
 
   server-docker:
     # This job tests for all three server profiles, if the docker image is built successfully, a container
-    # can be started and the server sends a `200 OK` response on the mandatory /description endpoint
+    # can be started and the integration tests run successfully
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -381,6 +425,13 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
+        with:
+          # TODO(#592): revisit when the sdk<->server version pinning is fixed.
+          # Need tags so setuptools_scm builds the local sdk as >=1.0.0, else the loose
+          # `basyx-python-sdk>=1.0.0` pin lets pip replace it with the PyPI release.
+          fetch-depth: 0
+
+      - uses: ./.github/actions/load-versions
 
       - uses: ./.github/actions/build-server
         id: build
@@ -391,7 +442,7 @@ jobs:
           platform: linux/amd64
       - name: Run container
         run: |
-           docker run -d --name basyx-python-${{ matrix.profile }} -p 9080:80 --pull=never ${{ steps.build.outputs.image-ref }}
+           docker run -d --name basyx-python-${{ matrix.profile }} -p 8080:80 --pull=never ${{ steps.build.outputs.image-ref }}
       - name: Wait for container and server initialization
         run: |
           timeout 30s bash -c '
@@ -401,7 +452,27 @@ jobs:
           '
       - name: Check if service is alive
         run: |
-          curl -f http://localhost:9080/api/${{ env.X_API_VERSION }}/description
+          curl -f http://localhost:8080/api/${{ env.X_API_VERSION }}/description
+      - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v7
+        with:
+          python-version: ${{ env.X_PYTHON_MIN_VERSION }}
+          cache: "pip"
+          cache-dependency-path: "**/pyproject.toml"
+      - name: Install Python dependencies
+        working-directory: ./server
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ../sdk
+          python -m pip install .[dev]
+      - name: Run Docker integration tests
+        # Each profile has its own test module
+        working-directory: ./server
+        env:
+          # Fail instead of silently skipping if the container isn't actually reachable (see test_helpers.py).
+          REQUIRE_SERVER_INTEGRATION_TESTS: "1"
+        run: |
+          python -m unittest test.docker_integration.test_docker_integration_${{ matrix.profile }} -v
       - name: Stop and remove the container
         run: |
           docker stop basyx-python-${{ matrix.profile }} && docker rm basyx-python-${{ matrix.profile }}

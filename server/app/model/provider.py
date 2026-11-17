@@ -1,3 +1,10 @@
+# Copyright (c) 2026 the Eclipse BaSyx Authors
+#
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
+#
+# SPDX-License-Identifier: MIT
+
 import json
 from pathlib import Path
 from typing import IO, Dict, Iterable, Iterator, Union
@@ -25,6 +32,9 @@ class DictDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier, _DE
         self._backend: Dict[model.Identifier, _DESCRIPTOR_TYPE] = {}
         for x in descriptors:
             self.add(x)
+
+    def commit(self, x: _DESCRIPTOR_TYPE) -> None:
+        pass
 
     def get_item(self, identifier: model.Identifier) -> _DESCRIPTOR_TYPE:
         return self._backend[identifier]

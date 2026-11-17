@@ -17,12 +17,13 @@ RUN apk update && \
 
 # Copy only the files we need to run the container
 # The argumentation for this is to keep the containers as slim as possible.
-COPY ./sdk /sdk
-COPY ./server/app /server/app
-COPY ./server/pyproject.toml /server/pyproject.toml
-COPY ./server/docker/repository/uwsgi.ini /etc/uwsgi/
-COPY ./server/docker/common/supervisord.ini /etc/supervisor/conf.d/supervisord.ini
-COPY ./server/docker/common/stop-supervisor.sh /etc/supervisor/stop-supervisor.sh
+COPY --from=sdk . /sdk
+COPY --from=license ./LICENSE /server/LICENSE
+COPY ./app /server/app
+COPY ./pyproject.toml /server/pyproject.toml
+COPY ./docker/repository/uwsgi.ini /etc/uwsgi/
+COPY ./docker/common/supervisord.ini /etc/supervisor/conf.d/supervisord.ini
+COPY ./docker/common/stop-supervisor.sh /etc/supervisor/stop-supervisor.sh
 RUN chmod +x /etc/supervisor/stop-supervisor.sh
 
 # Makes it possible to use a different configuration
@@ -35,7 +36,6 @@ ENV NGINX_MAX_UPLOAD=1M
 ENV NGINX_WORKER_PROCESSES=1
 ENV LISTEN_PORT=80
 ENV CLIENT_BODY_BUFFER_SIZE=1M
-ENV API_BASE_PATH=/api/v3.1/
 
 # Default values for the storage envs
 ENV INPUT=/input
@@ -45,7 +45,7 @@ ENV STORAGE_OVERWRITE=False
 VOLUME ["/input", "/storage"]
 
 # Copy the entrypoint that will generate Nginx additional configs
-COPY server/docker/common/entrypoint.sh /entrypoint.sh
+COPY ./docker/common/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

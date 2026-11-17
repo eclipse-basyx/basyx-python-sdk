@@ -1,5 +1,5 @@
-Tutorial: Backend Couchdb
-=============================
+Use the CouchDB backend
+=======================
 
 .. _tutorial_backend_couchdb:
 

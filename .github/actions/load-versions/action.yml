@@ -1,0 +1,19 @@
+name: load-versions
+description: >
+  Loads values from the repo-root versions.toml into environment variables
+  for the current job (via GITHUB_ENV). Downstream steps consume the values
+  through the usual env context. Requires actions/checkout to have run first.
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        {
+          echo "X_PYTHON_MIN_VERSION=$(yq -p toml '.python.min' versions.toml)"
+          echo "X_PYTHON_MAX_VERSION=$(yq -p toml '.python.max' versions.toml)"
+          echo "X_MYPY_VERSION=$(yq -p toml '.dev_tools.mypy' versions.toml)"
+          echo "X_RUFF_VERSION=$(yq -p toml '.dev_tools.ruff' versions.toml)"
+          echo "X_API_VERSION=$(yq -p toml '.spec.api_version' versions.toml)"
+          echo "X_AAS_SPECS_RELEASE_TAG=$(yq -p toml '.spec.aas' versions.toml)"
+        } >> "$GITHUB_ENV"

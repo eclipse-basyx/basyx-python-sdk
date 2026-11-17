@@ -23,6 +23,7 @@ docs/build/
 
 # Customized config files
 sdk/test/test_config.ini
+server/test/test_config.ini
 # Schema files needed for testing
 sdk/test/adapter/schemas
 

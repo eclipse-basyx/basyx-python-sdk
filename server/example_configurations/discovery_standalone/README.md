@@ -20,12 +20,13 @@ The Discovery Service stores and retrieves relations between AAS identifiers and
 
 
 ## Configuration
-This example Docker compose configuration starts a discovery server. 
-
-The container image can also be built and run via:
+The example Docker compose configuration `compose.dev.yml` builds a discovery server locally. This is usually only necessary
+for development:
 ```
-$ docker compose up
+$ docker compose -f compose.dev.yml up
 ```
+To just run the discovery server, use the pre-built image `eclipsebasyx/basyx-python-discovery:latest` 
+on [DockerHub](https://hub.docker.com/r/eclipsebasyx/basyx-python-discovery).
 
 ## Persistence
 
@@ -33,7 +34,7 @@ The discovery service can run in persistent or non-persistent mode.
 
 ### Persistent Mode
 
-Persistent mode configuration is provided in the `compose.yaml`.
+Persistent mode configuration is provided in the `compose.dev.yml`.
 
 Only the AAS-to-asset-ID mapping is persisted. The reverse lookup index is rebuilt in memory when the service starts.
 
@@ -43,4 +44,5 @@ If `storage_path` is not set, the discovery service runs in memory only.
 
 ## Notes
 - Stop the service before manually editing `discovery_store.json`.
-
+- Note that the image is built from the `server` directory. The local `sdk` directory is passed in as an additional build context named `sdk`.
+To include the package license, a second additional build context `license` passes in the repository root.
