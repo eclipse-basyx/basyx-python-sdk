@@ -90,6 +90,15 @@ class ConceptDescriptionsEndpointsTest(RepositoryEndpointTestBase):
 
         self.assertEqual([1, 1], [len(page) for page in pages])
 
+    @with_json_client
+    @with_xml_client
+    def test_concept_descriptions_get_rejects_level(self, format_client: FormatClient):
+        self.object_store.update(self.two_concept_descriptions_store())
+
+        response = format_client.get("/concept-descriptions?level=core")
+
+        self.assert_error(response, 400)
+
     # ------------------------------------------------------------------ POST /concept-descriptions
 
     @with_json_client
@@ -154,6 +163,15 @@ class ConceptDescriptionsEndpointsTest(RepositoryEndpointTestBase):
         response = format_client.get(f"/concept-descriptions/{base64url_encode(shell.id)}")
 
         self.assert_error(response, 404)
+
+    @with_json_client
+    @with_xml_client
+    def test_concept_description_get_rejects_level(self, format_client: FormatClient):
+        self.object_store.update(self.two_concept_descriptions_store())
+
+        response = format_client.get(f"/concept-descriptions/{base64url_encode(self.EXAMPLE_ID)}?level=core")
+
+        self.assert_error(response, 400)
 
     # ------------------------------------------------------------------ PUT /concept-descriptions/<concept_id>
 

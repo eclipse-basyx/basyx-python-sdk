@@ -310,15 +310,13 @@ class RegistryAPI(ObjectStoreWSGIApp):
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
         submodel_descriptors, paging_metadata = self._get_all_submodel_descriptors(request)
-        return response_t(
-            list(submodel_descriptors), paging_metadata=paging_metadata, stripped=is_stripped_request(request)
-        )
+        return response_t(list(submodel_descriptors), paging_metadata=paging_metadata)
 
     def get_submodel_descriptor_by_id(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
         submodel_descriptor = self._get_submodel_descriptor(url_args)
-        return response_t(submodel_descriptor, stripped=is_stripped_request(request))
+        return response_t(submodel_descriptor)
 
     def post_submodel_descriptor(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], map_adapter: MapAdapter

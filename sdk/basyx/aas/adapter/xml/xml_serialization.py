@@ -110,7 +110,7 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree._Element:
     if isinstance(obj, model.Referable):
         if obj.category:
             elm.append(_generate_element(name=NS_AAS + "category", text=obj.category))
-        if obj.id_short and not isinstance(obj.parent, model.SubmodelElementList):
+        if _generic.serializable_id_short(obj):
             elm.append(_generate_element(name=NS_AAS + "idShort", text=obj.id_short))
         if obj.display_name:
             elm.append(
