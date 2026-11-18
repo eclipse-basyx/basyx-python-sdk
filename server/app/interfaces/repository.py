@@ -779,6 +779,12 @@ class WSGIApp(ObjectStoreWSGIApp):
         if mods.content is Content.VALUE:
             if isinstance(submodel_element, TYPES_WITHOUT_VALUE_ONLY):
                 raise BadRequest(f"SubmodelElement {url_args['id_shorts']} has no ValueOnly representation!")
+            elif (isinstance(submodel_element, model.SubmodelElementList)
+                    and submodel_element.type_value_list_element in TYPES_WITHOUT_VALUE_ONLY):
+                raise BadRequest(
+                    f"SubmodelElementList {url_args['id_shorts']} consists of elements "
+                    f"which have no ValueOnly representation!"
+                )
         elif mods.content is Content.PATH:
             # Leaf elements have no Path representation.
             if not isinstance(submodel_element, _PATH_SUPPORTED_TYPES):

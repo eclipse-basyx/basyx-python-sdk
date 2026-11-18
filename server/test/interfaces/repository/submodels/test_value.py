@@ -297,6 +297,38 @@ class SubmodelElementsValueEndpointsTest(ValueEndpointTestBase):
                 self.assert_error(response, 400)
 
     @with_json_client
+    def test_submodel_element_value_get_rejects_list_of_operations(self, format_client: FormatClient):
+        """
+        The elements of a SubmodelElementList are always kept in its ValueOnly representation, so a list of
+        Operations has no ValueOnly representation and must be rejected with ``400``.
+        """
+        submodel = create_example_submodel()
+        submodel.submodel_element.add(
+            model.SubmodelElementList("ExampleOperationList", model.Operation, [model.Operation(None)])
+        )
+        self.object_store.add(submodel)
+
+        response = format_client.get(f"{self.elements_path(submodel.id, 'ExampleOperationList')}/$value")
+
+        self.assert_error(response, 400)
+
+    @with_json_client
+    def test_submodel_element_value_get_rejects_list_of_capabilities(self, format_client: FormatClient):
+        """
+        The elements of a SubmodelElementList are always kept in its ValueOnly representation, so a list of
+        Capabilities has no ValueOnly representation and must be rejected with ``400``.
+        """
+        submodel = create_example_submodel()
+        submodel.submodel_element.add(
+            model.SubmodelElementList("ExampleCapabilityList", model.Capability, [model.Capability(None)])
+        )
+        self.object_store.add(submodel)
+
+        response = format_client.get(f"{self.elements_path(submodel.id, 'ExampleCapabilityList')}/$value")
+
+        self.assert_error(response, 400)
+
+    @with_json_client
     def test_submodel_element_value_get_level_handling(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 
