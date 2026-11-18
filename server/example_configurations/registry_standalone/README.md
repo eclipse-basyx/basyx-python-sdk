@@ -10,10 +10,10 @@ The Registry Service provides the endpoint for a given AAS-ID or Submodel-ID. Su
 
 
 ## Features
-# AAS Registry:
+### AAS Registry
 | Function                                         | Description                                                          | Example URL                                                                                                         |
 |--------------------------------------------------|----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
-| **GetAllAssetAdministrationShellDescriptors**    | Return all AAS descriptor                                            | `GET http://localhost:8083/api/v3.1/shell-descriptors`                                                              |
+| **GetAllAssetAdministrationShellDescriptors**    | Return all AAS descriptors                                           | `GET http://localhost:8083/api/v3.1/shell-descriptors`                                                              |
 | **GetAssetAdministrationShellDescriptorById**    | Return a specific AAS descriptor                                     | `GET http://localhost:8083/api/v3.1/shell-descriptors/{aasIdentifier}`                                              |
 | **PostAssetAdministrationShellDescriptor**       | Register/create a new AAS descriptor                                 | `POST http://localhost:8083/api/v3.1/shell-descriptors`                                                             |
 | **PutAssetAdministrationShellDescriptorById**    | Create or update an existing AAS descriptor                          | `PUT http://localhost:8083/api/v3.1/shell-descriptors/{aasIdentifier}`                                              |
@@ -25,7 +25,7 @@ The Registry Service provides the endpoint for a given AAS-ID or Submodel-ID. Su
 | **DeleteSubmodelDescriptorThroughSuperPath**     | Delete a specific submodel descriptor under AAS descriptor           | `DELETE http://localhost:8083/api/v3.1/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}` |
 | **GetDescription**                               | Return the self‑description of the AAS registry service              | `GET http://localhost:8083/api/v3.1/description`                                                                    |
 
-# Submodel Registry:
+### Submodel Registry
 | Function                         | Description                                                  | Example URL                                                                       |
 |----------------------------------|--------------------------------------------------------------|-----------------------------------------------------------------------------------|
 | **GetAllSubmodelDescriptors**    | Return all submodel descriptors                              | `GET http://localhost:8083/api/v3.1/submodel-descriptors`                         |
