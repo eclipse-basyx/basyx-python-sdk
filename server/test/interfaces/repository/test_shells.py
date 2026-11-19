@@ -6,8 +6,10 @@
 # SPDX-License-Identifier: MIT
 
 import base64
+import io
 import json
 from typing import Iterable
+from unittest import mock
 
 from app.util.converters import base64url_encode
 from basyx.aas import model
@@ -435,6 +437,186 @@ class ShellsEndpointsTest(RepositoryEndpointTestBase):
             "http://example.org/changed_asset",
             retrieved_shell.asset_information.global_asset_id,
         )
+
+    # ------------------------------------------------------------------ /shells/<aas_id>/asset-information/thumbnail
+
+    def _shell_with_thumbnail(self, path: str = "/thumbnail.png") -> model.AssetAdministrationShell:
+        shell = create_example_asset_administration_shell()
+        shell.asset_information.default_thumbnail = (
+            model.Resource(path, "image/png") if path else None
+        )
+        self.object_store.add(shell)
+        return shell
+
+    def _stored_shell(self, shell_id: str) -> model.AssetAdministrationShell:
+        shell = self.object_store.get(shell_id)
+        assert isinstance(shell, model.AssetAdministrationShell)
+        return shell
+
+    @staticmethod
+    def thumbnail_path(shell: model.AssetAdministrationShell) -> str:
+        return f"/shells/{base64url_encode(shell.id)}/asset-information/thumbnail"
+
+    def test_shell_thumbnail_get(self):
+        shell = self._shell_with_thumbnail()
+        self.file_store.write_file.side_effect = lambda name, stream: stream.write(b"png-bytes")
+
+        response = self.client.get(self.thumbnail_path(shell))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("image/png", response.content_type)
+        self.assertEqual(b"png-bytes", response.data)
+        self.file_store.write_file.assert_called_once_with("/thumbnail.png", mock.ANY)
+
+    def test_shell_thumbnail_get_without_thumbnail_returns_404(self):
+        shell = self._shell_with_thumbnail(path="")
+
+        self.assert_error(self.client.get(self.thumbnail_path(shell)), 404)
+
+    def test_shell_thumbnail_get_external_thumbnail_returns_400(self):
+        shell = self._shell_with_thumbnail(path="https://example.org/thumbnail.png")
+
+        self.assert_error(self.client.get(self.thumbnail_path(shell)), 400)
+
+    def test_shell_thumbnail_get_missing_file_returns_404(self):
+        shell = self._shell_with_thumbnail()
+        self.file_store.write_file.side_effect = KeyError
+
+        self.assert_error(self.client.get(self.thumbnail_path(shell)), 404)
+
+    def test_shell_thumbnail_get_unknown_shell_returns_404(self):
+        response = self.client.get(
+            f"/shells/{base64url_encode('https://example.org/unknown')}/asset-information/thumbnail"
+        )
+
+        self.assert_error(response, 404)
+
+    def test_shell_thumbnail_put_success(self):
+        shell = self._shell_with_thumbnail(path="")
+        self.file_store.add_file.return_value = "/thumbnail.png"
+
+        response = self.client.put(
+            self.thumbnail_path(shell),
+            data={"fileName": "/thumbnail.png", "file": (io.BytesIO(b"png-bytes"), "thumbnail.png", "image/png")},
+            content_type="multipart/form-data",
+        )
+
+        self.assertEqual(204, response.status_code)
+        self.file_store.add_file.assert_called_once_with("/thumbnail.png", mock.ANY, "image/png")
+        thumbnail = self._stored_shell(shell.id).asset_information.default_thumbnail
+        assert thumbnail is not None
+        self.assertEqual("/thumbnail.png", thumbnail.path)
+        self.assertEqual("image/png", thumbnail.content_type)
+
+    def test_shell_thumbnail_put_replaces_the_previous_file(self):
+        shell = self._shell_with_thumbnail(path="/old.png")
+        self.file_store.add_file.return_value = "/new.png"
+
+        response = self.client.put(
+            self.thumbnail_path(shell),
+            data={"fileName": "/new.png", "file": (io.BytesIO(b"png-bytes"), "new.png", "image/png")},
+            content_type="multipart/form-data",
+        )
+
+        self.assertEqual(204, response.status_code)
+        self.file_store.delete_file.assert_called_once_with("/old.png")
+        thumbnail = self._stored_shell(shell.id).asset_information.default_thumbnail
+        assert thumbnail is not None
+        self.assertEqual("/new.png", thumbnail.path)
+
+    def test_shell_thumbnail_put_without_content_type_stores_none(self):
+        # A multipart part without a Content-Type header, as some clients send it
+        shell = self._shell_with_thumbnail(path="/old.png")
+        self.file_store.add_file.return_value = "/thumbnail.png"
+        body = (
+            b"--boundary\r\n"
+            b'Content-Disposition: form-data; name="fileName"\r\n\r\n'
+            b"/thumbnail.png\r\n"
+            b"--boundary\r\n"
+            b'Content-Disposition: form-data; name="file"; filename="thumbnail.png"\r\n\r\n'
+            b"png-bytes\r\n"
+            b"--boundary--\r\n"
+        )
+
+        response = self.client.put(
+            self.thumbnail_path(shell), data=body, content_type="multipart/form-data; boundary=boundary"
+        )
+
+        self.assertEqual(204, response.status_code)
+        thumbnail = self._stored_shell(shell.id).asset_information.default_thumbnail
+        assert thumbnail is not None
+        self.assertEqual("/thumbnail.png", thumbnail.path)
+        self.assertIsNone(thumbnail.content_type)
+        self.file_store.add_file.assert_called_once_with("/thumbnail.png", mock.ANY, "application/octet-stream")
+
+    def test_shell_thumbnail_put_invalid_file_name_keeps_the_previous_thumbnail(self):
+        # Longer than the 2048 characters a PathType may have
+        shell = self._shell_with_thumbnail(path="/old.png")
+        file_name = "/" + "a" * 2048
+
+        response = self.client.put(
+            self.thumbnail_path(shell),
+            data={"fileName": file_name, "file": (io.BytesIO(b"png-bytes"), "new.png", "image/png")},
+            content_type="multipart/form-data",
+        )
+
+        self.assert_error(response, 400)
+        self.file_store.add_file.assert_not_called()
+        self.file_store.delete_file.assert_not_called()
+        thumbnail = self._stored_shell(shell.id).asset_information.default_thumbnail
+        assert thumbnail is not None
+        self.assertEqual("/old.png", thumbnail.path)
+
+    def test_shell_thumbnail_put_missing_file_name_returns_400(self):
+        shell = self._shell_with_thumbnail(path="")
+
+        response = self.client.put(
+            self.thumbnail_path(shell),
+            data={"file": (io.BytesIO(b"png-bytes"), "thumbnail.png", "image/png")},
+            content_type="multipart/form-data",
+        )
+
+        self.assert_error(response, 400)
+
+    def test_shell_thumbnail_put_relative_file_name_returns_400(self):
+        shell = self._shell_with_thumbnail(path="")
+
+        response = self.client.put(
+            self.thumbnail_path(shell),
+            data={"fileName": "thumbnail.png", "file": (io.BytesIO(b"png-bytes"), "thumbnail.png", "image/png")},
+            content_type="multipart/form-data",
+        )
+
+        self.assert_error(response, 400)
+
+    def test_shell_thumbnail_put_missing_file_returns_400(self):
+        shell = self._shell_with_thumbnail(path="")
+
+        response = self.client.put(
+            self.thumbnail_path(shell), data={"fileName": "/thumbnail.png"}, content_type="multipart/form-data"
+        )
+
+        self.assert_error(response, 400)
+
+    def test_shell_thumbnail_delete(self):
+        shell = self._shell_with_thumbnail()
+
+        response = self.client.delete(self.thumbnail_path(shell))
+
+        self.assertEqual(204, response.status_code)
+        self.file_store.delete_file.assert_called_once_with("/thumbnail.png")
+        self.assertIsNone(self._stored_shell(shell.id).asset_information.default_thumbnail)
+
+    def test_shell_thumbnail_delete_without_thumbnail_returns_404(self):
+        shell = self._shell_with_thumbnail(path="")
+
+        self.assert_error(self.client.delete(self.thumbnail_path(shell)), 404)
+
+    def test_shell_thumbnail_delete_external_thumbnail_returns_400(self):
+        shell = self._shell_with_thumbnail(path="https://example.org/thumbnail.png")
+
+        self.assert_error(self.client.delete(self.thumbnail_path(shell)), 400)
+        self.file_store.delete_file.assert_not_called()
 
     # ------------------------------------------------------------------ GET /shells/<aas_id>/submodel-refs
 
