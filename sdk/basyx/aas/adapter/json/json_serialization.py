@@ -112,10 +112,15 @@ class AASToJsonEncoder(json.JSONEncoder):
         :param obj: The object to serialize to json
         :return: The serialized object
         """
-        mapping = self._get_aas_class_serializers()
-        for typ in mapping:
+        # Computed once per encoder class, since it is needed for every single object. Look up in __dict__ (not via
+        # getattr), so subclasses don't reuse the serializers of their base class
+        cls = type(self)
+        mapping = cls.__dict__.get("_aas_class_serializers_cache")
+        if mapping is None:
+            mapping = cls._get_aas_class_serializers()
+            setattr(cls, "_aas_class_serializers_cache", mapping)
+        for typ, mapping_method in mapping.items():
             if isinstance(obj, typ):
-                mapping_method = mapping[typ]
                 return mapping_method(obj)
         return super().default(obj)
 
@@ -857,11 +862,11 @@ def write_aas_json_file(
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if an encoder class is specified.
     :param encoder: The encoder class used to encode the JSON objects
-    :param kwargs: Additional keyword arguments to be passed to `json.dump()`
+    :param kwargs: Additional keyword arguments to be passed to `json.dumps()`
     """
     encoder_ = _select_encoder(stripped, encoder)
 
-    # json.dump() only accepts TextIO
+    # we write str, so we need TextIO
     cm: ContextManager[TextIO]
     if isinstance(file, get_args(_generic.Path)):
         # 'file' is a path, needs to be opened first
@@ -876,5 +881,7 @@ def write_aas_json_file(
         cm = contextlib.nullcontext(file)  # type: ignore[arg-type]
 
     # serialize object to json
+    # We use json.dumps() instead of json.dump(), since the latter always uses the (much slower) pure-Python encoder,
+    #   while json.dumps() uses the C-accelerated one. The downside is that the whole JSON string is held in memory.
     with cm as fp:
-        json.dump(_create_dict(data), fp, cls=encoder_, **kwargs)
+        fp.write(json.dumps(_create_dict(data), cls=encoder_, **kwargs))
