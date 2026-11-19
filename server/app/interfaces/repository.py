@@ -627,17 +627,27 @@ class WSGIApp(ObjectStoreWSGIApp):
         if file_storage is None:
             raise BadRequest("Missing file to upload")
 
+        # A part without a Content-Type header has an empty mimetype, but an empty ContentType is invalid
+        content_type = file_storage.mimetype or None
+        # Validate before the file store changes, so that invalid input leaves the current thumbnail intact
+        try:
+            thumbnail = model.Resource(filename, content_type)
+        except ValueError as e:
+            raise BadRequest(str(e)) from e
+        thumbnail.path = self.file_store.add_file(
+            filename, file_storage.stream, content_type or "application/octet-stream"
+        )
+
         old_thumbnail = shell.asset_information.default_thumbnail
-        new_path = self.file_store.add_file(filename, file_storage.stream, file_storage.mimetype)
+        shell.asset_information.default_thumbnail = thumbnail
+        self.object_store.commit(shell)
+        # Delete the previous file only once the shell no longer references it
         if old_thumbnail is not None and old_thumbnail.path and old_thumbnail.path.startswith("/") \
-                and old_thumbnail.path != new_path:
+                and old_thumbnail.path != thumbnail.path:
             try:
                 self.file_store.delete_file(old_thumbnail.path)
             except KeyError:
                 pass
-
-        shell.asset_information.default_thumbnail = model.Resource(new_path, file_storage.mimetype)
-        self.object_store.commit(shell)
         return response_t()
 
     def delete_aas_thumbnail(
