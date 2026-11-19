@@ -21,16 +21,20 @@ TEST_CONFIG.read(
 )
 
 
+def env_flag(name: str) -> bool:
+    """Return whether the environment variable ``name`` is set to "1", "true" or "yes" (case-insensitive)."""
+    return os.environ.get(name, "false").lower() in {"1", "true", "yes"}
+
+
 # By default, the schema validation tests are skipped when the AAS schema files are missing, so that a plain local
 # `python -m unittest` run doesn't require downloading them first. Set this environment variable to "1"/"true"
 # (e.g. in CI) to instead make those tests fail if the files are missing, so a broken download can't silently cause
 # the tests to be skipped without anyone noticing.
-REQUIRE_SCHEMAS = os.environ.get("REQUIRE_SCHEMA_TESTS", "false").lower() in {"1", "true", "yes"}
+REQUIRE_SCHEMAS = env_flag("REQUIRE_SCHEMA_TESTS")
 
-# Set this environment variable, to fail (instead of skip) the CouchDB tests when no CouchDB is reachable
-REQUIRE_COUCHDB_INTEGRATION_TESTS = os.environ.get("REQUIRE_COUCHDB_INTEGRATION_TESTS", "false").lower() in {
-    "1", "true", "yes",
-}
+# Likewise, the CouchDB tests are skipped when no CouchDB is reachable. Set this environment variable to fail them
+# instead.
+REQUIRE_COUCHDB_INTEGRATION_TESTS = env_flag("REQUIRE_COUCHDB_INTEGRATION_TESTS")
 
 # Check if CouchDB database is available. Otherwise, skip tests (unless REQUIRE_COUCHDB_INTEGRATION_TESTS is set).
 try:
@@ -58,3 +62,7 @@ try:
 except urllib.error.URLError as e:
     COUCHDB_OKAY = False
     COUCHDB_ERROR = e
+
+COUCHDB_UNREACHABLE_MESSAGE = "No CouchDB is reachable at {}/{}: {}".format(
+    TEST_CONFIG["couchdb"]["url"], TEST_CONFIG["couchdb"]["database"], COUCHDB_ERROR
+)

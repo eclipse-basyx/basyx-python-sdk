@@ -17,7 +17,7 @@ from contextlib import contextmanager
 
 from basyx.aas import model
 
-from .._helper.test_helpers import COUCHDB_ERROR, COUCHDB_OKAY, TEST_CONFIG
+from .._helper.test_helpers import COUCHDB_OKAY, COUCHDB_UNREACHABLE_MESSAGE, REQUIRE_COUCHDB_INTEGRATION_TESTS
 
 
 class TutorialTest(unittest.TestCase):
@@ -35,16 +35,10 @@ class TutorialTest(unittest.TestCase):
         pass
         # The tutorial already includes assert statements for the relevant points. So no further checks are required.
 
-    @unittest.skipUnless(
-        COUCHDB_OKAY,
-        "No CouchDB is reachable at {}/{}: {}".format(
-            TEST_CONFIG["couchdb"]["url"],
-            TEST_CONFIG["couchdb"]["database"],
-            COUCHDB_ERROR,
-        ),
-    )
+    @unittest.skipUnless(COUCHDB_OKAY or REQUIRE_COUCHDB_INTEGRATION_TESTS, COUCHDB_UNREACHABLE_MESSAGE)
     def test_tutorial_backend_couchdb(self):
-        pass
+        if not COUCHDB_OKAY:
+            self.fail(f"REQUIRE_COUCHDB_INTEGRATION_TESTS is set. {COUCHDB_UNREACHABLE_MESSAGE}")
         # The tutorial already includes assert statements for the relevant points. So no further checks are required.
 
     def test_tutorial_serialization_deserialization_json(self):
