@@ -14,11 +14,11 @@ concurrency:
 
 jobs:
   helper-scripts-static-analysis:
-    #This job runs static code analysis with ruff on the helper scripts in ./etc/scripts
+    #This job runs static code analysis with ruff on the helper scripts in ./etc
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./etc/scripts
+        working-directory: ./etc
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 #v5.1.0
       - uses: ./.github/actions/load-versions
