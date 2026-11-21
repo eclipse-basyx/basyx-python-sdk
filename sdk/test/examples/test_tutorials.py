@@ -17,7 +17,7 @@ from contextlib import contextmanager
 
 from basyx.aas import model
 
-from .._helper.test_helpers import COUCHDB_OKAY, COUCHDB_UNREACHABLE_MESSAGE, REQUIRE_COUCHDB_INTEGRATION_TESTS
+from .._helper.test_helpers import require_couchdb
 
 
 class TutorialTest(unittest.TestCase):
@@ -35,11 +35,10 @@ class TutorialTest(unittest.TestCase):
         pass
         # The tutorial already includes assert statements for the relevant points. So no further checks are required.
 
-    @unittest.skipUnless(COUCHDB_OKAY or REQUIRE_COUCHDB_INTEGRATION_TESTS, COUCHDB_UNREACHABLE_MESSAGE)
     def test_tutorial_backend_couchdb(self):
-        if not COUCHDB_OKAY:
-            self.fail(f"REQUIRE_COUCHDB_INTEGRATION_TESTS is set. {COUCHDB_UNREACHABLE_MESSAGE}")
-        # The tutorial already includes assert statements for the relevant points. So no further checks are required.
+        require_couchdb()
+        # Importing the tutorial runs it. It raises an error if storing or deleting its objects in the CouchDB fails.
+        from basyx.aas.examples import tutorial_backend_couchdb  # noqa: F401
 
     def test_tutorial_serialization_deserialization_json(self):
         with temporary_workingdirectory():
