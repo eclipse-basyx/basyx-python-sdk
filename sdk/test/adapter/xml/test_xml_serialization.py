@@ -60,6 +60,34 @@ class XMLSerializationTest(unittest.TestCase):
         test_file = io.BytesIO()
         write_aas_xml_file(file=test_file, data=test_data)
 
+    def test_submodel_list_elements_idShort_ok(self) -> None:
+        """Verify, that adding SE to a SML does not mess with their idShorts in any serialization"""
+        prop1 = model.Property(id_short=None, value_type=model.datatypes.String, value="WithoutIdShort")
+        prop2 = model.Property(id_short="exampleIdShort", value_type=model.datatypes.String, value="WithIdShort")
+        sml = model.SubmodelElementList(
+            id_short="exampleList",
+            type_value_list_element=model.Property,
+            value_type_list_element=model.datatypes.String,
+            value=[prop1, prop2],
+        )
+
+        xml1 = xml_serialization.object_to_xml_element(prop1)
+        xml2 = xml_serialization.object_to_xml_element(prop2)
+        xml_sml = xml_serialization.object_to_xml_element(sml)
+
+        self.assertIsNone(xml1.find(xml_serialization.NS_AAS + "idShort"))
+        self.assertEqual("exampleIdShort", xml2.findtext(xml_serialization.NS_AAS + "idShort"))
+
+        sml_items = xml_sml.find(xml_serialization.NS_AAS + "value")
+        assert sml_items is not None
+        self.assertIsNone(
+            sml_items[0].find(xml_serialization.NS_AAS + "idShort")
+        )
+        self.assertEqual(
+            "exampleIdShort",
+            sml_items[1].findtext(xml_serialization.NS_AAS + "idShort"),
+        )
+
 
 class XMLSerializationSchemaTest(unittest.TestCase):
     @classmethod
