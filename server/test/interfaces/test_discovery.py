@@ -9,14 +9,13 @@
 Endpoint tests for :class:`~app.interfaces.discovery.DiscoveryAPI`.
 
 The routes follow the *Discovery Service Specification* (SSP-001, "full" profile) from ``aas-specs-api``.
-Where this server deviates from the spec's documented status codes, the test asserts the *implemented*
-behavior and the deviation is called out in a comment.
 
 Requests and responses go through the shared :class:`~..format_utils.JsonFormatClient` (as in
-``test/interfaces/repository/test_shells.py``). Only ``GET /lookup/shells/{aasIdentifier}`` returns
+``test/interfaces/repository/test_shells.py``). ``GET /lookup/shells/{aasIdentifier}`` returns
 AAS model objects (``SpecificAssetId``), so it is additionally run against the XML
-:class:`~..format_utils.FormatClient`; every other route returns plain strings / JSON objects that the
-SDK XML serializer cannot render, so those are JSON only.
+:class:`~..format_utils.FormatClient`. ``POST /lookup/shells/{aasIdentifier}`` also returns
+``SpecificAssetId`` objects but is tested with JSON only; every other route returns plain strings / JSON
+objects that the SDK XML serializer cannot render, so those are JSON only.
 """
 
 import json
@@ -216,12 +215,8 @@ class AssetLinksByIdEndpointTest(DiscoveryEndpointTestBase):
 
     @with_json_client
     @with_xml_client
-    def test_get_unknown_aas_returns_empty(self, format_client: FormatClient) -> None:
-        # Spec allows 404 here; this server returns 200 with an empty collection instead.
-        response = format_client.get(f"/lookup/shells/{base64url_encode(self.UNKNOWN_ID)}")
-
-        self.assertEqual(200, response.status_code, msg=response.get_data(as_text=True))
-        self.assertEqual([], format_client.parse_collection(response))
+    def test_get_unknown_aas_returns_404(self, format_client: FormatClient) -> None:
+        self.assert_error(format_client.get(f"/lookup/shells/{base64url_encode(self.UNKNOWN_ID)}"), 404)
 
     # ------------------------------------------------------------------ POST
 
@@ -232,8 +227,9 @@ class AssetLinksByIdEndpointTest(DiscoveryEndpointTestBase):
         )
 
         self.assertEqual(201, response.status_code, msg=response.get_data(as_text=True))
-        body = self.format_client.parse_object(response)
-        self.assertEqual([("serial", "123")], [(a["name"], a["value"]) for a in body[self.AAS_ID]])
+        self.assertEqual(
+            [("serial", "123")], [(a["name"], a["value"]) for a in self.format_client.parse_collection(response)]
+        )
         self.assertEqual(
             [self.AAS_ID],
             self.format_client.parse_collection(
@@ -249,7 +245,7 @@ class AssetLinksByIdEndpointTest(DiscoveryEndpointTestBase):
         self.assertEqual(201, response.status_code, msg=response.get_data(as_text=True))
         self.assertEqual(
             [("serial", "123")],
-            [(a["name"], a["value"]) for a in self.format_client.parse_object(response)[self.AAS_ID]],
+            [(a["name"], a["value"]) for a in self.format_client.parse_collection(response)],
         )
 
     def test_post_replaces_existing_asset_links(self) -> None:
@@ -262,7 +258,7 @@ class AssetLinksByIdEndpointTest(DiscoveryEndpointTestBase):
         )
 
         self.assertEqual(201, response.status_code, msg=response.get_data(as_text=True))
-        stored = {(a["name"], a["value"]) for a in self.format_client.parse_object(response)[self.AAS_ID]}
+        stored = {(a["name"], a["value"]) for a in self.format_client.parse_collection(response)}
         self.assertEqual({("batch", "xyz")}, stored)
         self.assertEqual(
             [],
@@ -286,10 +282,7 @@ class AssetLinksByIdEndpointTest(DiscoveryEndpointTestBase):
         response = self.format_client.delete(f"/lookup/shells/{base64url_encode(self.AAS_ID)}")
 
         self.assertEqual(204, response.status_code, msg=response.get_data(as_text=True))
-        self.assertEqual(
-            [],
-            self.format_client.parse_object(self.format_client.get(f"/lookup/shells/{base64url_encode(self.AAS_ID)}")),
-        )
+        self.assert_error(self.format_client.get(f"/lookup/shells/{base64url_encode(self.AAS_ID)}"), 404)
         self.assertEqual(
             [],
             self.format_client.parse_collection(

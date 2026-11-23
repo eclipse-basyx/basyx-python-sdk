@@ -200,6 +200,8 @@ class DiscoveryAPI(BaseWSGIApp):
     ) -> Response:
         aas_identifier = str(url_args["aas_id"])
         asset_ids = self.persistent_store.get_all_specific_asset_ids_by_aas_id(aas_identifier)
+        if not asset_ids:
+            raise werkzeug.exceptions.NotFound(f"AAS {aas_identifier!r} has no asset links!")
         return response_t(asset_ids)
 
     def post_all_asset_links_by_id(
@@ -209,8 +211,7 @@ class DiscoveryAPI(BaseWSGIApp):
         specific_asset_ids = HTTPApiDecoder.request_body_list(request, model.SpecificAssetId, False)
         self.persistent_store.delete_specific_asset_ids_by_aas_id(aas_identifier)
         self.persistent_store.add_specific_asset_ids_to_aas(aas_identifier, specific_asset_ids)
-        updated = {aas_identifier: self.persistent_store.get_all_specific_asset_ids_by_aas_id(aas_identifier)}
-        return response_t(updated, status=201)
+        return response_t(self.persistent_store.get_all_specific_asset_ids_by_aas_id(aas_identifier), status=201)
 
     def delete_all_asset_links_by_id(
         self, request: Request, url_args: dict, response_t: Type[APIResponse], **_kwargs

@@ -73,6 +73,7 @@ class DiscoveryDockerIntegrationTest(unittest.TestCase):
         )
         with urllib.request.urlopen(post_request) as response:
             self.assertEqual(201, response.status)
+            self.assertEqual([self.ASSET_LINK], json.loads(response.read()))
 
         with urllib.request.urlopen(aas_asset_links_path) as response:
             self.assertEqual(200, response.status)
@@ -83,6 +84,6 @@ class DiscoveryDockerIntegrationTest(unittest.TestCase):
         with urllib.request.urlopen(delete_request) as response:
             self.assertEqual(204, response.status)
 
-        with urllib.request.urlopen(aas_asset_links_path) as response:
-            self.assertEqual(200, response.status)
-            self.assertEqual([], json.loads(response.read()))
+        with self.assertRaises(urllib.error.HTTPError) as context:
+            urllib.request.urlopen(aas_asset_links_path)
+        self.assertEqual(404, context.exception.code)
