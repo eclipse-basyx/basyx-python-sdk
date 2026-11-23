@@ -329,6 +329,23 @@ class SubmodelElementsValueEndpointsTest(ValueEndpointTestBase):
         self.assert_error(response, 400)
 
     @with_json_client
+    def test_submodel_element_value_get_rejects_nested_list_of_operations(self, format_client: FormatClient):
+        """
+        A SubmodelElementList whose element lists consist of Operations has no ValueOnly representation either and
+        must be rejected with ``400``.
+        """
+        submodel = create_example_submodel()
+        inner_list = model.SubmodelElementList(None, model.Operation, [model.Operation(None)])
+        submodel.submodel_element.add(
+            model.SubmodelElementList("ExampleNestedOperationList", model.SubmodelElementList, [inner_list])
+        )
+        self.object_store.add(submodel)
+
+        response = format_client.get(f"{self.elements_path(submodel.id, 'ExampleNestedOperationList')}/$value")
+
+        self.assert_error(response, 400)
+
+    @with_json_client
     def test_submodel_element_value_get_level_handling(self, format_client: FormatClient):
         submodel = self.add_example_submodel()
 

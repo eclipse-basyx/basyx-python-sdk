@@ -58,6 +58,24 @@ SUPPORTED_PROFILES: ServiceDescription = ServiceDescription(
 TYPES_WITHOUT_METADATA = (model.Capability, model.Operation)
 
 
+def _has_value_only_representation(element: model.SubmodelElement) -> bool:
+    """
+    Determines whether a SubmodelElement, requested directly, can be serialized in the ValueOnly format
+
+    A SubmodelElementList keeps all its elements in the ValueOnly format to preserve their indices, so it has no
+    ValueOnly representation if its elements have none, also when they are nested in further lists. All elements of
+    a list have the type ``type_value_list_element`` (AASd-108), so only lists of lists need to be traversed.
+    """
+    if isinstance(element, TYPES_WITHOUT_VALUE_ONLY):
+        return False
+    if isinstance(element, model.SubmodelElementList):
+        if element.type_value_list_element in TYPES_WITHOUT_VALUE_ONLY:
+            return False
+        if element.type_value_list_element is model.SubmodelElementList:
+            return all(_has_value_only_representation(child) for child in element.value)
+    return True
+
+
 class WSGIApp(ObjectStoreWSGIApp):
     def __init__(
         self,
@@ -777,14 +795,8 @@ class WSGIApp(ObjectStoreWSGIApp):
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
 
         if mods.content is Content.VALUE:
-            if isinstance(submodel_element, TYPES_WITHOUT_VALUE_ONLY):
+            if not _has_value_only_representation(submodel_element):
                 raise BadRequest(f"SubmodelElement {url_args['id_shorts']} has no ValueOnly representation!")
-            elif (isinstance(submodel_element, model.SubmodelElementList)
-                    and submodel_element.type_value_list_element in TYPES_WITHOUT_VALUE_ONLY):
-                raise BadRequest(
-                    f"SubmodelElementList {url_args['id_shorts']} consists of elements "
-                    f"which have no ValueOnly representation!"
-                )
         elif mods.content is Content.PATH:
             # Leaf elements have no Path representation.
             if not isinstance(submodel_element, _PATH_SUPPORTED_TYPES):
