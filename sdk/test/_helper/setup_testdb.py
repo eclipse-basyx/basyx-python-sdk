@@ -13,13 +13,20 @@ the way the tests will expect it. The admin user and password used to do the set
 
     setup_testdb.py -u admin -p admin_password
 
-If no CouchDB server at the configured URL, the script will exit with exit code 1. To avoid the error exit code (for use
-in CI), provide the ``--failsafe`` option.
+If no CouchDB server is reachable at the configured URL, or the test database already exists, the script exits with
+exit code 1, so that CI fails fast if the CouchDB service container isn't healthy. With ``--failsafe``, it exits with
+exit code 0 in both cases instead.
+
+In both cases, the script exits before it creates the test user and adds it to the ``_security`` object of the test
+database. If an earlier run created the database but not the user, the tests cannot log in (``401``): they are
+skipped, or fail if ``REQUIRE_COUCHDB_INTEGRATION_TESTS`` is set. To set up the server again, delete both the test
+database and the test user; the script fails if the user already exists.
 """
 
 import argparse
 import base64
 import configparser
+import http.client
 import json
 import os.path
 import sys
@@ -68,8 +75,8 @@ request = urllib.request.Request(
     TEST_CONFIG["couchdb"]["url"], headers=default_headers, method="HEAD"
 )
 try:
-    urllib.request.urlopen(request)
-except urllib.error.URLError as e:
+    urllib.request.urlopen(request, timeout=5)
+except (OSError, http.client.HTTPException) as e:
     print(
         "Could not reach CouchDB server at {}: {}".format(
             TEST_CONFIG["couchdb"]["url"], e
@@ -85,7 +92,7 @@ request = urllib.request.Request(
     method="HEAD",
 )
 try:
-    urllib.request.urlopen(request)
+    urllib.request.urlopen(request, timeout=5)
 except urllib.error.HTTPError as e:
     if e.code != 404:
         raise
@@ -95,7 +102,7 @@ except urllib.error.HTTPError as e:
             headers=default_headers,
             method="PUT",
         )
-        urllib.request.urlopen(request)
+        urllib.request.urlopen(request, timeout=5)
 
 
 # Create the database if not existing
@@ -105,7 +112,7 @@ request = urllib.request.Request(
     method="PUT",
 )
 try:
-    urllib.request.urlopen(request)
+    urllib.request.urlopen(request, timeout=5)
 except urllib.error.HTTPError as e:
     if e.code == 412:
         # TODO make more failsafe: Delete and recreate database if it exists already
@@ -136,7 +143,7 @@ request = urllib.request.Request(
     ).encode(),
 )
 # TODO make more failsafe: Set password of user if they exist already
-urllib.request.urlopen(request)
+urllib.request.urlopen(request, timeout=5)
 
 
 # Add user as member of database
@@ -154,4 +161,4 @@ request = urllib.request.Request(
         }
     ).encode(),
 )
-urllib.request.urlopen(request)
+urllib.request.urlopen(request, timeout=5)
