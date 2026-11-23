@@ -42,6 +42,8 @@ class ValueOnlyJsonEncoder(AASToJsonEncoder):
           of a Reference, as shown in the Entity example.
         * Non-finite ``xs:double`` and ``xs:float`` values (``NaN``, ``INF``, ``-INF``) are serialized as strings in
           their XSD representation, since JSON numbers cannot represent them.
+        * ``xs:decimal`` values are converted to ``float``, so they are rounded to the nearest IEEE double (see
+          issue #694).
 
     SubmodelElements without a value (e.g. a Property whose value is ``None``) are omitted from their parent, as are
     Operations and Capabilities, which have no ValueOnly representation. Elements of a SubmodelElementList are always
