@@ -378,22 +378,6 @@ class WSGIApp(ObjectStoreWSGIApp):
             strict_slashes=False,
         )
 
-    # TODO: the parameters can be typed via builtin wsgiref with Python 3.11+
-    def __call__(self, environ, start_response) -> Iterable[bytes]:
-        response: Response = self.handle_request(Request(environ))
-        return response(environ, start_response)
-
-    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[T]) -> T:
-        identifiable = self.object_store.get(identifier)
-        if not isinstance(identifiable, type_):
-            raise NotFound(f"No {type_.__name__} with {identifier} found!")
-        return identifiable
-
-    def _get_all_obj_of_type(self, type_: Type[T]) -> Iterator[T]:
-        for obj in self.object_store:
-            if isinstance(obj, type_):
-                yield obj
-
     def _resolve_reference(self, reference: model.ModelReference[model.base._RT]) -> model.base._RT:
         try:
             return reference.resolve(self.object_store)
