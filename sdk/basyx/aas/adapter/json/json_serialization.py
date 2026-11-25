@@ -325,10 +325,8 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        if obj.value:
-            data["value"] = (
-                model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
-            )
+        if obj.value is not None:
+            data["value"] = model.datatypes.xsd_repr(obj.value)
         if obj.value_id:
             data["valueId"] = obj.value_id
         # Even though kind is optional in the schema, it's better to always serialize it instead of specifying
@@ -347,10 +345,8 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        if obj.value:
-            data["value"] = (
-                model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
-            )
+        if obj.value is not None:
+            data["value"] = model.datatypes.xsd_repr(obj.value)
         if obj.refers_to:
             data["refersTo"] = sorted(obj.refers_to, key=_ordering.reference_sort_key)
         if obj.value_type:
