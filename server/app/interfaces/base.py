@@ -579,6 +579,18 @@ class HTTPApiDecoder:
         return cls.assert_type(rv, expect_type)
 
     @classmethod
+    def _check_request_body_content_type(cls, request: Request):
+        """
+        Raise and exception if the request body content type is different from expected.
+        """
+        valid_content_types = ("application/json", "application/xml", "text/xml")
+
+        if request.mimetype not in valid_content_types:
+            raise werkzeug.exceptions.UnsupportedMediaType(
+                f"Invalid content-type: {request.mimetype}! Supported types: " + ", ".join(valid_content_types)
+            )
+
+    @classmethod
     def request_body(cls, request: Request, expect_type: Type[T], stripped: bool) -> T:
         """
         TODO: werkzeug documentation recommends checking the content length before retrieving the body to prevent
@@ -588,12 +600,7 @@ class HTTPApiDecoder:
             In the meeting (25.11.2020) we discussed, this may refer to a reverse proxy in front of this WSGI app,
             which should limit the maximum content length.
         """
-        valid_content_types = ("application/json", "application/xml", "text/xml")
-
-        if request.mimetype not in valid_content_types:
-            raise werkzeug.exceptions.UnsupportedMediaType(
-                f"Invalid content-type: {request.mimetype}! Supported types: " + ", ".join(valid_content_types)
-            )
+        cls._check_request_body_content_type(request)
 
         if request.mimetype == "application/json":
             return cls.json(request.get_data(), expect_type, stripped)
@@ -605,13 +612,7 @@ class HTTPApiDecoder:
         Deserializes the request body to an instance (or list of instances)
         of the expected type.
         """
-        # TODO: Refactor this method and request_body to avoid code duplication
-        valid_content_types = ("application/json", "application/xml", "text/xml")
-
-        if request.mimetype not in valid_content_types:
-            raise werkzeug.exceptions.UnsupportedMediaType(
-                f"Invalid content-type: {request.mimetype}! Supported types: " + ", ".join(valid_content_types)
-            )
+        cls._check_request_body_content_type(request)
 
         if request.mimetype == "application/json":
             raw_data = request.get_data()
@@ -619,23 +620,14 @@ class HTTPApiDecoder:
                 parsed = json.loads(raw_data)
             except Exception as e:
                 raise werkzeug.exceptions.BadRequest(f"Invalid JSON: {e}")
-            # Prüfe, ob parsed ein Array ist:
-            if isinstance(parsed, list):
-                # Für jedes Element wird die Konvertierung angewandt.
-                return [cls._convert_single_json_item(item, expect_type, stripped) for item in parsed]  # type: ignore
-            else:
-                return [cls._convert_single_json_item(parsed, expect_type, stripped)]
-        else:
-            return [cls.xml(request.get_data(), expect_type, stripped)]
+            # Check if parsed is a list. Accordingly, expect_single is
+            # - True if parsed is *not* a list
+            # - False if parsed is a list
+            expect_single = not isinstance(parsed, list)
+            res = cls.json_list(raw_data, expect_type, stripped, expect_single)
+            return res
 
-    @classmethod
-    def _convert_single_json_item(cls, data: Any, expect_type: Type[T], stripped: bool) -> T:
-        """
-        Converts a single JSON-Object (as a Python-Dict) to an object of type expect_type.
-        Here the dictionary is first serialized back to a JSON-string and returned as bytes.
-        """
-        json_bytes = json.dumps(data).encode("utf-8")
-        return cls.json(json_bytes, expect_type, stripped)
+        return [cls.xml(request.get_data(), expect_type, stripped)]
 
 
 def is_stripped_request(request: Request) -> bool:

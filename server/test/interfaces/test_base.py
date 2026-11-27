@@ -17,7 +17,8 @@ from app.interfaces import base
 from basyx.aas import model
 from basyx.aas.adapter._generic import XML_NS_MAP
 from lxml import etree
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import BadRequest, UnsupportedMediaType
+from werkzeug.test import EnvironBuilder
 
 
 class TestPagination(unittest.TestCase):
@@ -316,3 +317,18 @@ class TestJsonReferenceResponse(unittest.TestCase):
         for ref in result:
             self.assertEqual({"keys", "type"}, ref.keys())
             self.assertGreater(len(ref["keys"]), 0)
+
+class TestHTTPApiDecoder(unittest.TestCase):
+    def test__check_request_body_content_type(self):
+        builder = EnvironBuilder(content_type="text/html")
+        with self.assertRaises(UnsupportedMediaType):
+            base.HTTPApiDecoder._check_request_body_content_type(builder.get_request())
+
+        builder = EnvironBuilder(content_type="application/json")
+        base.HTTPApiDecoder._check_request_body_content_type(builder.get_request())
+
+        builder = EnvironBuilder(content_type="application/xml")
+        base.HTTPApiDecoder._check_request_body_content_type(builder.get_request())
+
+        builder = EnvironBuilder(content_type="text/xml")
+        base.HTTPApiDecoder._check_request_body_content_type(builder.get_request())
