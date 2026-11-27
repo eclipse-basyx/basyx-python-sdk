@@ -144,6 +144,10 @@ class Submodel(
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
 
+    submodel_element: "base.NamespaceSetAttribute[SubmodelElement]" = (
+        base.NamespaceSetAttribute()
+    )
+
     def __init__(
         self,
         id_: base.Identifier,
@@ -730,6 +734,8 @@ class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace):
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
 
+    value: "base.NamespaceSetAttribute[SubmodelElement]" = base.NamespaceSetAttribute()
+
     def __init__(
         self,
         id_short: Optional[base.NameType],
@@ -757,9 +763,7 @@ class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace):
             supplemental_semantic_id,
             embedded_data_specifications,
         )
-        self.value: base.NamespaceSet[SubmodelElement] = base.NamespaceSet(
-            self, [("id_short", True)], value
-        )
+        self.value = base.NamespaceSet(self, [("id_short", True)], value)
 
 
 _SE = TypeVar("_SE", bound=SubmodelElement)
@@ -1105,6 +1109,8 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
 
+    annotation: "base.NamespaceSetAttribute[DataElement]" = base.NamespaceSetAttribute()
+
     def __init__(
         self,
         id_short: Optional[base.NameType],
@@ -1181,6 +1187,10 @@ class Operation(SubmodelElement, base.UniqueIdShortNamespace):
                                     :class:`~basyx.aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
+    input_variable: "base.NamespaceSetAttribute[SubmodelElement]" = base.NamespaceSetAttribute()
+    output_variable: "base.NamespaceSetAttribute[SubmodelElement]" = base.NamespaceSetAttribute()
+    in_output_variable: "base.NamespaceSetAttribute[SubmodelElement]" = base.NamespaceSetAttribute()
 
     def __init__(
         self,
@@ -1320,6 +1330,8 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                                     :class:`~basyx.aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
+    statement: "base.NamespaceSetAttribute[SubmodelElement]" = base.NamespaceSetAttribute()
 
     def __init__(
         self,
